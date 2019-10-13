@@ -18,10 +18,10 @@ Creating Event class, creating dummy events and displaying them in a /showevent 
 # For now / renders the login.html template which is the login screen if you are not already logged in
 @app.route('/')
 def home():
-    if not session.get('logged_in'):
-        return render_template('login.html')
-    else:
-        return "Hello Boss! <a href='/logout'>Logout</a>"
+	if not session.get('logged_in'):
+		return render_template('login.html', page_title='CSIT214 Group Work')
+	else:
+		return "Hello Boss! <a href='/logout'>Logout</a>"
 
 # This function checks if the entered username and password is valid or not from the entries
 # POST_U/P is received from the form's input elements by it's NAME (presumably, not sure)
