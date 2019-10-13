@@ -1,4 +1,4 @@
-from flask import Flask, flash, redirect, render_template, request, session, abort
+from flask import Flask, flash, redirect, render_template, request, session, abort, url_for
 import os
 from sqlalchemy.orm import sessionmaker
 from database_table_definitions import *
@@ -30,23 +30,23 @@ def home():
 # This function is invoked via a form action='/login' in the html with the use of a input type=submit
 @app.route('/login', methods=['POST'])
 def do_admin_login():
-    POST_USERNAME = str(request.form['username'])
-    POST_PASSWORD = str(request.form['password'])
-    Session = sessionmaker(bind=engine)
-    s = Session()
-    query = s.query(User).filter(User.username.in_([POST_USERNAME]), User.password.in_([POST_PASSWORD]))
-    result = query.first()
-    if result:
-        session['logged_in'] = True
-    else:
-        flash('wrong password!')
-    return home()
+	POST_USERNAME = str(request.form['username'])
+	POST_PASSWORD = str(request.form['password'])
+	Session = sessionmaker(bind=engine)
+	s = Session()
+	query = s.query(User).filter(User.username.in_([POST_USERNAME]), User.password.in_([POST_PASSWORD]))
+	result = query.first()
+	if result:
+		session['logged_in'] = True
+	else:
+		flash('wrong password!')
+	return redirect(url_for('home'))
 
 
 @app.route("/logout")
 def logout():
     session['logged_in'] = False
-    return home()
+    return redirect(url_for('home'))
 
 if __name__ == "__main__":
     app.secret_key = os.urandom(12) #No idea what this does for now
