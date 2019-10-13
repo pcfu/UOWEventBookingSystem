@@ -42,12 +42,15 @@ def do_admin_login():
 		flash('wrong password!')
 	return redirect(url_for('home'))
 
-
-@app.route("/logout")
+@app.route('/logout')
 def logout():
     session['logged_in'] = False
     return redirect(url_for('home'))
 
-if __name__ == "__main__":
+@app.route('/register')
+def register():
+	return render_template('register.html', page_title='Account Registration')
+
+if __name__ == '__main__':
     app.secret_key = os.urandom(12) #No idea what this does for now
     app.run(debug=True, port=4000)

@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{% block body %}
+
+<div class='title-banner'>Register a new account</div>
+<form action='/placeholder' method='POST'>
+  <div class='login'>
+    <div class="login-screen">
+	  <table>
+		<tr><td>username:</td><td><input name='username' type='TEXT'></td></tr>
+		<tr><td>password:</td><td><input name='password' type='TEXT'></td></tr>
+		<tr><td>confirm password:</td><td><input name='confirm-pw' type='TEXT'></td></tr>
+	  </table>
+      <input type='submit' value='register' class='btn btn-primary btn-large btn-block'>
+	</div>
+  </div>
+</form>
+
+{% endblock %}
