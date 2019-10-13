@@ -1,5 +1,6 @@
-from flask import Flask, flash, redirect, render_template, request, session, abort, url_for
 import os
+import account
+from flask import Flask, flash, redirect, render_template, request, session, abort, url_for
 from sqlalchemy.orm import sessionmaker
 from database_table_definitions import *
 
@@ -44,8 +45,8 @@ def do_admin_login():
 
 @app.route('/logout')
 def logout():
-    session['logged_in'] = False
-    return redirect(url_for('home'))
+	session['logged_in'] = False
+	return redirect(url_for('home'))
 
 @app.route('/register')
 def register():
@@ -56,25 +57,17 @@ def authenticate():
 	USERNAME = str(request.form['username'])
 	PASSWORD = str(request.form['password'])
 	CONFIRM_PW = str(request.form['confirm-pw'])
-	if len(USERNAME) == 0:
-		flash('Please enter a username')
-		return redirect(url_for('register'))
-	elif PASSWORD != CONFIRM_PW:
-		flash('Passwords do not match')
+
+	session = sessionmaker(bind=engine)
+	error = account.validate(USERNAME, PASSWORD, CONFIRM_PW, session())
+	if error:
+		flash(error)
 		return redirect(url_for('register'))
 	else:
-		#check if db already has username
-		Session = sessionmaker(bind=engine)
-		s = Session()
-		query = s.query(User).filter(User.username.in_([USERNAME]))
-		result = query.first()
-
-		if result:
-			flash('An account with this username has already been created')
-		else:
-			flash('Account registered. Welcome ' + USERNAME + '!')
-			#add user to db
+		account.create_acct(USERNAME, PASSWORD, session())
+		flash('Account registered. Welcome ' + USERNAME + '!')
 		return redirect(url_for('home'))
+
 
 if __name__ == '__main__':
     app.secret_key = os.urandom(12) #No idea what this does for now
