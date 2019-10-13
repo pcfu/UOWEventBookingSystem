@@ -1,0 +1,8 @@
+Perhaps the account registration page should only service public users.
+
+Admin account creation should not be available to the general public.
+Instead, we can create an add_admin_acct.py module, and db administrator
+can call this from CLI to add new admin users.
+
+Not sure if this is the proper way to implement it. But it seems more secure,
+as creation privilege is much more limited
