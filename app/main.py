@@ -3,7 +3,7 @@ import os
 from sqlalchemy.orm import sessionmaker
 from database_table_definitions import *
 
-engine = create_engine('sqlite:///csit214_database.db', echo=True)
+engine = create_engine('sqlite:///app/csit214_database.db', echo=True)
 app = Flask(__name__)
 
 """

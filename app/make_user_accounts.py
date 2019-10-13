@@ -9,7 +9,7 @@ Only have to run 1 time to create the below sample user objects into the .db fil
 
 Eventually there might or might not have some sort of user creation function
 """
-engine = create_engine('sqlite:///csit214_database.db', echo=True)
+engine = create_engine('sqlite:///app/csit214_database.db', echo=True)
 
 # create a Session
 Session = sessionmaker(bind=engine)

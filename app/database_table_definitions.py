@@ -14,7 +14,7 @@ In the near future i think there will be an Event class to create events
 The classes here are defined and invoked in other files - for now make_user_accounts imports this and creates User objs
 """
 
-engine = create_engine('sqlite:///csit214_database.db', echo=True)
+engine = create_engine('sqlite:///app/csit214_database.db', echo=True)
 Base = declarative_base()
 
 ########################################################################
