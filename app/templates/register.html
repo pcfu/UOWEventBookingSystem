@@ -3,7 +3,7 @@
 {% block body %}
 
 <div class='title-banner'>Register a new account</div>
-<form action='/placeholder' method='POST'>
+<form action='/auth' method='POST'>
   <div class='login'>
     <div class="login-screen">
 	  <table>
@@ -15,5 +15,15 @@
 	</div>
   </div>
 </form>
+
+{% with messages = get_flashed_messages() %}
+{% if messages %}
+<ul class=flashes>
+  {% for message in messages %}
+  <p>{{message}}</p>
+  {% endfor %}
+</ul>
+{% endif %}
+{% endwith %}
 
 {% endblock %}

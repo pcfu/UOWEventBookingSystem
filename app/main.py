@@ -3,7 +3,7 @@ import os
 from sqlalchemy.orm import sessionmaker
 from database_table_definitions import *
 
-engine = create_engine('sqlite:///csit214_database.db', echo=True)
+#engine = create_engine('sqlite:///csit214_database.db', echo=True)
 app = Flask(__name__)
 
 """
@@ -50,6 +50,31 @@ def logout():
 @app.route('/register')
 def register():
 	return render_template('register.html', page_title='Account Registration')
+
+@app.route('/auth', methods=['POST'])
+def authenticate():
+	USERNAME = str(request.form['username'])
+	PASSWORD = str(request.form['password'])
+	CONFIRM_PW = str(request.form['confirm-pw'])
+	if len(USERNAME) == 0:
+		flash('Please enter a username')
+		return redirect(url_for('register'))
+	elif PASSWORD != CONFIRM_PW:
+		flash('Passwords do not match')
+		return redirect(url_for('register'))
+	else:
+		#check if db already has username
+		Session = sessionmaker(bind=engine)
+		s = Session()
+		query = s.query(User).filter(User.username.in_([USERNAME]))
+		result = query.first()
+
+		if result:
+			flash('An account with this username has already been created')
+		else:
+			flash('Account registered. Welcome ' + USERNAME + '!')
+			#add user to db
+		return redirect(url_for('home'))
 
 if __name__ == '__main__':
     app.secret_key = os.urandom(12) #No idea what this does for now
