@@ -7,16 +7,6 @@ from app.database_table_definitions import *
 #engine = create_engine('sqlite:///csit214_database.db', echo=True)
 app = Flask(__name__)
 
-"""
-All the routes are kinda like url, so if /login -> localhost:4000/login
-For now this program allows you to create users and store it in a csit214_database.db file and allows logging in
-if the entered credentials are correct
-
-Todo implementations are -
-Creating Event class, creating dummy events and displaying them in a /showevent page or something
-"""
-
-
 # For now / renders the login.html template which is the login screen if you are not already logged in
 @app.route('/')
 def home():
