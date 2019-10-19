@@ -18,8 +18,6 @@
             <span style="color: red;">[{{ error }}]</span>
             {% endfor %}
         </p>
-        <p>{{ form.remember_me.label }} {{ form.remember_me() }}</p>
         <p class="btn">{{ form.submit() }}</p>
     </form>
-    <a href="{{ url_for('register') }}">Register</a>
 {% endblock %}

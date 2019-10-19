@@ -1,44 +1,30 @@
-{% extends 'base.html' %}
+{% include "base.html" %} <!-- if i use extends form doesnt appear -->
+{% block content %}
 
-{% block body %}
-
-<div class='title-banner'>Register a new account</div>
-<form action='/auth' method='POST'>
-  <div class='login'>
-    <div class="login-screen">
-	  <table>
-		<tr>
-            <td>username:</td>
-            <td>
-                <input name='username' type='TEXT'>
-            </td>
-        </tr>
-		<tr>
-            <td>password:</td>
-            <td>
-                <input name='password' type='password'></td>
-        </tr>
-		<tr>
-            <td>confirm password:</td>
-            <td>
-                <input name='confirm-pw' type='password'>
-            </td>
-        </tr>
-	  </table>
-      <input type='submit' value='register' class='btn btn-primary btn-large btn-block'>
-	  <center><a href='/'>Back to login</a></center>
-	</div>
-  </div>
-</form>
-
-{% with messages = get_flashed_messages() %}
-{% if messages %}
-<ul class=flashes>
-  {% for message in messages %}
-  <p>{{message}}</p>
-  {% endfor %}
-</ul>
-{% endif %}
-{% endwith %}
-
+    <h1>Register</h1>
+    <form action="" method="post" novalidate>
+        {{ form.hidden_tag() }}
+        <p>
+            {{ form.username.label }}<br>
+            {{ form.username(size=32) }}<br>
+            {% for error in form.username.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.password.label }}<br>
+            {{ form.password(size=32) }}<br>
+            {% for error in form.password.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.confirm_password.label }}<br>
+            {{ form.confirm_password(size=32) }}<br>
+            {% for error in form.confirm_password.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+        <p class="btn">{{ form.submit() }}</p>
+    </form>
 {% endblock %}

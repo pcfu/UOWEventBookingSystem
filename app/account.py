@@ -1,6 +1,6 @@
 from flask import session
 from sqlalchemy.orm import sessionmaker
-from app.database_table_definitions import *
+from app.models import *
 
 
 def validate(name: str, passwd: str, confirm_pw: str, session: session) -> str:
