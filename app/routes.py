@@ -5,11 +5,23 @@ from flask_login import current_user, login_user, logout_user
 from app.models import User, Staff
 
 # url_for will ALWAYS be function name
+"""
+Now because of User and Staff being 2 different tables but with the same primary key counter
+i.e. User has ID1 and so does Staff, the login authentication fails in the sense that admin will be able to access
+admin page via url insertion. 
 
+User login returns you to some temp page, while Staff login returns you to the dashboard for Flask_Admin
+however, flask_login determines the user to be user1 regardless of admin or user because user.loader queries for User table
+so meaning to say user2 with ID2, and admin2 with ID2 - if logged in as admin2, flask_login identifies you as user2
+
+There is also an issue with circular inclusion in models.py which i have explained there
+For now the NewEventForm and new event routes are not required anymore because Flask_Admin allows us to create new rows in the DB
+"""
 
 @app.route('/')
 @app.route('/index')
 def index():
+	print(current_user)
 	return render_template('index.html')
 
 
@@ -68,16 +80,13 @@ def staff_login():
 		# if login is successful, return staff to 'index'
 		login_user(staff)
 		flash('logged in as: {}'.format(staff.username))
-		return redirect(url_for('staff_home'))
+		return redirect(url_for('admin.index')) #redirects to admin page using flask_admin(endpoint=admin)
 	# renders this when called
 	return render_template('staff_login.html', title='Admin Sign In', form=form)
 
-@app.route('/staff_home')
-def staff_home():
-	return render_template('staff_home.html')
 
+#obsolete for now
 @app.route('/new_event')
 def new_event():
 	new_event_form = NewEventForm()
-	print(current_user)
 	return render_template('event/new.html', form=new_event_form)

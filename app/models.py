@@ -1,11 +1,13 @@
 from sqlalchemy import ForeignKey
-from app import db, login_manager
+from app import db, login_manager, admin
 from flask_login import UserMixin
+from flask_admin.contrib.sqla import ModelView
 
 
-@login_manager.user_loader
+
+@login_manager.user_loader()
 def load_user(id):
-    return User.query.get(int(id)) or Staff.query.get(int(id))
+    return User.query.get(int(id))
 
 
 class User(UserMixin, db.Model):
@@ -72,3 +74,8 @@ class Booking(db.Model):
 
     def __repr__(self):
         return "Booking No: {}\nUserID: {}".format(self.booking_no, self.user_id)
+
+
+# this is supposed to be placed inside __init__ but because of circular inclusion for models and init i cant do it
+admin.add_view(ModelView(User, db.session))
+admin.add_view(ModelView(Event, db.session))
