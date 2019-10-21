@@ -85,6 +85,10 @@ def staff_login():
 	return render_template('staff_login.html', title='Admin Sign In', form=form)
 
 
+@app.route('/event')
+def show_events():
+	return render_template('event.html')
+
 #obsolete for now
 @app.route('/new_event')
 def new_event():

@@ -1,25 +1,24 @@
 {% include "base.html" %} <!-- if i use extends form doesnt appear -->
 {% block content %}
 
-    <h1>Sign In</h1>
-    <form action="" method="post" novalidate>
-        {{ form.hidden_tag() }}
-        <p>
-            {{ form.username.label }}<br>
-            {{ form.username(size=32) }}<br>
-            {% for error in form.username.errors %}
-            <span style="color: red;">[{{ error }}]</span>
-            {% endfor %}
-        </p>
-        <p>
-            {{ form.password.label }}<br>
-            {{ form.password(size=32) }}<br>
-            {% for error in form.password.errors %}
-            <span style="color: red;">[{{ error }}]</span>
-            {% endfor %}
-        </p>
-        <p>{{ form.remember_me.label }} {{ form.remember_me() }}</p>
-        <p class="btn">{{ form.submit() }}</p>
-    </form>
-    <a href="{{ url_for('register') }}">Register</a>
+<br><h1 class="center">Sign In</h1><br>
+<form action="" method="post" novalidate>
+    {{ form.hidden_tag() }}
+    {{ form.username.label(class_='center') }}<br>
+    <div class="center">{{ form.username(size=32) }}</div><br>
+    {% for error in form.username.errors %}
+    <span class="center" style="color: red;">[{{ error }}]</span><br>
+    {% endfor %}
+
+    {{ form.password.label(class_='center') }}<br>
+    <div class="center">{{ form.password(size=32) }}</div><br>
+    {% for error in form.password.errors %}
+    <span class ="center" style="color: red;">[{{ error }}]</span><br>
+    {% endfor %}
+
+     <div style="padding-left: 6.5%;" class="center">{{ form.remember_me.label() }}{{ form.remember_me() }}</div><br>
+    {{ form.submit(class_='signin-btn btn') }}
+</form>
+<br>
+<a href="{{ url_for('register') }}" class="signin-btn btn" role="button">Register</a>
 {% endblock %}
