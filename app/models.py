@@ -39,16 +39,20 @@ class Staff(UserMixin, db.Model):
     def get_id(self):
         return self.staff_id
 
+
 class Event(db.Model):
     __tablename__ = 'event'
     event_id = db.Column(db.Integer, primary_key=True)
     event_title = db.Column(db.String, nullable=False)
     venue = db.Column(db.String, nullable=False)
+    date_start = db.Column(db.DateTime)
+    date_end = db.Column(db.DateTime)
     capacity = db.Column(db.Integer)
     type = db.Column(db.String)
     description = db.Column(db.String)
     created_by = db.Column(db.Integer, ForeignKey('staff.staff_id'))
     price = db.Column(db.Integer)
+
 
     def __repr__(self):
         return "Event ID: {}\n" \
