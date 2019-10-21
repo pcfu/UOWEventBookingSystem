@@ -2,7 +2,7 @@ from app import app, db
 from flask import render_template, flash, redirect, url_for
 from app.forms import LoginForm, RegistrationForm, NewEventForm
 from flask_login import current_user, login_user, logout_user
-from app.models import User, Staff
+from app.models import User, Staff, Event
 
 # url_for will ALWAYS be function name
 """
@@ -87,7 +87,8 @@ def staff_login():
 
 @app.route('/event')
 def show_events():
-	return render_template('event.html')
+	data = Event.query.all()
+	return render_template('event.html', rows=data)
 
 #obsolete for now
 @app.route('/new_event')
