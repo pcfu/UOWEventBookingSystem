@@ -21,7 +21,6 @@ For now the NewEventForm and new event routes are not required anymore because F
 @app.route('/')
 @app.route('/index')
 def index():
-	print(current_user)
 	return render_template('index.html')
 
 
@@ -33,15 +32,8 @@ def user_login():
 
 	form = LoginForm()
 	if form.validate_on_submit():
-		# Verify username and password
-		user = User.query.filter_by(username=form.username.data).first()
-		if user is None:
-			flash('Invalid username')
-			return redirect(url_for('user_login'))
-		elif not user.check_password(form.password.data):
-			flash('Incorrect password')
-			return redirect(url_for('user_login'))
 		# if login is successful, return user to 'index'
+		user = User.query.filter_by(username=form.username.data).first()
 		login_user(user, remember=form.remember_me.data)
 		return redirect(url_for('index'))
 
@@ -57,16 +49,19 @@ def logout():
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
-	registration_form = RegistrationForm()
+	# if already logged in redirect to homepage
 	if current_user.is_authenticated:
 		return redirect(url_for('index'))
-	if registration_form.validate_on_submit():
-		user = User(username=registration_form.username.data, password=registration_form.password.data)
+
+	form = RegistrationForm()
+	if form.validate_on_submit():
+		user = User(username=form.username.data, email=form.email.data)
+		user.set_password(form.password.data)
 		db.session.add(user)
 		db.session.commit()
-		flash('User created: {}'.format(user.username))
+		login_user(user)
 		return redirect(url_for('index'))
-	return render_template('register.html', page_title='Account Registration', form=registration_form)
+	return render_template('register.html', page_title='Account Registration', form=form)
 
 
 @app.route('/staff_login', methods=['GET', 'POST'])
