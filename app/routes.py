@@ -21,7 +21,7 @@ For now the NewEventForm and new event routes are not required anymore because F
 @app.route('/')
 @app.route('/index')
 def index():
-	return render_template('index.html')
+	return render_template('index.html', title='Events Booking System')
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -86,7 +86,7 @@ def register():
 @app.route('/event')
 def show_events():
 	data = Event.query.all()
-	return render_template('event.html', rows=data)
+	return render_template('event.html', title='Events', rows=data)
 
 #obsolete for now
 @app.route('/new_event')
