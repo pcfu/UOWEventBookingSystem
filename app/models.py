@@ -1,8 +1,8 @@
 from sqlalchemy import ForeignKey
 from app import db, login_manager, admin
+from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin
 from flask_admin.contrib.sqla import ModelView
-
 
 
 @login_manager.user_loader
@@ -11,25 +11,29 @@ def load_user(id):
 
 
 class User(UserMixin, db.Model):
-    __tablename__ = 'user'
-    user_id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(20), unique=True, nullable=False)
-    password = db.Column(db.String, nullable=False)
-    email = db.Column(db.String(255), unique=True)
+	user_id = db.Column(db.Integer, primary_key=True)
+	username = db.Column(db.String(20), index=True, unique=True, nullable=False)
+	email = db.Column(db.String(255), index=True, unique=True, nullable=False)
+	password_hash = db.Column(db.String(255))
 
     # This is a replacement for tostring
-    def __repr__(self):
-        return '<Username: {}>'.format(self.username)
+	def __repr__(self):
+		return '<Username: {}>'.format(self.username)
 
-    def get_id(self):
-        return self.user_id
+	def get_id(self):
+		return self.user_id
+
+	def set_password(self, password):
+		self.password_hash = generate_password_hash(password)
+
+	def check_password(self, password):
+		return check_password_hash(self.password_hash, password)
 
 
 class Staff(UserMixin, db.Model):
-    __tablename__ = 'staff'
     staff_id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(20), unique=True, nullable=False)
-    password = db.Column(db.String, nullable=False)
+    password = db.Column(db.String, nullable=True)
     email = db.Column(db.String(255), unique=True)
     events = db.relationship('Event', backref='creator', lazy='dynamic')
 
@@ -41,7 +45,6 @@ class Staff(UserMixin, db.Model):
 
 
 class Event(db.Model):
-    __tablename__ = 'event'
     event_id = db.Column(db.Integer, primary_key=True)
     event_title = db.Column(db.String, nullable=False)
     venue = db.Column(db.String, nullable=False)
@@ -61,7 +64,6 @@ class Event(db.Model):
 
 
 class EventSlot(db.Model):
-    __tablename__ = 'eventslot'
     event_id = db.Column(db.Integer, ForeignKey('event.event_id'), primary_key=True)
     event_date = db.Column(db.DateTime, primary_key=True)
 
@@ -73,7 +75,7 @@ class Booking(db.Model):
     booking_no = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, ForeignKey('user.user_id'), unique=True)
     event_id = db.Column(db.Integer, ForeignKey('event.event_id'), unique=True)
-    event_date = db.Column(db.DateTime, ForeignKey('eventslot.event_date'), unique=True)
+    event_date = db.Column(db.DateTime, ForeignKey('event_slot.event_date'), unique=True)
     quantity = db.Column(db.Integer, nullable=False)
 
     def __repr__(self):

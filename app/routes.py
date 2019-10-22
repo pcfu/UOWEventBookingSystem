@@ -8,7 +8,7 @@ from app.models import User, Staff, Event
 """
 Now because of User and Staff being 2 different tables but with the same primary key counter
 i.e. User has ID1 and so does Staff, the login authentication fails in the sense that admin will be able to access
-admin page via url insertion. 
+admin page via url insertion.
 
 User login returns you to some temp page, while Staff login returns you to the dashboard for Flask_Admin
 however, flask_login determines the user to be user1 regardless of admin or user because user.loader queries for User table
@@ -28,20 +28,24 @@ def index():
 @app.route('/login', methods=['GET', 'POST'])
 def user_login():
 	# if already logged in redirect to homepage
-	form = LoginForm()
 	if current_user.is_authenticated:
 		return redirect(url_for('index'))
-	# if submit is selected on form - checks if user exist in database
+
+	form = LoginForm()
 	if form.validate_on_submit():
+		# Verify username and password
 		user = User.query.filter_by(username=form.username.data).first()
-		if user is None: #or not user.check_password(form.password.data):
-			flash('Invalid username or password')
+		if user is None:
+			flash('Invalid username')
+			return redirect(url_for('user_login'))
+		elif not user.check_password(form.password.data):
+			flash('Incorrect password')
 			return redirect(url_for('user_login'))
 		# if login is successful, return user to 'index'
 		login_user(user, remember=form.remember_me.data)
-		flash('logged in as: {}'.format(user.username))
 		return redirect(url_for('index'))
-	# renders this when called
+
+	# render login page
 	return render_template('login.html', title='Sign In', form=form)
 
 
