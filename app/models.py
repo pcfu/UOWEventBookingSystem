@@ -6,8 +6,11 @@ from flask_admin.contrib.sqla import ModelView
 
 
 @login_manager.user_loader
-def load_user(id):
-    return User.query.get(int(id))
+def load_user(entry):
+	if entry[0] == 'User':
+		return User.query.get(int(entry[1]))
+	elif entry[0] == 'Staff':
+		return Staff.query.get(int(entry[1]))
 
 
 class User(UserMixin, db.Model):
@@ -21,7 +24,7 @@ class User(UserMixin, db.Model):
 		return '<Username: {}>'.format(self.username)
 
 	def get_id(self):
-		return self.user_id
+		return ('User', self.user_id)
 
 	def set_password(self, password):
 		self.password_hash = generate_password_hash(password)
@@ -41,7 +44,7 @@ class Staff(UserMixin, db.Model):
 		return '<Username: {}>'.format(self.username)
 
 	def get_id(self):
-		return self.staff_id
+		return ('Staff', self.staff_id)
 
 	def set_password(self, password):
 		self.password_hash = generate_password_hash(password)
