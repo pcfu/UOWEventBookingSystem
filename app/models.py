@@ -31,17 +31,23 @@ class User(UserMixin, db.Model):
 
 
 class Staff(UserMixin, db.Model):
-    staff_id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(20), unique=True, nullable=False)
-    password = db.Column(db.String, nullable=True)
-    email = db.Column(db.String(255), unique=True)
-    events = db.relationship('Event', backref='creator', lazy='dynamic')
+	staff_id = db.Column(db.Integer, primary_key=True)
+	username = db.Column(db.String(20), unique=True, nullable=False)
+	email = db.Column(db.String(255), unique=True)
+	password_hash = db.Column(db.String(255))
+	events = db.relationship('Event', backref='creator', lazy='dynamic')
 
-    def __repr__(self):
-        return '<Username: {}>'.format(self.username)
+	def __repr__(self):
+		return '<Username: {}>'.format(self.username)
 
-    def get_id(self):
-        return self.staff_id
+	def get_id(self):
+		return self.staff_id
+
+	def set_password(self, password):
+		self.password_hash = generate_password_hash(password)
+
+	def check_password(self, password):
+		return check_password_hash(self.password_hash, password)
 
 
 class Event(db.Model):
