@@ -1,6 +1,6 @@
 from app import app, db
 from flask import render_template, flash, redirect, url_for
-from app.forms import LoginForm, RegistrationForm, NewEventForm
+from app.forms import MemberLoginForm, AdminLoginForm, RegistrationForm
 from flask_login import current_user, login_user, logout_user
 from app.models import User, Staff, Event
 
@@ -30,7 +30,7 @@ def user_login():
 	if current_user.is_authenticated:
 		return redirect(url_for('index'))
 
-	form = LoginForm()
+	form = MemberLoginForm()
 	if form.validate_on_submit():
 		# if login is successful, return user to 'index'
 		user = User.query.filter_by(username=form.username.data).first()
@@ -39,6 +39,25 @@ def user_login():
 
 	# render login page
 	return render_template('login.html', title='Sign In', form=form)
+
+
+@app.route('/staff_login', methods=['GET', 'POST'])
+def staff_login():
+	# if already logged in redirect to homepage
+	if current_user.is_authenticated:
+		return redirect(url_for('index'))
+
+	form = AdminLoginForm()
+	if form.validate_on_submit():
+		staff = Staff.query.filter_by(username=form.username.data).first()
+		login_user(staff, remember=form.remember_me.data)
+		#consider display staff username natively from admin.index instead of flash
+		flash('logged in as {}'.format(staff.username))
+		#redirect to admin page using flask_admin(endpoint=admin)
+		return redirect(url_for('admin.index'))
+
+	# renders staff login page
+	return render_template('staff_login.html', title='Admin Sign In', form=form)
 
 
 @app.route('/logout')
@@ -62,26 +81,6 @@ def register():
 		login_user(user)
 		return redirect(url_for('index'))
 	return render_template('register.html', page_title='Account Registration', form=form)
-
-
-@app.route('/staff_login', methods=['GET', 'POST'])
-def staff_login():
-	# if already logged in redirect to homepage
-	form = LoginForm()
-	if current_user.is_authenticated:
-		return redirect(url_for('index'))
-	# if submit is selected on form - checks if user exist in database
-	if form.validate_on_submit():
-		staff = Staff.query.filter_by(username=form.username.data).first()
-		if staff is None: #or not user.check_password(form.password.data):
-			flash('Invalid username or password')
-			return redirect(url_for('staff_login'))
-		# if login is successful, return staff to 'index'
-		login_user(staff)
-		flash('logged in as: {}'.format(staff.username))
-		return redirect(url_for('admin.index')) #redirects to admin page using flask_admin(endpoint=admin)
-	# renders this when called
-	return render_template('staff_login.html', title='Admin Sign In', form=form)
 
 
 @app.route('/event')
