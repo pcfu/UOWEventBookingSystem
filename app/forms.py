@@ -1,16 +1,16 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, BooleanField, SubmitField, IntegerField
 from wtforms.validators import DataRequired, EqualTo, ValidationError
-from app.models import User
+from app.models import User, Staff
 
-class LoginForm(FlaskForm):
+
+class BaseLogin(FlaskForm):
 	username = StringField('Username', validators=[DataRequired()])
 	password = PasswordField('Password', validators=[DataRequired()])
 	remember_me = BooleanField('Remember Me')
 	submit = SubmitField('Sign In')
 
-	def validate(self):
-		user = User.query.filter_by(username=self.username.data).first()
+	def authenticate(self, user):
 		if user is None:
 			error_list = list(self.username.errors)
 			error_list.append('Invalid username')
@@ -22,6 +22,18 @@ class LoginForm(FlaskForm):
 			self.password.errors = tuple(error_list)
 			return False
 		return True
+
+
+class MemberLoginForm(BaseLogin):
+	def validate(self):
+		user = User.query.filter_by(username=self.username.data).first()
+		return super().authenticate(user)
+
+
+class AdminLoginForm(BaseLogin):
+	def validate(self):
+		user = Staff.query.filter_by(username=self.username.data).first()
+		return super().authenticate(user)
 
 
 class RegistrationForm(FlaskForm):
