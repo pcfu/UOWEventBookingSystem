@@ -51,8 +51,6 @@ def staff_login():
 	if form.validate_on_submit():
 		staff = Staff.query.filter_by(username=form.username.data).first()
 		login_user(staff, remember=form.remember_me.data)
-		#consider display staff username natively from admin.index instead of flash
-		flash('logged in as {}'.format(staff.username))
 		#redirect to admin page using flask_admin(endpoint=admin)
 		return redirect(url_for('admin.index'))
 

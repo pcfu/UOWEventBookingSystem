@@ -1,5 +1,5 @@
 {% extends 'admin/master.html' %}
 
 {% block body %}
-    <a href="{{ url_for('logout') }}">Logout</a>
+	<p>Logged in as {{ current_user.username }}</p>
 {% endblock %}
