@@ -70,7 +70,7 @@ class Event(db.Model):
                "Event Title: {}\n" \
                "Organizer: {}".format(self.event_id, self.event_title, self.created_by)
 
-
+'''
 class EventSlot(db.Model):
     event_id = db.Column(db.Integer, ForeignKey('event.event_id'), primary_key=True)
     event_date = db.Column(db.DateTime, primary_key=True)
@@ -88,3 +88,4 @@ class Booking(db.Model):
 
     def __repr__(self):
         return "Booking No: {}\nUserID: {}".format(self.booking_no, self.user_id)
+'''
