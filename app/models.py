@@ -37,7 +37,8 @@ class Staff(UserMixin, db.Model):
 	username = db.Column(db.String(20), index=True, unique=True, nullable=False)
 	email = db.Column(db.String(255), index=True, unique=True, nullable=False)
 	password_hash = db.Column(db.String(255))
-	events = db.relationship('Event', backref='creator', lazy='dynamic')
+
+	events = db.relationship('Event', back_populates='creator')
 
 	def __repr__(self):
 		return '<Username: {}>'.format(self.username)
@@ -61,7 +62,9 @@ class Event(db.Model):
 	event_type = db.Column(db.String)
 	description = db.Column(db.String)
 	price = db.Column(db.Integer, nullable=False)
-	created_by = db.Column(db.Integer, ForeignKey('staff.staff_id'))
+	staff_id = db.Column(db.Integer, ForeignKey('staff.staff_id'))
+
+	creator = db.relationship('Staff', back_populates='events')
 
 	def __repr__(self):
 		return "Event ID: {}\n" \
