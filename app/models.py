@@ -53,22 +53,20 @@ class Staff(UserMixin, db.Model):
 
 
 class Event(db.Model):
-    event_id = db.Column(db.Integer, primary_key=True)
-    event_title = db.Column(db.String, nullable=False)
-    venue = db.Column(db.String, nullable=False)
-    date_start = db.Column(db.DateTime)
-    date_end = db.Column(db.DateTime)
-    capacity = db.Column(db.Integer)
-    type = db.Column(db.String)
-    description = db.Column(db.String)
-    created_by = db.Column(db.Integer, ForeignKey('staff.staff_id'))
-    price = db.Column(db.Integer)
+	event_id = db.Column(db.Integer, primary_key=True)
+	event_title = db.Column(db.String, index=True, nullable=False)
+	venue = db.Column(db.String, nullable=False)
+	duration = db.Column(db.Integer, nullable=False)
+	capacity = db.Column(db.Integer, nullable=False)
+	event_type = db.Column(db.String)
+	description = db.Column(db.String)
+	price = db.Column(db.Integer, nullable=False)
+	created_by = db.Column(db.Integer, ForeignKey('staff.staff_id'))
 
-
-    def __repr__(self):
-        return "Event ID: {}\n" \
-               "Event Title: {}\n" \
-               "Organizer: {}".format(self.event_id, self.event_title, self.created_by)
+	def __repr__(self):
+		return "Event ID: {}\n" \
+			"Event Title: {}\n" \
+			"Organizer: {}".format(self.event_id, self.event_title, self.created_by)
 
 '''
 class EventSlot(db.Model):
