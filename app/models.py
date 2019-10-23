@@ -1,8 +1,7 @@
 from sqlalchemy import ForeignKey
-from app import db, login_manager, admin
+from app import db, login_manager
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin
-from flask_admin.contrib.sqla import ModelView
 
 
 @login_manager.user_loader
@@ -89,8 +88,3 @@ class Booking(db.Model):
 
     def __repr__(self):
         return "Booking No: {}\nUserID: {}".format(self.booking_no, self.user_id)
-
-
-# this is supposed to be placed inside __init__ but because of circular inclusion for models and init i cant do it
-admin.add_view(ModelView(User, db.session))
-admin.add_view(ModelView(Event, db.session))
