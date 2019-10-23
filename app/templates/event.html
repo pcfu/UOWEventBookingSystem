@@ -3,29 +3,27 @@
 <br>
 <table>
   <tr>
-    <td>ID</td>
     <td>Name</td>
     <td>Venue</td>
-    <td>Start Date</td>
-    <td>End Date</td>
+    <td>Date</td>
+    <td>Time</td>
+    <td>Duration</td>
     <td>Capacity</td>
     <td>Type</td>
     <td>Description</td>
-    <td>Creator</td>
     <td>Price</td>
   </tr>
-  {% for data in rows %}
+  {% for event in event_list %}
   <tr>
-    <td>{{ data.event_id }}</a></td>
-    <td>{{ data.event_title }}</td>
-    <td>{{ data.venue }}</td>
-    <td>{{ data.date_start }}</td>
-    <td>{{ data.date_end }}</td>
-    <td>{{ data.capacity }}</td>
-    <td>{{ data.type }}</td>
-    <td>{{ data.description }}</td>
-    <td>{{ data.created_by }}</td>
-    <td>{{ data.price }}</td>
+    <td>{{ event['title'] }}</td>
+    <td>{{ event['venue'] }}</td>
+    <td>{{ event['date'] }}</td>
+    <td>{{ event['time'] }}</td>
+    <td>{{ event['duration'] }} hours</td>
+    <td>{{ event['capacity'] }}</td>
+    <td>{{ event['type'] }}</td>
+    <td>{{ event['desc'] }}</td>
+    <td>${{ event['price'] }}</td>
     <br>
   </tr>
   {% endfor %}

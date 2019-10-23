@@ -1,8 +1,9 @@
+from dateutil.parser import parse
 from app import app, db
 from flask import render_template, flash, redirect, url_for
 from app.forms import MemberLoginForm, AdminLoginForm, RegistrationForm
 from flask_login import current_user, login_user, logout_user
-from app.models import User, Staff, Event
+from app.models import User, Staff, Event, EventSlot
 
 # url_for will ALWAYS be function name
 """
@@ -83,11 +84,21 @@ def register():
 
 @app.route('/event')
 def show_events():
-	data = Event.query.all()
-	return render_template('event.html', title='Events', rows=data)
+	records = db.session.query(Event, EventSlot).\
+		join(EventSlot, Event.event_id == EventSlot.event_id).all()
 
-#obsolete for now
-@app.route('/new_event')
-def new_event():
-	new_event_form = NewEventForm()
-	return render_template('event/new.html', form=new_event_form)
+	event_list = []
+	for row in records:
+		dt = parse(str(row.EventSlot.event_date))
+		event_list.append({ 'title' : row.Event.event_title,
+							'venue' : row.Event.venue,
+							'date' : dt.date(),
+							'time' : dt.time().strftime('%I:%M %p'),
+							'duration' : row.Event.duration,
+							'capacity' : row.Event.capacity,
+							'type': row.Event.event_type,
+							'desc': row.Event.description,
+							'price' : row.Event.price,
+							'slot_id' : row.EventSlot.slot_id })
+
+	return render_template('event.html', title='Events', event_list=event_list)
