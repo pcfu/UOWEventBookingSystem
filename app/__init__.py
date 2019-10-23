@@ -10,7 +10,7 @@ from flask_admin.menu import MenuLink
 app = Flask(__name__)
 app.config.from_object(Config)
 db = SQLAlchemy(app) # DB instance
-migrate = Migrate(app, db) # Flask database migration(updating) manager
+migrate = Migrate(app, db, render_as_batch=True) # Flask database migration manager
 login_manager = LoginManager(app) # Flask login_manager
 
 
