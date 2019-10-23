@@ -65,21 +65,26 @@ class Event(db.Model):
 	staff_id = db.Column(db.Integer, ForeignKey('staff.staff_id'))
 
 	creator = db.relationship('Staff', back_populates='events')
+	slots = db.relationship('EventSlot', back_populates='event')
 
 	def __repr__(self):
 		return "Event ID: {}\n" \
 			"Event Title: {}\n" \
 			"Organizer: {}".format(self.event_id, self.event_title, self.created_by)
 
-'''
+
 class EventSlot(db.Model):
-    event_id = db.Column(db.Integer, ForeignKey('event.event_id'), primary_key=True)
-    event_date = db.Column(db.DateTime, primary_key=True)
+	slot_id = db.Column(db.Integer, primary_key=True)
+	event_date = db.Column(db.DateTime, nullable=False)
+	event_id = db.Column(db.Integer, ForeignKey('event.event_id'), nullable=False)
 
-    def __repr__(self):
-        return "ID: {}\nDate:".format(self.event_id, self.event_date)
+	event = db.relationship('Event', back_populates='slots')
+
+	def __repr__(self):
+		return "ID: {}\nDate:".format(self.event_id, self.event_date)
 
 
+'''
 class Booking(db.Model):
     booking_no = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, ForeignKey('user.user_id'), unique=True)
