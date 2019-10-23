@@ -70,7 +70,8 @@ class Event(db.Model):
 	def __repr__(self):
 		return "Event ID: {}\n" \
 			"Event Title: {}\n" \
-			"Organizer: {}".format(self.event_id, self.event_title, self.created_by)
+			"Organizer: {}".format(self.event_id, self.event_title,
+								   self.creator.username)
 
 
 class EventSlot(db.Model):
@@ -81,7 +82,7 @@ class EventSlot(db.Model):
 	event = db.relationship('Event', back_populates='slots')
 
 	def __repr__(self):
-		return "ID: {}\nDate:".format(self.event_id, self.event_date)
+		return "EventID: {}   |   Date: {}".format(self.event_id, self.event_date)
 
 
 '''
