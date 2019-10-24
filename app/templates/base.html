@@ -1,29 +1,27 @@
 <!doctype html>
 
+<!-- testing edit base -->
 <html>
 <head>
-    <title>{{ title }}</title>
-    <link rel="stylesheet"
-		  href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
-		  integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
-		  crossorigin="anonymous">
+    <title>{{ page_title }}</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
     <link rel="stylesheet" href="/static/style.css" type="text/css">
+	<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 
 <body>
-<!-- nav bar -->
 <div class="">
     <nav class="navbar fixed-top navbar-expand navbar-dark bg-dark">
         <div class="collapse navbar-collapse">
-            <!-- left links group -->
-			<ul class="navbar-nav">
+            <ul class="navbar-nav">
                 <li class="nav-item">
                     <a href="{{ url_for('index') }}" class="nav-link">Home</a>
                 </li>
                 <li class="nav-item">
-					<!-- this supposed to link u to all events -->
-                    <a href="{{ url_for('show_events') }}" class="nav-link">Events</a>
+                    <a href="{{ url_for('show_events') }}" class="nav-link">Events</a> <!-- this supposed to link u to all events -->
                 </li>
                 {% if not current_user.is_anonymous %}
                 <li class="nav-item">
@@ -31,39 +29,21 @@
                 </li>
                 {% endif %}
             </ul>
-
-            <!-- right links group -->
             <ul class="navbar-nav ml-auto">
                 <li class="nav-item">
                     {% if current_user.is_anonymous %}
-                    <a href="{{ url_for('user_login') }}"
-					   class="btn btn-outline-primary"
-	   				   role="button">Member Sign In</a>
-                    <a href="{{ url_for('staff_login') }}"
-					   class="btn btn-outline-primary"
-					   role="button">Admin Sign In</a>
+                    <a href="{{ url_for('user_login') }}" class="btn btn-outline-primary" role="button">Member Sign In</a>
+                    <a href="{{ url_for('staff_login') }}" class="btn btn-outline-primary" role="button">Admin Sign In</a>
                     {% else %}
-					<!-- username now shows up next to account button when logged in.
-						 Still need to adjust styling -->
-					<span style="color: white;">{{ current_user.username }}</span>
-                    <a href="myaccountpagehere"
-					   class="btn btn-outline-primary"
-					   role="button">Account</a>
-                    <a href="{{ url_for('logout') }}"
-					   class="btn btn-outline-primary"
-					   role="button">Logout</a>
+                    <a href="myaccountpagehere" class="btn btn-outline-primary" role="button">Account</a>
+                    <a href="{{ url_for('logout') }}" class="btn btn-outline-primary" role="button">Logout</a>
                     {% endif %}
                 </li>
             </ul>
         </div>
     </nav>
-</div><br>
+</div>
 
-<!-- main content display -->
-{% block content %}{% endblock %}
-
-<!-- flashed messages -->
-<br>
 {% with messages = get_flashed_messages() %}
 {% if messages %}
 <ul>
@@ -73,6 +53,9 @@
 </ul>
 {% endif %}
 {% endwith %}
+{% block body %}
+
+{% endblock %}
 
 </body>
 </html>

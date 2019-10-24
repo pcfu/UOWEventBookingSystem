@@ -1,51 +1,62 @@
-{% extends "base.html" %}
+{% include "base.html" %}
 
 {% block content %}
-<br>
-<form action="" method="post" novalidate>
-  	<div class="center">
-	    {{ form.hidden_tag() }}
-		{{ form.keyword(size=32) }}
-		{{ form.search_type }}
-		{{ form.search }}
+<div class="container main-container" style="margin-top: 70px;">
+	<div class="row search-row mb-4">
+		<div class="col search-col">
+				<div class="row align-items-center justify-content-center">
+					<form class="form-inline" method="post">
+						<div class="form-group">
+							{{ form.keyword(class="form-control search-bar", style="width: 500px; text-align: left;", placeholder="Search...") }}
+						</div>
+						<div class="form-group ml-3">
+							{{ form.search_type(class="btn btn-primary dropdown-toggle") }}
+						</div>
+						<div class="form-group ml-3">
+							<!-- text in the button = try line-height -->
+							{{ form.search(class="btn search-btn btn-primary", style="width: 75px;") }}
+						</div>
+					
+						<!-- <input class="form-control" type="search" placeholder="Search..." style="width:500px; text-align: left;"> -->
+						<!-- <div class="dropdown">
+							<button class="btn btn-primary dropdown-toggle ml-3" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Dropdown button</button>
+							<div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+								<a class="dropdown-item" href="#">Title</a>
+								<a class="dropdown-item" href="#">Date</a>
+								<a class="dropdown-item" href="#">Time</a>
+								<a class="dropdown-item" href="#">Type</a>
+								<a class="dropdown-item" href="#">Price</a>
+							</div>
+							<button class="btn btn-primary ml-3" type="submit">Search</button> 
+						</div> -->
+				
+					</form>
+				</div>
+		</div>
 	</div>
-</form>
-
-<table>
-  <tr>
-    <td>Name</td>
-    <td>Venue</td>
-    <td>Date</td>
-    <td>Time</td>
-    <td>Duration</td>
-    <td>Capacity</td>
-    <td>Type</td>
-    <td>Description</td>
-    <td>Price</td>
-  </tr>
-  {% for event in event_list %}
-  <tr>
-    <td>{{ event['title'] }}</td>
-    <td>{{ event['venue'] }}</td>
-    <td>
-	  {% for date in event['dates'] %}
- 		{{ date }}<br>
-	  {% endfor %}
-	</td>
-    <td>
-	  {% for time in event['times'] %}
- 		{{ time }}<br>
-	  {% endfor %}
-	</td>
-    <td>{{ event['duration'] }} hours</td>
-    <td>{{ event['capacity'] }}</td>
-    <td>{{ event['type'] }}</td>
-    <td>{{ event['desc'] }}</td>
-    <td>${{ event['price'] }}</td>
-    <br>
-  </tr>
-  {% endfor %}
-</table><br>
-
-<a href="/">Go Back</a>
+		
+	<div class="row main-row">
+	{% for data in rows %}
+		<div class="col-4" style="float: left;">
+			<div class="event-container">
+				<div class="image-row">
+					<div class="col-auto m-auto">
+						<img src="https://upload.wikimedia.org/wikipedia/en/a/a7/The_Big_Bang_Theory_Season_12.jpg">
+					</div>
+				</div>
+				<div class="event-name-row">
+					<div class="col">
+						<p> {{ data.event_title }} </p>
+					</div>
+				</div>
+			</div>
+		</div>
+	{% endfor %}
+	</div>
+	<div class="row main-row">
+		<div class="col-12" style="float: left;">
+			<a href="/" class="btn btn-secondary" role="button">Go Back</a>
+		</div>
+	</div>
+</div>
 {% endblock %}
