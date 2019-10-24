@@ -79,8 +79,8 @@ def show_events():
 def get_all_events():
 	event_list = []
 
-	events = db.session.query(Event).all()
-	for event in events:
+	#events = db.session.query(Event).all()
+	for event in Event.query.all():
 		date_first = [None]
 		date_last = [None]
 		timeslots = set()
@@ -102,7 +102,7 @@ def get_all_events():
 
 
 def load_date_time(date_first, date_last, timeslots, eid):
-	for slot in db.session.query(EventSlot).filter_by(event_id = eid).\
+	for slot in EventSlot.query.filter_by(event_id = eid).\
 					order_by(EventSlot.event_date).all():
 		dt = parse(str(slot.event_date))
 		date = dt.date()
