@@ -6,18 +6,6 @@ from flask_login import current_user, login_user, logout_user
 from app.models import User, Staff, Event, EventSlot
 
 # url_for will ALWAYS be function name
-"""
-Now because of User and Staff being 2 different tables but with the same primary key counter
-i.e. User has ID1 and so does Staff, the login authentication fails in the sense that admin will be able to access
-admin page via url insertion.
-
-User login returns you to some temp page, while Staff login returns you to the dashboard for Flask_Admin
-however, flask_login determines the user to be user1 regardless of admin or user because user.loader queries for User table
-so meaning to say user2 with ID2, and admin2 with ID2 - if logged in as admin2, flask_login identifies you as user2
-
-There is also an issue with circular inclusion in models.py which i have explained there
-For now the NewEventForm and new event routes are not required anymore because Flask_Admin allows us to create new rows in the DB
-"""
 
 @app.route('/')
 @app.route('/index')
@@ -84,21 +72,59 @@ def register():
 
 @app.route('/event')
 def show_events():
-	records = db.session.query(Event, EventSlot).\
-		join(EventSlot, Event.event_id == EventSlot.event_id).all()
+	return render_template('event.html', title='Events', event_list=get_all_events())
 
+
+### Functions to support Event queries and display format
+def get_all_events():
 	event_list = []
-	for row in records:
-		dt = parse(str(row.EventSlot.event_date))
-		event_list.append({ 'title' : row.Event.event_title,
-							'venue' : row.Event.venue,
-							'date' : dt.date(),
-							'time' : dt.time().strftime('%I:%M %p'),
-							'duration' : row.Event.duration,
-							'capacity' : row.Event.capacity,
-							'type': row.Event.event_type,
-							'desc': row.Event.description,
-							'price' : row.Event.price,
-							'slot_id' : row.EventSlot.slot_id })
 
-	return render_template('event.html', title='Events', event_list=event_list)
+	events = db.session.query(Event).all()
+	for event in events:
+		date_first = [None]
+		date_last = [None]
+		timeslots = set()
+		load_date_time(date_first, date_last, timeslots, event.event_id)
+		dates_str = get_pretty_date(date_first[0], date_last[0])
+		times_str = get_pretty_time(timeslots)
+
+		event_list.append({ 'title' : event.event_title,
+							'venue' : event.venue,
+							'date' : dates_str,
+							'time' : times_str,
+							'duration' : event.duration,
+							'capacity' : event.capacity,
+							'type': event.event_type,
+							'desc': event.description,
+							'price' : event.price,
+							'event_id' : event.event_id })
+	return event_list
+
+
+def load_date_time(date_first, date_last, timeslots, eid):
+	for slot in db.session.query(EventSlot).filter_by(event_id = eid).\
+					order_by(EventSlot.event_date).all():
+		dt = parse(str(slot.event_date))
+		date = dt.date()
+		if date_first[0] is None:
+			date_first[0] = date
+		date_last[0] = date
+
+		time = dt.time().strftime('%H:%M')
+		timeslots.add(time)
+
+
+def get_pretty_date(date_first, date_last):
+	period = str(date_first)
+	if date_last != date_first:
+		period += " to " + str(date_last)
+	return period
+
+
+def get_pretty_time(timeslots):
+	schedule = ""
+	for time in sorted(timeslots):
+		if schedule:
+			schedule += ", "
+		schedule += str(time)
+	return schedule
