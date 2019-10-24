@@ -17,8 +17,16 @@
   <tr>
     <td>{{ event['title'] }}</td>
     <td>{{ event['venue'] }}</td>
-    <td>{{ event['date'] }}</td>
-    <td>{{ event['time'] }}</td>
+    <td>
+	  {% for date in event['dates'] %}
+ 		{{ date }}<br>
+	  {% endfor %}
+	</td>
+    <td>
+	  {% for time in event['times'] %}
+ 		{{ time }}<br>
+	  {% endfor %}
+	</td>
     <td>{{ event['duration'] }} hours</td>
     <td>{{ event['capacity'] }}</td>
     <td>{{ event['type'] }}</td>

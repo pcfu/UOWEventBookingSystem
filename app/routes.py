@@ -72,59 +72,55 @@ def register():
 
 @app.route('/event')
 def show_events():
-	return render_template('event.html', title='Events', event_list=get_all_events())
+	return render_template('event.html', title='Events', event_list=get_events())
 
 
-### Functions to support Event queries and display format
-def get_all_events():
+def get_events(search_type=None, keyword=None):
+	records = None
+	if records is None:
+		records = db.session.query(Event, EventSlot).\
+			join(EventSlot, Event.event_id == EventSlot.event_id).\
+			order_by(Event.event_id).all()
+	elif search_type == 'title':
+		records = db.session.query(Event, EventSlot).\
+			join(EventSlot, Event.event_id == EventSlot.event_id).\
+			filter(Event.event_title.ilike(f'%{keyword}%')).\
+			order_by(Event.event_id).all()
+
+	return format_events(records)
+
+
+def format_events(records):
 	event_list = []
 
-	#events = db.session.query(Event).all()
-	for event in Event.query.all():
-		date_first = [None]
-		date_last = [None]
-		timeslots = set()
-		load_date_time(date_first, date_last, timeslots, event.event_id)
-		dates_str = get_pretty_date(date_first[0], date_last[0])
-		times_str = get_pretty_time(timeslots)
+	event = dict()
+	for row in records:
+		dt = parse(str(row.EventSlot.event_date))
+		date = str(dt.date())
+		time = str(dt.time().strftime('%H:%M'))
 
-		event_list.append({ 'title' : event.event_title,
-							'venue' : event.venue,
-							'date' : dates_str,
-							'time' : times_str,
-							'duration' : event.duration,
-							'capacity' : event.capacity,
-							'type': event.event_type,
-							'desc': event.description,
-							'price' : event.price,
-							'event_id' : event.event_id })
+		if not bool(event) or row.Event.event_id != event['event_id']:
+			add_to_list(event_list, event)
+			event = { 'title' : row.Event.event_title,
+					  'venue' : row.Event.venue,
+					  'dates' : { date },
+					  'times' : { time },
+					  'duration' : row.Event.duration,
+					  'capacity' : row.Event.capacity,
+					  'type': row.Event.event_type,
+					  'desc': row.Event.description,
+					  'price' : row.Event.price,
+					  'event_id' : row.Event.event_id }
+		else:
+			event['dates'].add(date)
+			event['times'].add(time)
+
+	add_to_list(event_list, event)
 	return event_list
 
 
-def load_date_time(date_first, date_last, timeslots, eid):
-	for slot in EventSlot.query.filter_by(event_id = eid).\
-					order_by(EventSlot.event_date).all():
-		dt = parse(str(slot.event_date))
-		date = dt.date()
-		if date_first[0] is None:
-			date_first[0] = date
-		date_last[0] = date
-
-		time = dt.time().strftime('%H:%M')
-		timeslots.add(time)
-
-
-def get_pretty_date(date_first, date_last):
-	period = str(date_first)
-	if date_last != date_first:
-		period += " to " + str(date_last)
-	return period
-
-
-def get_pretty_time(timeslots):
-	schedule = ""
-	for time in sorted(timeslots):
-		if schedule:
-			schedule += ", "
-		schedule += str(time)
-	return schedule
+def add_to_list(event_list, event):
+	if bool(event):
+		event['dates'] = sorted(event['dates'])
+		event['times'] = sorted(event['times'])
+		event_list.append(event)
