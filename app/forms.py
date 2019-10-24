@@ -1,5 +1,6 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, BooleanField, SubmitField, IntegerField
+from wtforms import StringField, PasswordField, BooleanField,\
+					SubmitField, IntegerField, SelectField
 from wtforms.validators import DataRequired, EqualTo, ValidationError
 from app.models import User, Staff
 
@@ -57,6 +58,17 @@ class RegistrationForm(FlaskForm):
 			raise ValidationError('Email already taken')
 
 
+class SearchForm(FlaskForm):
+	choices = [('title', 'Title'),
+			   ('date', 'Date'),
+			   ('type', 'Type' ),
+			   ('price', 'Price')]
+	search_type = SelectField(choices=choices)
+	keyword = StringField('')
+	search = SubmitField('Search')
+
+
+'''
 class NewEventForm(FlaskForm):
     event_title = StringField('Title', validators=[DataRequired()])
     venue = StringField('Venue', validators=[DataRequired()])
@@ -65,3 +77,4 @@ class NewEventForm(FlaskForm):
     description = StringField('Description', validators=[DataRequired])
     price = IntegerField('Price', validators=[DataRequired()])
     submit = SubmitField('Create Event')
+'''

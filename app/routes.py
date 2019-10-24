@@ -1,7 +1,7 @@
 from dateutil.parser import parse
 from app import app, db
 from flask import render_template, flash, redirect, url_for
-from app.forms import MemberLoginForm, AdminLoginForm, RegistrationForm
+from app.forms import MemberLoginForm, AdminLoginForm, RegistrationForm, SearchForm
 from flask_login import current_user, login_user, logout_user
 from app.models import User, Staff, Event, EventSlot
 
@@ -82,7 +82,7 @@ def register():
 	return render_template('register.html', page_title='Account Registration', form=form)
 
 
-@app.route('/event')
+@app.route('/event', methods=['GET', 'POST'])
 def show_events():
 	records = db.session.query(Event, EventSlot).\
 		join(EventSlot, Event.event_id == EventSlot.event_id).all()
@@ -101,4 +101,7 @@ def show_events():
 							'price' : row.Event.price,
 							'slot_id' : row.EventSlot.slot_id })
 
-	return render_template('event.html', title='Events', event_list=event_list)
+	form = SearchForm()
+
+	return render_template('event.html', title='Events',
+						   form=form, event_list=event_list)
