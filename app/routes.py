@@ -1,7 +1,7 @@
 from dateutil.parser import parse
 from app import app, db
 from flask import render_template, flash, redirect, url_for
-from app.forms import MemberLoginForm, AdminLoginForm, RegistrationForm
+from app.forms import MemberLoginForm, AdminLoginForm, RegistrationForm, SearchForm
 from flask_login import current_user, login_user, logout_user
 from app.models import User, Staff, Event, EventSlot
 
@@ -70,14 +70,23 @@ def register():
 	return render_template('register.html', page_title='Account Registration', form=form)
 
 
-@app.route('/event')
+@app.route('/event', methods=['GET', 'POST'])
 def show_events():
-	return render_template('event.html', title='Events', event_list=get_events())
+	form = SearchForm()
+	if form.is_submitted():
+		search_type = form.search_type.data
+		keyword = str(form.keyword.data).strip()
+		if keyword is not None:
+			return render_template('event.html', title='Events', form=form,
+								   event_list=get_events(search_type, keyword))
+
+	return render_template('event.html', title='Events',
+						   form=form, event_list=get_events())
 
 
 def get_events(search_type=None, keyword=None):
 	records = None
-	if records is None:
+	if keyword is None:
 		records = db.session.query(Event, EventSlot).\
 			join(EventSlot, Event.event_id == EventSlot.event_id).\
 			order_by(Event.event_id).all()
@@ -85,6 +94,11 @@ def get_events(search_type=None, keyword=None):
 		records = db.session.query(Event, EventSlot).\
 			join(EventSlot, Event.event_id == EventSlot.event_id).\
 			filter(Event.event_title.ilike(f'%{keyword}%')).\
+			order_by(Event.event_id).all()
+	else:
+		#temporarily search all for other search_types
+		records = db.session.query(Event, EventSlot).\
+			join(EventSlot, Event.event_id == EventSlot.event_id).\
 			order_by(Event.event_id).all()
 
 	return format_events(records)
