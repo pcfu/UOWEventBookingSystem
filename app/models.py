@@ -63,7 +63,7 @@ class Event(db.Model):
 	description = db.Column(db.String)
 	price = db.Column(db.Integer, nullable=False)
 	staff_id = db.Column(db.Integer, ForeignKey('staff.staff_id'))
-
+	image = db.Column(db.String)
 	creator = db.relationship('Staff', back_populates='events')
 	slots = db.relationship('EventSlot', back_populates='event')
 
@@ -78,7 +78,6 @@ class EventSlot(db.Model):
 	slot_id = db.Column(db.Integer, primary_key=True)
 	event_date = db.Column(db.DateTime, nullable=False)
 	event_id = db.Column(db.Integer, ForeignKey('event.event_id'), nullable=False)
-
 	event = db.relationship('Event', back_populates='slots')
 
 	def __repr__(self):
