@@ -1,12 +1,10 @@
-from datetime import date
-from flask import flash
-from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, BooleanField, SubmitField,\
-					IntegerField, SelectField, FloatField
-from wtforms.fields.html5 import DateField
-from wtforms_components import TimeField
-from wtforms.validators import DataRequired, EqualTo, ValidationError, Optional
 from app.models import User, Staff
+from flask_wtf import FlaskForm
+from wtforms import StringField, PasswordField, BooleanField,\
+					SubmitField, IntegerField, SelectField
+from wtforms.fields.html5 import DateField
+from wtforms.validators import DataRequired, EqualTo, ValidationError, Optional
+from datetime import date
 
 
 class BaseLogin(FlaskForm):
@@ -78,14 +76,3 @@ class SearchForm(FlaskForm):
 	search_field = STRING_FIELD
 	search_type = SelectField(choices=CHOICES)
 	submit_search = SubmitField('Search')
-
-	def validate(self):
-		if self.search_field == self.DATE_FIELD:
-			selected_date = self.search_field.data
-			if not selected_date or selected_date < date.today():
-				flash('Invalid date')
-				return False
-			else:
-				return True
-		else:
-			return True

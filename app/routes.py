@@ -83,7 +83,7 @@ def search_option(option):
 	elif option == 'price':
 		form.search_field = form.PRICE_FIELD
 
-	if form.validate_on_submit():
+	if form.is_submitted():
 		search_type = form.search_type.data
 		keyword = str(form.search_field.data).strip()
 		if len(keyword) > 0:
@@ -99,53 +99,13 @@ def search_option(option):
 ########################
 
 def get_events(search_type=None, keyword=None):
-	records = None
 	if keyword is None:
 		return query.query_all()
 	elif search_type == 'title':
 		return query.title_query(keyword)
 	elif search_type == 'type':
 		return query.type_query(keyword)
+	elif search_type == 'date':
+		return query.date_query(keyword)
 	else:
-		#temporarily search all for other search_types
-		records = db.session.query(Event, EventSlot).\
-			join(EventSlot, Event.event_id == EventSlot.event_id).\
-			order_by(Event.event_id).all()
-
-	return format_events(records)
-
-
-def format_events(records):
-	event_list = []
-
-	event = dict()
-	for row in records:
-		dt = parse(str(row.EventSlot.event_date))
-		date = str(dt.date())
-		time = str(dt.time().strftime('%H:%M'))
-
-		if not bool(event) or row.Event.event_id != event['event_id']:
-			add_to_list(event_list, event)
-			event = { 'title' : row.Event.event_title,
-					  'venue' : row.Event.venue,
-					  'dates' : { date },
-					  'times' : { time },
-					  'duration' : row.Event.duration,
-					  'capacity' : row.Event.capacity,
-					  'type': row.Event.event_type,
-					  'desc': row.Event.description,
-					  'price' : row.Event.price,
-					  'event_id' : row.Event.event_id }
-		else:
-			event['dates'].add(date)
-			event['times'].add(time)
-
-	add_to_list(event_list, event)
-	return event_list
-
-
-def add_to_list(event_list, event):
-	if bool(event):
-		event['dates'] = sorted(event['dates'])
-		event['times'] = sorted(event['times'])
-		event_list.append(event)
+		return query.price_query(keyword)

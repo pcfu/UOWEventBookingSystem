@@ -2,19 +2,8 @@
 
 {% block content %}
 <div class="container main-container" style="margin-top: 70px;">
-	<!-- flashed messages -->
-	<div>
-		{% with messages = get_flashed_messages() %}
-		{% if messages %}
-			{% for message in messages %}
-			<span class="center" style="color: red;">{{ message }}</span>
-			{% endfor %}
-		{% endif %}
-		{% endwith %}
-	</div>
-
-	<!-- search bar -->
 	<div class="row search-row mb-4 align-items-center justify-content-center">
+		<!-- search bar -->
 		<form class="form-inline" method="post">
 			<div class="form-group">
 			  {{ form.search_field(class="form-control search-bar", style="width: 400px; height: 45px; text-align: left;", placeholder="Search") }}
@@ -26,6 +15,18 @@
 				{{ form.submit_search(class="btn search-btn btn-primary", style="width: 100px; height: 45px;") }}
 			</div>
 		</form>
+
+		<!-- flash error messages -->
+		<div>
+		  {% with messages = get_flashed_messages() %}
+		  {% if messages %}
+		  {% for message in messages %}
+		  <br>
+		  <span class="center" style="color: red;">{{ message }}</span>
+		  {% endfor %}
+		  {% endif %}
+		  {% endwith %}
+		</div>
 	</div><br>
 
 	<!-- Script to handle changing of search type -->
@@ -38,9 +39,15 @@
 		}
 	</script>
 
+	<!-- Feedback if search results -->
+	{% if event_list|length == 0 %}
+	<br>
+	<span class="center" style="color: black;">NO RESULTS</span>
+	{% endif %}
+
 	<!-- display event posters -->
 	<div class="row main-row">
-	{% for event in event_list %}
+	  {% for event in event_list %}
 		<div class="col-4" style="float: left;">
 			<div class="event-container">
 				<div class="image-row">
@@ -55,14 +62,7 @@
 				</div>
 			</div>
 		</div>
-	{% endfor %}
+	  {% endfor %}
 	</div>
-
-	<!-- 'GO BACK' button
-	<div class="row main-row">
-		<div class="col-12" style="float: left;">
-			<a href="/" class="btn btn-secondary" role="button">Go Back</a>
-		</div>
-	</div> -->
 </div>
 {% endblock %}
