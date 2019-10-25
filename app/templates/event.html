@@ -52,7 +52,8 @@
 			<div class="event-container">
 				<div class="image-row">
 				  <div class="col-auto m-auto">
-					{% set path = '/static/images/' ~ event.img ~ '_thumb.jpg' %}
+					{% set path = '/static/images/' ~ event.img_root ~ '_thumb.jpg' %}
+					{{ path }}
 					<img src='{{ path }}', style='height: 100%; width: 100%; object-fit: contain'>
 				  </div>
 				</div>

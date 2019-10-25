@@ -1,4 +1,4 @@
-from app import app, db
+from app import db
 from app.models import Event, EventSlot
 from flask import flash
 from sqlalchemy.sql import func
@@ -6,22 +6,23 @@ from datetime import datetime, date
 
 
 def query_all():
-	records = db.session.query(Event.event_id, Event.event_title).\
-				order_by(Event.event_title).all()
+	records = db.session.query(Event.event_id, Event.event_title, Event.img_root)\
+						.order_by(Event.event_title).all()
 	return records
 
 
 def title_query(keyword):
-	records = db.session.query(Event.event_id, Event.event_title).\
-				filter(Event.event_title.ilike(f'%{keyword}%')).\
-				order_by(Event.event_title).all()
+	records = db.session.query(Event.event_id, Event.event_title, Event.img_root)\
+						.filter(Event.event_title.ilike(f'%{keyword}%'))\
+						.order_by(Event.event_title).all()
 	return records
 
 
 def type_query(keyword):
-	records = db.session.query(Event.event_id, Event.event_title, Event.event_type).\
-				filter(Event.event_type.ilike(f'%{keyword}%')).\
-				order_by(Event.event_title).all()
+	records = db.session.query(Event.event_id, Event.event_title,
+							   Event.event_type, Event.img_root)\
+						.filter(Event.event_type.ilike(f'%{keyword}%'))\
+						.order_by(Event.event_title).all()
 	return records
 
 
@@ -30,27 +31,32 @@ def date_query(keyword):
 	if keyword == 'None' or datetime.strptime(keyword, '%Y-%m-%d').date() < date.today():
 		flash('Invalid date')
 	else:
-		records = db.session.query(Event.event_id, Event.event_title, EventSlot.event_date).\
-			 		join(EventSlot, Event.event_id == EventSlot.event_id).\
-					filter(func.DATE(EventSlot.event_date) == keyword).\
-					group_by(Event.event_id).all()
+		records = db.session.query(Event.event_id, Event.event_title,
+								   EventSlot.event_date, Event.img_root)\
+							.join(EventSlot, Event.event_id == EventSlot.event_id)\
+							.filter(func.DATE(EventSlot.event_date) == keyword)\
+							.group_by(Event.event_id).all()
 	return records
 
 
 def price_query(keyword):
 	records = []
 	if keyword == 'free':
-		records = db.session.query(Event.event_id, Event.event_title, Event.price).\
-					filter(Event.price == 0).all()
+		records = db.session.query(Event.event_id, Event.event_title,
+								   Event.price, Event.img_root)\
+							.filter(Event.price == 0).all()
 	elif keyword == 'cheap':
-		records = db.session.query(Event.event_id, Event.event_title, Event.price).\
-					filter(Event.price < 20).all()
+		records = db.session.query(Event.event_id, Event.event_title,
+								   Event.price, Event.img_root)\
+							.filter(Event.price < 20).all()
 	elif keyword == 'mid':
-		records = db.session.query(Event.event_id, Event.event_title, Event.price).\
-					filter(Event.price >= 20, Event.price <= 50 ).all()
+		records = db.session.query(Event.event_id, Event.event_title,
+								   Event.price, Event.img_root)\
+							.filter(Event.price >= 20, Event.price <= 50 ).all()
 	else:
-		records = db.session.query(Event.event_id, Event.event_title, Event.price).\
-					filter(Event.price > 50).all()
+		records = db.session.query(Event.event_id, Event.event_title,
+								   Event.price, Event.img_root)\
+							.filter(Event.price > 50).all()
 	return records
 
 
