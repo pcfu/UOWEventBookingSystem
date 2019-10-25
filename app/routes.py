@@ -5,7 +5,6 @@ from app.forms import MemberLoginForm, AdminLoginForm, RegistrationForm, SearchF
 from flask_login import current_user, login_user, logout_user
 from app.models import User, Staff, Event, EventSlot
 
-# url_for will ALWAYS be function name
 
 @app.route('/')
 @app.route('/index')
@@ -68,6 +67,16 @@ def register():
 		login_user(user)
 		return redirect(url_for('index'))
 	return render_template('register.html', page_title='Account Registration', form=form)
+
+
+### PLACEHOLDER ROUTE for event details page ###
+@app.route('/details')
+def event_details():
+	records = db.session.query(Event, EventSlot).\
+				join(EventSlot, Event.event_id == EventSlot.event_id).\
+				filter(Event.event_id == 1).all()
+	event = format_events(records)[0]
+	return render_template('details.html', page_title='Test event details page', event=event)
 
 
 @app.route('/event', methods=['GET', 'POST'])
