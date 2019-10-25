@@ -136,6 +136,7 @@ def format_events(records):
 					  'type': row.Event.event_type,
 					  'desc': row.Event.description,
 					  'price' : row.Event.price,
+					  'img' : row.Event.img_root,
 					  'event_id' : row.Event.event_id }
 		else:
 			event['dates'].add(date)

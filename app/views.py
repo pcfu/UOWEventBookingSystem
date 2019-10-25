@@ -1,12 +1,12 @@
+import os
 from werkzeug.utils import secure_filename
-
 from app import models, routes
 from flask import redirect, url_for
 from flask_login import current_user
 from flask_admin import AdminIndexView, expose
 from flask_admin.contrib.sqla import ModelView
 from flask_admin.form.upload import ImageUploadField
-import os
+
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 
@@ -37,16 +37,14 @@ class NoBypassModelView(ModelView):
 
 class EventCreateView(NoBypassModelView):
 	def prefix_name(obj, file_data):
-		#parts = os.path.splitext(file_data.filename)
-		#return secure_filename('file-%s%s' % parts)
 		ext = os.path.splitext(file_data.filename)[1]
 		idx = f'{obj.event_id:04}'
-		filename = 'img_eid' + idx + ext
-		return secure_filename(filename)
+		root = 'img_eid' + idx
+		obj.img_root = root
+		return secure_filename(root + ext)
 
-	#form_excluded_columns = ['image']
 	form_extra_fields = {
 		'path': ImageUploadField('Upload image',
 					base_path=os.path.join(basedir, 'static/images'),
-					thumbnail_size=(100, 100, True), namegen=prefix_name)
+					thumbnail_size=(200, 200, True), namegen=prefix_name)
 	}
