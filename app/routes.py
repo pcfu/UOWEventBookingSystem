@@ -77,7 +77,7 @@ def event_details():
 				filter(Event.event_id == 1).all()
 	event = format_events(records)[0]
 	return render_template('details.html', page_title='Test event details page', event=event)
-
+### to understand how an event data is structured, scroll down to format_events function
 
 @app.route('/event', methods=['GET', 'POST'])
 def show_events():
