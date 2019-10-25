@@ -71,16 +71,16 @@ class SearchForm(FlaskForm):
 			  ('cheap', '< $20'),
 			  ('mid', '$20 - 50'),
 			  ('expensive', '> $50')]
-	KEYWORD = StringField()
-	DATE = DateField(default=date.today())
-	PRICE = SelectField(choices=RANGES)
+	STRING_FIELD = StringField()
+	DATE_FIELD = DateField(default=date.today())
+	PRICE_FIELD = SelectField(choices=RANGES)
 
-	search_field = KEYWORD
+	search_field = STRING_FIELD
 	search_type = SelectField(choices=CHOICES)
 	submit_search = SubmitField('Search')
 
 	def validate(self):
-		if self.search_field == self.DATE:
+		if self.search_field == self.DATE_FIELD:
 			selected_date = self.search_field.data
 			if not selected_date or selected_date < date.today():
 				flash('Invalid date')

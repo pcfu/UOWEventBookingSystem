@@ -1,11 +1,10 @@
 from dateutil.parser import parse
-from app import app, db
+from app import app, db, query
 from flask import render_template, redirect, url_for
 from app.forms import MemberLoginForm, AdminLoginForm, RegistrationForm, SearchForm
 from flask_login import current_user, login_user, logout_user
 from app.models import User, Staff, Event, EventSlot
 
-# url_for will ALWAYS be function name
 
 @app.route('/')
 @app.route('/index')
@@ -70,7 +69,7 @@ def register():
 	return render_template('register.html', page_title='Account Registration', form=form)
 
 
-@app.route('/event', methods=['GET', 'POST'])
+@app.route('/event')
 def show_events():
 	return redirect(url_for('search_option', option='title'))
 
@@ -80,16 +79,14 @@ def search_option(option):
 	form = SearchForm()
 	form.search_type.data = option
 	if option == 'date':
-		form.search_field = form.DATE
+		form.search_field = form.DATE_FIELD
 	elif option == 'price':
-		form.search_field = form.PRICE
-	else:
-		form.search_field = form.KEYWORD
+		form.search_field = form.PRICE_FIELD
 
 	if form.validate_on_submit():
 		search_type = form.search_type.data
 		keyword = str(form.search_field.data).strip()
-		if keyword is not None:
+		if len(keyword) > 0:
 			return render_template('event.html', title='Events', form=form,
 								   event_list=get_events(search_type, keyword))
 
@@ -97,17 +94,18 @@ def search_option(option):
 						   form=form, event_list=get_events())
 
 
+########################
+# SUPPORTING FUNCTIONS #
+########################
+
 def get_events(search_type=None, keyword=None):
 	records = None
 	if keyword is None:
-		records = db.session.query(Event, EventSlot).\
-			join(EventSlot, Event.event_id == EventSlot.event_id).\
-			order_by(Event.event_id).all()
+		return query.query_all()
 	elif search_type == 'title':
-		records = db.session.query(Event, EventSlot).\
-			join(EventSlot, Event.event_id == EventSlot.event_id).\
-			filter(Event.event_title.ilike(f'%{keyword}%')).\
-			order_by(Event.event_id).all()
+		return query.title_query(keyword)
+	elif search_type == 'type':
+		return query.type_query(keyword)
 	else:
 		#temporarily search all for other search_types
 		records = db.session.query(Event, EventSlot).\
