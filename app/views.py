@@ -37,15 +37,16 @@ class NoBypassModelView(ModelView):
 
 class EventCreateView(NoBypassModelView):
 	def prefix_name(obj, file_data):
-		parts = os.path.splitext(file_data.filename)
-		return secure_filename('file-%s%s' % parts)
-	form_excluded_columns = ['image']
+		#parts = os.path.splitext(file_data.filename)
+		#return secure_filename('file-%s%s' % parts)
+		ext = os.path.splitext(file_data.filename)[1]
+		idx = f'{obj.event_id:04}'
+		filename = 'img_eid' + idx + ext
+		return secure_filename(filename)
+
+	#form_excluded_columns = ['image']
 	form_extra_fields = {
-		'path': ImageUploadField('Image',
-									  base_path=os.path.join(basedir, 'static\\images'),
-									  thumbnail_size=(100, 100, True), namegen=prefix_name)
+		'path': ImageUploadField('Upload image',
+					base_path=os.path.join(basedir, 'static/images'),
+					thumbnail_size=(100, 100, True), namegen=prefix_name)
 	}
-
-
-
-
