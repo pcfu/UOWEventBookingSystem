@@ -1,6 +1,6 @@
 from dateutil.parser import parse
 from app import app, db
-from flask import render_template, flash, redirect, url_for
+from flask import render_template, redirect, url_for
 from app.forms import MemberLoginForm, AdminLoginForm, RegistrationForm, SearchForm
 from flask_login import current_user, login_user, logout_user
 from app.models import User, Staff, Event, EventSlot
@@ -72,10 +72,23 @@ def register():
 
 @app.route('/event', methods=['GET', 'POST'])
 def show_events():
+	return redirect(url_for('search_option', option='title'))
+
+
+@app.route('/event/<option>', methods=['GET', 'POST'])
+def search_option(option):
 	form = SearchForm()
-	if form.is_submitted():
+	form.search_type.data = option
+	if option == 'date':
+		form.search_field = form.DATE
+	elif option == 'price':
+		form.search_field = form.PRICE
+	else:
+		form.search_field = form.KEYWORD
+
+	if form.validate_on_submit():
 		search_type = form.search_type.data
-		keyword = str(form.keyword.data).strip()
+		keyword = str(form.search_field.data).strip()
 		if keyword is not None:
 			return render_template('event.html', title='Events', form=form,
 								   event_list=get_events(search_type, keyword))

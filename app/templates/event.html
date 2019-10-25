@@ -4,37 +4,41 @@
 <div class="container main-container" style="margin-top: 70px;">
 	<!-- search bar -->
 	<div class="row search-row mb-4">
-		<div class="col search-col">
+		<div class="col search-col"
 			<div class="row align-items-center justify-content-center">
 				<form class="form-inline" method="post">
 					<div class="form-group">
-						{{ form.keyword(class="form-control search-bar", style="width: 500px; height: 45px; text-align: left;", placeholder="Search...") }}
+					  {{ form.search_field(class="form-control search-bar", style="width: 400px; height: 45px; text-align: center;", placeholder="Search") }}
 					</div>
 					<div class="form-group ml-3">
 						{{ form.search_type(class_="btn btn-primary dropdown-toggle", style="width: 100px; height: 45px;") }}
 					</div>
 					<div class="form-group ml-3">
 						<!-- text in the button = try line-height -->
-						{{ form.search(class="btn search-btn btn-primary", style="width: 100px; height: 45px;") }}
+						{{ form.submit_search(class="btn search-btn btn-primary", style="width: 100px; height: 45px;") }}
 					</div>
-				</form>
+				</form><br>
 
-				<!-- OLD SEARCH BAR
-				<br>
-				<form class="form-inline" method="post">
-					<input class="form-control" type="search" placeholder="Search..." style="width:500px; text-align: left;">
-					<div class="dropdown">
-						<button class="btn btn-primary dropdown-toggle ml-3" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Dropdown button</button>
-						<div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-							<a class="dropdown-item" href="#">Title</a>
-							<a class="dropdown-item" href="#">Date</a>
-							<a class="dropdown-item" href="#">Time</a>
-							<a class="dropdown-item" href="#">Type</a>
-							<a class="dropdown-item" href="#">Price</a>
-						</div>
-						<button class="btn btn-primary ml-3" type="submit">Search</button>
-					</div>
-				</form> -->
+				<!-- flashed messages -->
+				<div>
+					{% with messages = get_flashed_messages() %}
+				  	{% if messages %}
+						{% for message in messages %}
+				  		<span class="center" style="color: red;">{{ message }}</span>
+					  	{% endfor %}
+				  	{% endif %}
+				  	{% endwith %}
+				</div>
+
+				<!-- Script to handle changing of search type -->
+			  	<script>
+				  	let type_select = document.getElementById("search_type")
+				  	type_select.onchange = function() {
+						var origin = window.location.origin;
+						var route = origin + "/event/" + type_select.value;
+						window.location.href = route;
+					}
+				</script>
 			</div>
 		</div>
 	</div><br>
