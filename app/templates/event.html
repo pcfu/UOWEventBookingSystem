@@ -2,6 +2,17 @@
 
 {% block content %}
 <div class="container main-container" style="margin-top: 70px;">
+	<!-- flashed messages -->
+	<div>
+		{% with messages = get_flashed_messages() %}
+		{% if messages %}
+			{% for message in messages %}
+			<span class="center" style="color: red;">{{ message }}</span>
+			{% endfor %}
+		{% endif %}
+		{% endwith %}
+	</div>
+
 	<!-- search bar -->
 	<div class="row search-row mb-4 align-items-center justify-content-center">
 		<form class="form-inline" method="post">
@@ -13,19 +24,8 @@
 			</div>
 			<div class="form-group ml-3">
 				{{ form.submit_search(class="btn search-btn btn-primary", style="width: 100px; height: 45px;") }}
-			</div><br>
+			</div>
 		</form>
-
-		<!-- flashed messages -->
-		<div>
-			{% with messages = get_flashed_messages() %}
-			{% if messages %}
-				{% for message in messages %}
-				<span class="center" style="color: red;">{{ message }}</span>
-				{% endfor %}
-			{% endif %}
-			{% endwith %}
-		</div>
 	</div><br>
 
 	<!-- Script to handle changing of search type -->
