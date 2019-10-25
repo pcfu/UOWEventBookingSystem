@@ -7,12 +7,15 @@ from datetime import datetime, date
 
 def query_all():
 	records = db.session.query(Event.event_id, Event.event_title, Event.img_root)\
-						.order_by(Event.event_title).all()
+						.join(EventSlot, Event.event_id == EventSlot.event_id)\
+						.group_by(Event.event_id).order_by(Event.event_title).all()
 	return records
 
 
 def title_query(keyword):
 	records = db.session.query(Event.event_id, Event.event_title, Event.img_root)\
+						.join(EventSlot, Event.event_id == EventSlot.event_id)\
+						.group_by(Event.event_id).order_by(Event.event_title)\
 						.filter(Event.event_title.ilike(f'%{keyword}%'))\
 						.order_by(Event.event_title).all()
 	return records
@@ -21,6 +24,8 @@ def title_query(keyword):
 def type_query(keyword):
 	records = db.session.query(Event.event_id, Event.event_title,
 							   Event.event_type, Event.img_root)\
+						.join(EventSlot, Event.event_id == EventSlot.event_id)\
+						.group_by(Event.event_id).order_by(Event.event_title)\
 						.filter(Event.event_type.ilike(f'%{keyword}%'))\
 						.order_by(Event.event_title).all()
 	return records
@@ -35,28 +40,25 @@ def date_query(keyword):
 								   EventSlot.event_date, Event.img_root)\
 							.join(EventSlot, Event.event_id == EventSlot.event_id)\
 							.filter(func.DATE(EventSlot.event_date) == keyword)\
-							.group_by(Event.event_id).all()
+							.group_by(Event.event_id)\
+							.order_by(Event.event_title).all()
 	return records
 
 
 def price_query(keyword):
-	records = []
+	records = db.session.query(Event.event_id, Event.event_title,
+								   Event.price, Event.img_root)\
+						.join(EventSlot, Event.event_id == EventSlot.event_id)\
+						.group_by(Event.event_id).order_by(Event.event_title)
+
 	if keyword == 'free':
-		records = db.session.query(Event.event_id, Event.event_title,
-								   Event.price, Event.img_root)\
-							.filter(Event.price == 0).all()
+		records = records.filter(Event.price == 0).all()
 	elif keyword == 'cheap':
-		records = db.session.query(Event.event_id, Event.event_title,
-								   Event.price, Event.img_root)\
-							.filter(Event.price < 20).all()
+		records = records.filter(Event.price < 20).all()
 	elif keyword == 'mid':
-		records = db.session.query(Event.event_id, Event.event_title,
-								   Event.price, Event.img_root)\
-							.filter(Event.price >= 20, Event.price <= 50 ).all()
+		records = records.filter(Event.price >= 20, Event.price <= 50 ).all()
 	else:
-		records = db.session.query(Event.event_id, Event.event_title,
-								   Event.price, Event.img_root)\
-							.filter(Event.price > 50).all()
+		records = records.filter(Event.price > 50).all()
 	return records
 
 
