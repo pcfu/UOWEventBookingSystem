@@ -15,18 +15,17 @@
 				{{ form.submit_search(class="btn search-btn btn-primary", style="width: 100px; height: 45px;") }}
 			</div>
 		</form>
+	</div>
 
-		<!-- flash error messages -->
-		<div>
-		  {% with messages = get_flashed_messages() %}
-		  {% if messages %}
-		  {% for message in messages %}
-		  <br>
-		  <span class="center" style="color: red;">{{ message }}</span>
-		  {% endfor %}
-		  {% endif %}
-		  {% endwith %}
-		</div>
+	<!-- flash error messages -->
+	<div>
+	  {% with messages = get_flashed_messages() %}
+	  {% if messages %}
+	  {% for message in messages %}
+	  <span class="center" style="color: red;">{{ message }}</span>
+	  {% endfor %}
+	  {% endif %}
+	  {% endwith %}
 	</div><br>
 
 	<!-- Script to handle changing of search type -->
@@ -53,7 +52,6 @@
 				<div class="image-row">
 				  <div class="col-auto m-auto">
 					{% set path = '/static/images/' ~ event.img_root ~ '_thumb.jpg' %}
-					{{ path }}
 					<img src='{{ path }}', style='height: 100%; width: 100%; object-fit: contain'>
 				  </div>
 				</div>

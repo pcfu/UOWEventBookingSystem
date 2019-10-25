@@ -34,7 +34,6 @@ from app import views
 admin = Admin(app, name='UOW Event System', template_mode='bootstrap3',
 			  index_view=views.NoBypassAdminView())
 admin.add_view(views.NoBypassModelView(models.User, db.session))
-#admin.add_view(views.NoBypassModelView(models.Event, db.session))
+admin.add_view(views.EventCreateView(models.Event, db.session))
 admin.add_view(views.NoBypassModelView(models.EventSlot, db.session))
 admin.add_link(MenuLink(name='logout', category='', url='/logout'))
-admin.add_view(views.EventCreateView(models.Event, db.session))

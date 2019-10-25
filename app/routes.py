@@ -1,9 +1,9 @@
 from dateutil.parser import parse
 from app import app, db, query
-from flask import render_template, redirect, url_for
-from app.forms import MemberLoginForm, AdminLoginForm, RegistrationForm, SearchForm
-from flask_login import current_user, login_user, logout_user
 from app.models import User, Staff, Event, EventSlot
+from app.forms import MemberLoginForm, AdminLoginForm, RegistrationForm, SearchForm
+from flask import render_template, redirect, url_for
+from flask_login import current_user, login_user, logout_user
 
 
 @app.route('/')

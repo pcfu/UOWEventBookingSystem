@@ -62,8 +62,9 @@ class Event(db.Model):
 	event_type = db.Column(db.String)
 	description = db.Column(db.String)
 	price = db.Column(db.Integer, nullable=False)
-	staff_id = db.Column(db.Integer, ForeignKey('staff.staff_id'))
 	img_root = db.Column(db.String)
+	staff_id = db.Column(db.Integer, ForeignKey('staff.staff_id'))
+
 	creator = db.relationship('Staff', back_populates='events')
 	slots = db.relationship('EventSlot', back_populates='event')
 
