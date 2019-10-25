@@ -51,9 +51,10 @@
 		<div class="col-4" style="float: left;">
 			<div class="event-container">
 				<div class="image-row">
-					<div class="col-auto m-auto">
-						<img src="/static/images/python.jpg", style='height: 100%; width: 100%; object-fit: contain'>
-					</div>
+				  <div class="col-auto m-auto">
+					{% set path = '/static/images/' ~ event.img ~ '_thumb.jpg' %}
+					<img src='{{ path }}', style='height: 100%; width: 100%; object-fit: contain'>
+				  </div>
 				</div>
 				<div class="event-name-row">
 					<div class="col">
