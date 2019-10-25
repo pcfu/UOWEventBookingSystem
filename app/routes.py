@@ -5,7 +5,6 @@ from app.forms import MemberLoginForm, AdminLoginForm, RegistrationForm, SearchF
 from flask_login import current_user, login_user, logout_user
 from app.models import User, Staff, Event, EventSlot
 
-# url_for will ALWAYS be function name
 
 @app.route('/')
 @app.route('/index')
