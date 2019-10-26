@@ -94,6 +94,21 @@ def search_option(option):
 						   form=form, event_list=get_events())
 
 
+@app.route('/event/details')
+def show_details():
+	return redirect(url_for('event_details', eid='1'))
+
+
+@app.route('/event/details/<eid>')
+def event_details(eid):
+	records = db.session.query(Event, EventSlot).\
+				join(EventSlot, Event.event_id == EventSlot.event_id).\
+				filter(Event.event_id == eid).all()
+	event = query.format_events(records)[0]
+	return render_template('details.html', page_title='Test event details page', event=event)
+### to understand how an event data is structured, scroll down to format_events function
+
+
 ########################
 # SUPPORTING FUNCTIONS #
 ########################

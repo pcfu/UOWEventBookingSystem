@@ -3,6 +3,7 @@ from app.models import Event, EventSlot
 from flask import flash
 from sqlalchemy.sql import func
 from datetime import datetime, date
+from dateutil.parser import parse
 
 
 def query_all():
@@ -62,9 +63,7 @@ def price_query(keyword):
 	return records
 
 
-
-### DO NOT DELETE THESE. Future reference for event detail queries
-'''
+### TEMP SOLUTION to interface details page with main
 def format_events(records):
 	event_list = []
 
@@ -99,4 +98,3 @@ def add_to_list(event_list, event):
 		event['dates'] = sorted(event['dates'])
 		event['times'] = sorted(event['times'])
 		event_list.append(event)
-'''

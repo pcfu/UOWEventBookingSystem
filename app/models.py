@@ -87,6 +87,15 @@ class EventSlot(db.Model):
 
 '''
 class Booking(db.Model):
+	######## REQUIRED FIELDS#########
+	# booking_id = pkey				#
+	# quantity = regular attibute 	#
+	# user_id = fkey1, non-null		#
+	# slot_id = fkey2, non-null		#
+	# payment_id = fkey3, non-null	#
+	#################################
+
+
     booking_no = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, ForeignKey('user.user_id'), unique=True)
     event_id = db.Column(db.Integer, ForeignKey('event.event_id'), unique=True)
