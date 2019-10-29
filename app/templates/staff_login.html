@@ -1,0 +1,28 @@
+{% extends "base.html" %} <!-- if i use extends form doesnt appear -->
+
+{% block content %}
+<!-- main header -->
+<h1 class="center">Admin Login</h1><br>
+
+<form action="" method="post" novalidate>
+    {{ form.hidden_tag() }}
+
+	<!-- username field -->
+    {{ form.username.label(class_='center') }}<br>
+    <div class="center">{{ form.username(size=32) }}</div><br>
+    {% for error in form.username.errors %}
+    <span class="center" style="color: red;">[{{ error }}]</span><br>
+    {% endfor %}
+
+	<!-- password field -->
+    {{ form.password.label(class_='center') }}<br>
+    <div class="center">{{ form.password(size=32) }}</div><br>
+    {% for error in form.password.errors %}
+    <span class ="center" style="color: red;">[{{ error }}]</span><br>
+    {% endfor %}
+
+	<!-- sign-in -->
+     <div style="padding-left: 6.5%;" class="center">{{ form.remember_me.label() }}{{ form.remember_me() }}</div><br>
+    {{ form.submit(class_='signin-btn btn') }}
+</form><br>
+{% endblock %}

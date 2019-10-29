@@ -1,6 +1,6 @@
 from app import app, db, query
 from app.models.users import User, Admin
-from app.forms.forms import MemberLoginForm, RegistrationForm, SearchForm
+from app.forms.forms import MemberLoginForm, AdminLoginForm, RegistrationForm, SearchForm
 from flask import render_template, redirect, url_for
 from flask_login import current_user, login_user, logout_user
 
@@ -60,7 +60,19 @@ def user_login():
 
 @app.route('/staff_login', methods=['GET', 'POST'])
 def staff_login():
-	return redirect(url_for('index'))
+	# if already logged in redirect to admin page
+	if current_user.is_authenticated:
+		return redirect(url_for('admin.index'))
+
+	form = AdminLoginForm()
+	if form.validate_on_submit():
+		staff = User.query.filter_by(username=form.username.data).first()
+		login_user(staff, remember=form.remember_me.data)
+		#redirect to admin page using flask_admin(endpoint=admin)
+		return redirect(url_for('admin.index'))
+
+	# renders staff login page
+	return render_template('staff_login.html', title='EBS: Admin', form=form)
 
 
 @app.route('/logout')

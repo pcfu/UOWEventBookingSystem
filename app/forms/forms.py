@@ -37,8 +37,8 @@ class MemberLoginForm(BaseLogin):
 
 class AdminLoginForm(BaseLogin):
 	def validate(self):
-		user = Staff.query.filter_by(username=self.username.data).first()
-		return super().authenticate(user)
+		user = User.query.filter_by(username=self.username.data).first()
+		return super().authenticate(user) and user.is_staff
 
 
 class RegistrationForm(FlaskForm):
