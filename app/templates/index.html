@@ -33,7 +33,7 @@
 	  let type_select = document.getElementById("search_type");
 		type_select.onchange = function() {
 	  		var origin = window.location.origin;
-	  		var route = origin + "/event/" + type_select.value;
+	  		var route = origin + "/search/" + type_select.value;
 	  		window.location.href = route;
 		}
 	</script>
