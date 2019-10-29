@@ -4,6 +4,8 @@ from sqlalchemy import MetaData
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_login import LoginManager
+from flask_admin import Admin
+from flask_admin.menu import MenuLink
 
 
 # Create the main app object that is called by event_system.py
@@ -29,4 +31,16 @@ login_manager = LoginManager(app) # Flask login_manager
 
 
 from app import routes
-from app.models import users
+#from app.views import views
+from app.models import users, events
+
+'''
+admin = Admin(app, name='UOW Event System', template_mode='bootstrap3',
+			  index_view=views.StaffIndexView())
+admin.add_view(views.StaffUserView(users.User, db.session))
+admin.add_view(views.StaffEventView(events.Event, db.session))
+admin.add_view(views.StaffEventSlotView(events.EventSlot, db.session))
+admin.add_view(views.StaffBookingView(booking.Booking, db.session))
+'''
+admin = Admin(app, name='UOW Event System', template_mode='bootstrap3')
+admin.add_link(MenuLink(name='logout', category='', url='/logout'))

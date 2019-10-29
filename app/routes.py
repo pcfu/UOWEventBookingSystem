@@ -1,6 +1,7 @@
 from app import app, db, query
 from app.models.users import User, Admin
-from app.forms.forms import MemberLoginForm, AdminLoginForm, RegistrationForm, SearchForm
+#from app.models.events import Event, EventSlot
+from app.forms.forms import MemberLoginForm, AdminLoginForm, RegistrationForm, SearchForm #BookingForm
 from flask import render_template, redirect, url_for
 from flask_login import current_user, login_user, logout_user
 
