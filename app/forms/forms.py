@@ -1,8 +1,10 @@
 from app.models.users import User, Admin
+from app.query import staff_user_query
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, BooleanField,\
 					SubmitField, IntegerField, SelectField
 from wtforms.fields.html5 import DateField
+
 from wtforms.validators import DataRequired, EqualTo, ValidationError, \
 								NumberRange, Email
 #from wtforms_components import NumberInput
@@ -38,22 +40,16 @@ class MemberLoginForm(BaseLogin):
 
 class StaffLoginForm(BaseLogin):
 	def validate(self):
-		self.usergroup = 'staff'
 		target_name = self.username.data
-		user = User.query.filter(User.is_staff, User.username == target_name).first()
+		staff = staff_user_query(target_name)
 
-		if user is None:
-			self.usergroup = 'admin'
-			user = Admin.query.filter(Admin.username == target_name).first()
-
-		if user is None:
+		if staff is None:
 			RaiseError(self.username, message='Invalid username')
 			return False
-		if not user.check_password(self.password.data):
+		if not staff.check_password(self.password.data):
 			RaiseError(self.password, message='Incorrect password')
 			return False
 		return True
-
 
 
 class RegistrationForm(FlaskForm):

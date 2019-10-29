@@ -1,4 +1,4 @@
-from app import db
+from app.query import staff_user_query
 from app.models.users import User, Admin
 #from app.models.events import Event
 from flask_login import current_user
@@ -24,24 +24,8 @@ def is_staff_user():
 	staff = None
 	if current_user.is_authenticated:
 		target_name = current_user.username
-		s_group = db.session.query(User.username.label('username'))\
-								   .filter(User.is_staff)
-		a_group = db.session.query(Admin.username.label('username'))
-		aggregate = s_group.union_all(a_group)
-		staff = aggregate.filter(literal_column('username') == target_name).first()
+		staff = staff_user_query(target_name)
 	return staff is not None
-
-
-'''
-def is_staff_user():
-	staff = None
-	if current_user.is_authenticated:
-		target_name = current_user.username
-		staff = User.query.filter(User.username == target_name).first()
-		if staff is None:
-			staff = Admin.query.filter(Admin.username == target_name).first()
-	return staff is not None
-'''
 
 
 '''

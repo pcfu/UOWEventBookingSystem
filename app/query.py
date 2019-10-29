@@ -1,9 +1,17 @@
 from app import db
+from app.models.users import User, Admin
 from app.models.events import Event, EventSlot
 from flask import flash
 from sqlalchemy.sql import func
 from datetime import datetime, date
 from dateutil.parser import parse
+
+
+def staff_user_query(name):
+	user = User.query.filter(User.is_staff, User.username == name).first()
+	if user is None:
+		user = Admin.query.filter(Admin.username == name).first()
+	return user
 
 
 def query_all():

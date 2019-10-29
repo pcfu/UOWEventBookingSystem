@@ -1,13 +1,12 @@
 #from app import db, routes
-from app.views.utils import is_staff_user
-#from app.views.utils import is_staff_user, event_view_formatter, check_slot_clash, \
+from app.views.utils import is_staff_user #, event_view_formatter, check_slot_clash, \
 #							img_filename_gen, event_venue_choices, event_type_choices
 #from app.models.users import User, Admin
 #from app.models.events import Event, EventSlot
 from flask import redirect, url_for
 #from flask_login import current_user
-#from flask_admin.contrib.sqla import ModelView
 from flask_admin import AdminIndexView
+from flask_admin.contrib.sqla import ModelView
 #from wtforms import SelectField
 #from flask_admin.form.upload import ImageUploadField
 #from wtforms.validators import DataRequired, NumberRange, ValidationError
@@ -18,14 +17,6 @@ from flask_admin import AdminIndexView
 #from os import path
 
 
-class StaffIndexView(AdminIndexView):
-	def is_accessible(self):
-		return is_staff_user()
-
-	def inaccessible_callback(self, name, **kwargs):
-		return redirect(url_for('staff_login'))
-
-
 class GlobalIndexView(AdminIndexView):
 	def is_accessible(self):
 		return is_staff_user()
@@ -34,7 +25,6 @@ class GlobalIndexView(AdminIndexView):
 		return redirect(url_for('staff_login'))
 
 
-'''
 class StaffBaseView(ModelView):
 	def is_accessible(self):
 		return is_staff_user()
@@ -43,6 +33,8 @@ class StaffBaseView(ModelView):
 		return redirect(url_for('staff_login'))
 
 
+
+'''
 class StaffUserView(StaffBaseView):
 	# List View Settings
 	can_create = False

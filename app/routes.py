@@ -67,10 +67,7 @@ def staff_login():
 
 	form = StaffLoginForm()
 	if form.validate_on_submit():
-		if form.usergroup == 'staff':
-			staff = User.query.filter_by(username=form.username.data).first()
-		else:
-			staff = Admin.query.filter_by(username=form.username.data).first()
+		staff = query.staff_user_query(form.username.data)
 		login_user(staff, remember=form.remember_me.data)
 		#redirect to admin page using flask_admin(endpoint=admin)
 		return redirect(url_for('admin.index'))
