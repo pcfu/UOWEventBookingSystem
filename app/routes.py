@@ -63,7 +63,7 @@ def user_login():
 def staff_login():
 	# if already logged in redirect to admin page
 	if current_user.is_authenticated:
-		return redirect(url_for('admin.index'))
+		return redirect(url_for('index'))
 
 	form = StaffLoginForm()
 	if form.validate_on_submit():

@@ -31,16 +31,16 @@ login_manager = LoginManager(app) # Flask login_manager
 
 
 from app import routes
-#from app.views import views
 from app.models import users, events
+from app.views import views
+
 
 '''
-admin = Admin(app, name='UOW Event System', template_mode='bootstrap3',
-			  index_view=views.StaffIndexView())
 admin.add_view(views.StaffUserView(users.User, db.session))
 admin.add_view(views.StaffEventView(events.Event, db.session))
 admin.add_view(views.StaffEventSlotView(events.EventSlot, db.session))
 admin.add_view(views.StaffBookingView(booking.Booking, db.session))
 '''
-admin = Admin(app, name='UOW Event System', template_mode='bootstrap3')
+admin = Admin(app, name='UOW Event System', template_mode='bootstrap3',
+			  index_view=views.GlobalIndexView())
 admin.add_link(MenuLink(name='logout', category='', url='/logout'))
