@@ -30,6 +30,8 @@ class StaffBaseView(ModelView):
 		return is_staff_user()
 
 	def inaccessible_callback(self, name, **kwargs):
+		if is_admin_user():
+			return redirect(url_for('admin.index'))
 		return redirect(url_for('staff_login'))
 
 
@@ -37,6 +39,13 @@ class StaffVenueView(StaffBaseView):
 	# List View Settings
 	column_display_pk = True
 	column_labels = dict(venue_id='ID')
+	form_columns = [ 'name' ]
+
+
+class StaffEventTypeView(StaffBaseView):
+	# List View Settings
+	column_display_pk = True
+	column_labels = dict(type_id='ID')
 	form_columns = [ 'name' ]
 
 
