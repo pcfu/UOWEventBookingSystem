@@ -21,7 +21,12 @@ class BaseLogin(FlaskForm):
 	remember_me = BooleanField('Remember Me')
 	submit = SubmitField('Sign In')
 
-	def authenticate(self, user):
+
+class MemberLoginForm(BaseLogin):
+	def validate(self):
+		user = User.query.filter(User.is_staff == False,
+								 User.username == self.username.data).first()
+
 		if user is None:
 			RaiseError(self.username, message='Invalid username')
 			return False
@@ -31,19 +36,24 @@ class BaseLogin(FlaskForm):
 		return True
 
 
-class MemberLoginForm(BaseLogin):
+class StaffLoginForm(BaseLogin):
 	def validate(self):
-		user = User.query.filter_by(username=self.username.data).first()
-		return super().authenticate(user)
+		self.usergroup = 'staff'
+		target_name = self.username.data
+		user = User.query.filter(User.is_staff, User.username == target_name).first()
 
+		if user is None:
+			self.usergroup = 'admin'
+			user = Admin.query.filter(Admin.username == target_name).first()
 
-class AdminLoginForm(BaseLogin):
-	def validate(self):
-		user = User.query.filter_by(username=self.username.data).first()
-		if user is None or not user.is_staff:
+		if user is None:
 			RaiseError(self.username, message='Invalid username')
-		else:
-			return super().authenticate(user)
+			return False
+		if not user.check_password(self.password.data):
+			RaiseError(self.password, message='Incorrect password')
+			return False
+		return True
+
 
 
 class RegistrationForm(FlaskForm):

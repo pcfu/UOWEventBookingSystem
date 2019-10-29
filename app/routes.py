@@ -1,7 +1,7 @@
 from app import app, db, query
 from app.models.users import User, Admin
 #from app.models.events import Event, EventSlot
-from app.forms.forms import MemberLoginForm, AdminLoginForm, RegistrationForm, SearchForm #BookingForm
+from app.forms.forms import MemberLoginForm, StaffLoginForm, RegistrationForm, SearchForm #BookingForm
 from flask import render_template, redirect, url_for
 from flask_login import current_user, login_user, logout_user
 
@@ -11,7 +11,7 @@ def load_user(entry):
 	if entry[0] == 'User':
 		return User.query.get(int(entry[1]))
 	else:
-		return False
+		return Admin.query.get(int(entry[1]))
 
 
 @app.route('/')
@@ -65,9 +65,12 @@ def staff_login():
 	if current_user.is_authenticated:
 		return redirect(url_for('admin.index'))
 
-	form = AdminLoginForm()
+	form = StaffLoginForm()
 	if form.validate_on_submit():
-		staff = User.query.filter_by(username=form.username.data).first()
+		if form.usergroup == 'staff':
+			staff = User.query.filter_by(username=form.username.data).first()
+		else:
+			staff = Admin.query.filter_by(username=form.username.data).first()
 		login_user(staff, remember=form.remember_me.data)
 		#redirect to admin page using flask_admin(endpoint=admin)
 		return redirect(url_for('admin.index'))
