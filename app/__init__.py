@@ -28,4 +28,4 @@ migrate = Migrate(app, db, render_as_batch=True) # Flask database migration mana
 login_manager = LoginManager(app) # Flask login_manager
 
 
-from app import routes
+from app import routes, models
