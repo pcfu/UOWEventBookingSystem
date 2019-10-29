@@ -6,9 +6,9 @@ from flask_migrate import Migrate
 from flask_login import LoginManager
 
 
+# Create the main app object that is called by event_system.py
 app = Flask(__name__)
 app.config.from_object(Config)
-#app.config['FLASK_ADMIN_SWATCH'] = 'sandstone'
 
 
 # Create database
@@ -26,3 +26,6 @@ migrate = Migrate(app, db, render_as_batch=True) # Flask database migration mana
 
 # Create login manager
 login_manager = LoginManager(app) # Flask login_manager
+
+
+from app import routes

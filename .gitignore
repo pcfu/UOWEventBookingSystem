@@ -6,3 +6,4 @@ Include
 __pycache__
 pyvenv.cfg
 *.bak
+*BAK*
