@@ -42,8 +42,7 @@
                 {% endif %}
             </ul>
 
-			<!--
-            right links group
+            <!-- right links group -->
             <ul class="navbar-nav ml-auto">
                 <li class="nav-item">
             <ul class="navbar-nav ml-auto">
@@ -56,8 +55,8 @@
 					   class="btn btn-outline-primary"
 					   role="button">Admin Sign In</a>
                     {% else %}
-					username now shows up next to account button when logged in.
-						 Still need to adjust styling
+					<!-- username now shows up next to account button when logged in.
+						 Still need to adjust styling -->
 					<span style="color: white;">{{ current_user.username }}</span>
                     <a href="{{ origin }}myaccountpagehere"
 					   class="btn btn-outline-primary"
@@ -66,19 +65,6 @@
 					   class="btn btn-outline-primary"
 					   role="button">Logout</a>
                     {% endif %}
-                </li>
-            </ul>
-			-->
-
-            <ul class="navbar-nav ml-auto">
-                <li class="nav-item">
-					<!-- when login, grab the current url to pass to login page -->
-                    <a href="{{ url_for('user_login') }}"
-					   class="btn btn-outline-primary"
-	   				   role="button">Member Sign In</a>
-                    <a href="{{ url_for('staff_login') }}"
-					   class="btn btn-outline-primary"
-					   role="button">Admin Sign In</a>
                 </li>
             </ul>
         </div>

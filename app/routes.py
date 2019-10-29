@@ -44,7 +44,7 @@ def staff_login():
 
 @app.route('/logout')
 def logout():
-	#logout_user()
+	logout_user()
 	return redirect(url_for('index'))
 
 
