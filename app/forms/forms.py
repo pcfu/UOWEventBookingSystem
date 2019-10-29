@@ -3,7 +3,8 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, BooleanField,\
 					SubmitField, IntegerField, SelectField
 #from wtforms.fields.html5 import DateField
-from wtforms.validators import DataRequired, EqualTo, ValidationError, NumberRange, Email
+from wtforms.validators import DataRequired, EqualTo, ValidationError, \
+								NumberRange, Email
 #from wtforms_components import NumberInput
 #from datetime import date
 
@@ -39,15 +40,14 @@ class AdminLoginForm(BaseLogin):
 		user = Staff.query.filter_by(username=self.username.data).first()
 		return super().authenticate(user)
 
-'''
+
 class RegistrationForm(FlaskForm):
 	username = StringField('Username', validators=[DataRequired()])
 	email = StringField('Email', validators=[DataRequired(), Email()])
 	password = PasswordField('Password', validators=[DataRequired()])
 	confirm_password = PasswordField('Confirm Password',
 		validators=[DataRequired(),
-					EqualTo('password', message='Password must match!')
-					])
+					EqualTo('password', message='Password must match!')])
 	submit = SubmitField('Register')
 
 	def validate_username(self, username):
@@ -61,6 +61,7 @@ class RegistrationForm(FlaskForm):
 			raise ValidationError('Email already taken')
 
 
+'''
 class SearchForm(FlaskForm):
 	CHOICES = [('title', 'Title'),
 			   ('date', 'Date'),

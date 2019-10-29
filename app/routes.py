@@ -1,6 +1,6 @@
-from app import app
+from app import app, db
 from app.models.users import User, Admin
-from app.forms.forms import MemberLoginForm
+from app.forms.forms import MemberLoginForm, RegistrationForm
 from flask import render_template, redirect, url_for
 from flask_login import current_user, login_user, logout_user
 
@@ -51,4 +51,17 @@ def logout():
 @app.route('/register', methods=['GET', 'POST'])
 def register():
 	# if already logged in redirect to homepage
-	return redirect(url_for('index'))
+	if current_user.is_authenticated:
+		return redirect(url_for('index'))
+
+	form = RegistrationForm()
+	if form.validate_on_submit():
+		new_user = User(username=form.username.data,
+						email=form.email.data,
+						is_staff=False)
+		new_user.set_password(form.password.data)
+		db.session.add(new_user)
+		db.session.commit()
+		login_user(new_user)
+		return redirect(url_for('index'))
+	return render_template('register.html', title='EBS: Account Registration', form=form)
