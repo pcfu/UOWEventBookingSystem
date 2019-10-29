@@ -1,6 +1,6 @@
-from app import app, db
+from app import app, db, query
 from app.models.users import User, Admin
-from app.forms.forms import MemberLoginForm, RegistrationForm
+from app.forms.forms import MemberLoginForm, RegistrationForm, SearchForm
 from flask import render_template, redirect, url_for
 from flask_login import current_user, login_user, logout_user
 
@@ -17,7 +17,28 @@ def load_user(entry):
 @app.route('/index')
 @app.route('/search')
 def index():
-	return render_template('base.html', title='Event Booking System')
+	return redirect(url_for('get_events', option='title'))
+
+
+@app.route('/search/<option>', methods=['GET', 'POST'])
+def get_events(option):
+	form = SearchForm()
+	form.search_type.data = option
+	if option == 'date':
+		form.search_field = form.DATE_FIELD
+	elif option == 'price':
+		form.search_field = form.PRICE_FIELD
+
+	if form.is_submitted():
+		search_type = form.search_type.data
+		keyword = str(form.search_field.data).strip()
+		if len(keyword) > 0:
+			return render_template('index.html', title='Event Booking System', form=form,
+								   event_list=get_events(search_type, keyword))
+
+	return render_template('index.html', title='Event Booking System',
+						   form=form, event_list=get_events())
+
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -65,3 +86,20 @@ def register():
 		login_user(new_user)
 		return redirect(url_for('index'))
 	return render_template('register.html', title='EBS: Account Registration', form=form)
+
+
+########################
+# SUPPORTING FUNCTIONS #
+########################
+
+def get_events(search_type=None, keyword=None):
+	if keyword is None:
+		return query.query_all()
+	elif search_type == 'title':
+		return query.title_query(keyword)
+	elif search_type == 'type':
+		return query.type_query(keyword)
+	elif search_type == 'date':
+		return query.date_query(keyword)
+	else:
+		return query.price_query(keyword)

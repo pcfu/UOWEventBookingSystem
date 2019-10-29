@@ -2,11 +2,11 @@ from app.models.users import User, Admin
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, BooleanField,\
 					SubmitField, IntegerField, SelectField
-#from wtforms.fields.html5 import DateField
+from wtforms.fields.html5 import DateField
 from wtforms.validators import DataRequired, EqualTo, ValidationError, \
 								NumberRange, Email
 #from wtforms_components import NumberInput
-#from datetime import date
+from datetime import date
 
 
 class BaseLogin(FlaskForm):
@@ -61,7 +61,6 @@ class RegistrationForm(FlaskForm):
 			raise ValidationError('Email already taken')
 
 
-'''
 class SearchForm(FlaskForm):
 	CHOICES = [('title', 'Title'),
 			   ('date', 'Date'),
@@ -80,6 +79,7 @@ class SearchForm(FlaskForm):
 	submit_search = SubmitField('Search')
 
 
+'''
 class BookingForm(FlaskForm):
 	title = StringField(render_kw={'readonly':'True'})
 	username = StringField(render_kw={'readonly':'True'})
