@@ -43,4 +43,6 @@ admin.add_view(views.StaffBookingView(booking.Booking, db.session))
 '''
 admin = Admin(app, name='UOW Event System', template_mode='bootstrap3',
 			  index_view=views.GlobalIndexView())
+admin.add_view(views.StaffVenueView(events.Venue, db.session))
+admin.add_link(MenuLink(name='front page', category='', url='/'))
 admin.add_link(MenuLink(name='logout', category='', url='/logout'))

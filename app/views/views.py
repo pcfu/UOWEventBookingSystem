@@ -1,5 +1,5 @@
 #from app import db, routes
-from app.views.utils import is_staff_user #, event_view_formatter, check_slot_clash, \
+from app.views.utils import is_staff_user, is_admin_user #, event_view_formatter, check_slot_clash, \
 #							img_filename_gen, event_venue_choices, event_type_choices
 #from app.models.users import User, Admin
 #from app.models.events import Event, EventSlot
@@ -19,7 +19,7 @@ from flask_admin.contrib.sqla import ModelView
 
 class GlobalIndexView(AdminIndexView):
 	def is_accessible(self):
-		return is_staff_user()
+		return is_admin_user() or is_staff_user()
 
 	def inaccessible_callback(self, name, **kwargs):
 		return redirect(url_for('staff_login'))
@@ -32,6 +32,12 @@ class StaffBaseView(ModelView):
 	def inaccessible_callback(self, name, **kwargs):
 		return redirect(url_for('staff_login'))
 
+
+class StaffVenueView(StaffBaseView):
+	# List View Settings
+	column_display_pk = True
+	column_labels = dict(venue_id='ID')
+	form_columns = [ 'name' ]
 
 
 '''

@@ -1,4 +1,3 @@
-from app.query import staff_user_query
 from app.models.users import User, Admin
 #from app.models.events import Event
 from flask_login import current_user
@@ -24,8 +23,16 @@ def is_staff_user():
 	staff = None
 	if current_user.is_authenticated:
 		target_name = current_user.username
-		staff = staff_user_query(target_name)
+		staff = User.query.filter(User.is_staff, User.username == target_name).first()
 	return staff is not None
+
+
+def is_admin_user():
+	admin = None
+	if current_user.is_authenticated:
+		target_name = current_user.username
+		admin = Admin.query.filter(Admin.username == target_name).first()
+	return admin is not None
 
 
 '''
