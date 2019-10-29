@@ -9,6 +9,12 @@ from wtforms.validators import DataRequired, EqualTo, ValidationError, \
 from datetime import date
 
 
+def RaiseError(field, message='Invalid data'):
+	error_list = list(field.errors)
+	error_list.append(message)
+	field.errors = tuple(error_list)
+
+
 class BaseLogin(FlaskForm):
 	username = StringField('Username', validators=[DataRequired()])
 	password = PasswordField('Password', validators=[DataRequired()])
@@ -17,14 +23,10 @@ class BaseLogin(FlaskForm):
 
 	def authenticate(self, user):
 		if user is None:
-			error_list = list(self.username.errors)
-			error_list.append('Invalid username')
-			self.username.errors = tuple(error_list)
+			RaiseError(self.username, message='Invalid username')
 			return False
 		if not user.check_password(self.password.data):
-			error_list = list(self.password.errors)
-			error_list.append('Incorrect password')
-			self.password.errors = tuple(error_list)
+			RaiseError(self.password, message='Incorrect password')
 			return False
 		return True
 
@@ -38,7 +40,10 @@ class MemberLoginForm(BaseLogin):
 class AdminLoginForm(BaseLogin):
 	def validate(self):
 		user = User.query.filter_by(username=self.username.data).first()
-		return super().authenticate(user) and user.is_staff
+		if user is None or not user.is_staff:
+			RaiseError(self.username, message='Invalid username')
+		else:
+			return super().authenticate(user)
 
 
 class RegistrationForm(FlaskForm):
