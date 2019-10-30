@@ -2,7 +2,7 @@ from app import db
 from sqlalchemy import ForeignKey
 from dateutil.parser import parse
 from datetime import timedelta
-
+from sqlalchemy.ext.hybrid import hybrid_property
 
 class Venue(db.Model):
 	venue_id = db.Column(db.Integer, primary_key=True)
@@ -44,7 +44,7 @@ class Event(db.Model):
 		return '[ EID:{} ] {} ---------- [ {} ]'\
 			.format(self.event_id, self.title, self.venue)
 
-	@property
+	@hybrid_property
 	def is_scheduled(self):
 		return bool(self.slots)
 
