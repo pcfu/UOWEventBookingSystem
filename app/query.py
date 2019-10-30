@@ -1,6 +1,6 @@
 from app import db
 from app.models.users import User, Admin
-from app.models.events import Event, EventSlot
+from app.models.events import Event, EventSlot, EventType
 from flask import flash
 from sqlalchemy.sql import func
 from datetime import datetime, date
@@ -31,12 +31,11 @@ def title_query(keyword):
 
 
 def type_query(keyword):
-	records = db.session.query(Event.event_id, Event.title,
-							   Event.event_type, Event.img_root)\
+	records = db.session.query(Event.event_id, Event.title, Event.img_root)\
+						.join(EventType, Event.type_id == EventType.type_id)\
+						.filter(EventType.name.ilike(f'%{keyword}%'))\
 						.join(EventSlot, Event.event_id == EventSlot.event_id)\
-						.group_by(Event.event_id).order_by(Event.title)\
-						.filter(Event.event_type.ilike(f'%{keyword}%'))\
-						.order_by(Event.title).all()
+						.group_by(Event.event_id).order_by(Event.title).all()
 	return records
 
 
@@ -45,12 +44,11 @@ def date_query(keyword):
 	if keyword == 'None' or datetime.strptime(keyword, '%Y-%m-%d').date() < date.today():
 		flash('Invalid date')
 	else:
-		records = db.session.query(Event.event_id, Event.title,
-								   EventSlot.event_date, Event.img_root)\
+		records = db.session.query(Event.event_id, Event.title, Event.img_root)\
 							.join(EventSlot, Event.event_id == EventSlot.event_id)\
 							.filter(func.DATE(EventSlot.event_date) == keyword)\
-							.group_by(Event.event_id)\
-							.order_by(Event.title).all()
+							.group_by(Event.event_id).order_by(Event.title).all()
+
 	return records
 
 
