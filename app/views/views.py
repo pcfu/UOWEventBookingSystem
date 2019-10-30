@@ -71,12 +71,11 @@ class StaffEventView(StaffBaseView):
 	column_labels = dict(is_scheduled='Scheduled', is_launched='Launched',
 						 event_id='ID', event_type='Type',
 						 duration='Duration (H)', img_root='Image File')
-	column_editable_list = ( 'is_launched', 'title', 'event_type', 'venue',
-							 'capacity', 'duration', 'price' )
-
-	column_sortable_list = [ 'event_id', 'is_scheduled', 'is_launched', 'title',
-							 ('event_type', 'event_type.name' ),
-							 ('venue', 'venue.name') ]
+	column_editable_list = ('is_launched', 'title', 'event_type', 'venue',
+							'capacity', 'duration', 'price')
+	column_sortable_list = ['event_id', 'is_scheduled', 'is_launched',
+							'title', ('event_type', 'event_type.name'),
+							('venue', 'venue.name'), 'capacity', 'duration', 'price']
 
 	# Details View Settings
 	column_details_list = [ 'event_id', 'title', 'slots', 'description' ]
