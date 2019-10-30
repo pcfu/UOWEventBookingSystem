@@ -1,59 +1,107 @@
 {% extends "base.html" %}
 
 {% block content %}
+<div class="container form-main-container ml-2" style="margin-top: 70px;">
+	<form action="" method="post">
+		{{ form.hidden_tag() }}
+
+		<!-- Event title -->
+		<div class="row mb-2">
+			<div class="col-2">
+				{{ form.title.label }}
+			</div>
+			<div class="col-8">
+				{{ form.title() }}
+			</div>
+		</div>
+
+		<!-- Username -->
+		<div class="row mb-2">
+			<div class="col-2">
+				{{ form.username.label }}
+			</div>
+			<div class="col-8">
+				{{ form.username() }}
+			</div>
+		</div>
+
+		<!-- Date and Time -->
+		<div class="row mb-2">
+			<div class="col-2">
+				{{ form.dates.label }}
+			</div>
+			<div class="col-2">
+				{{ form.dates(size=1) }}
+			</div>
+			<div class="col-2">
+				{{ form.times.label }}
+			</div>
+			<div class="col-1">
+				{{ form.times(size=1) }}
+			</div>
+		</div>
+
+		<!-- No. of Tickets -->
+		<div class="row mb-2">
+			<div class="col-2">
+				Tickets
+			</div>
+			<div class="col-8">
+				{{ form.count(onchange="refreshPrice()", max=capacity, onkeydown="return false") }}
+				{% for error in form.count.errors %}
+				<span style="color: red;">[{{ error }}]</span>
+				{% endfor %}
+			</div>
+		</div>
+
+		<!-- Total Cost -->
+		<div class="row mb-2">
+			 <div class="col-2">
+			   Total ($)
+			 </div>
+			 <div class="col-8">
+			   {{ form.price() }}
+			   <script>var basePrice = document.getElementById('price').value</script>
+			 </div>
+		</div>
+
+		<!-- Book Button -->
+		<div class="row">
+			<div class="col">
+			  {{ form.submit(class="btn btn-secondary offset-2",
+			 				 style="width: 100px;") }}
+			</div>
+		</div>
+	</form>
+</div>
+
+<!-- Dynamically update total cost -->
 <script>
 function refreshPrice(){
-    document.getElementById('price').value = parseFloat(document.getElementById('count').value * basePrice).toFixed(2)
+    document.getElementById('price').value =
+		parseFloat(document.getElementById('count').value * basePrice).toFixed(2)
 }
 </script>
 
-<form action="" method="post">
-	{{ form.hidden_tag() }}
-	<p>
-        {{ form.title.label }}
-        {{ form.title() }}<br>
-    </p>
-    <p>
-        {{ form.username.label }}
-        {{ form.username() }}<br>
-    </p>
-    <p>
-    	{{ form.dates.label }}
-	    {{ form.dates(size=1) }}
-    	{{ form.times.label }}
-	    {{ form.times(size=1) }}<br>
-    </p>
-        {{ form.count.label }}
-        {{ form.count(onchange="refreshPrice()", max=form.capacity, onkeydown="return false") }}<br>
-        {% for error in form.count.errors %}
-	    <span style="color: red;">[{{ error }}]</span>
-    	{% endfor %}
-    </p>
-     <p>
-        {{ form.price.label }}
-        {{ form.price() }}<br>
-         <script>var basePrice= document.getElementById('price').value</script>
-	 <p>{{ form.submit() }}</p>
+<!-- Dynamically update available times based on date selected -->
+<script>
+  let date_select = document.getElementById('dates');
+  let time_select = document.getElementById('times');
 
-	 <script>
-	   let date_select = document.getElementById('dates');
-	   let time_select = document.getElementById('times');
+  date_select.onchange = function() {
+	  date = date_select.value;
 
-	   date_select.onchange = function() {
-		   date = date_select.value;
+	  fetch('/booking/' + {{ eid }} + '/' + date).then(function(response) {
+		  response.json().then(function(data) {
+			  let time_choices_HTML = '';
+			  for (let timing of data.timings) {
+				  time_choices_HTML += '<option value="' + timing.slot_id
+					  					+ '">' + timing.time + '</option>';
+			  }
+			  time_select.innerHTML = time_choices_HTML;
+		  });
+	  });
+  }
+</script>
 
-		   fetch('/booking/' + {{ eid }} + '/' + date).then(function(response) {
-			   response.json().then(function(data) {
-				   let time_choices_HTML = '';
-				   for (let timing of data.timings) {
-					   time_choices_HTML += '<option value="' + timing.slot_id +
-						   					'">' + timing.time + '</option>';
-				   }
-
-				   time_select.innerHTML = time_choices_HTML;
-			   });
-		   });
-	   }
-	 </script>
-</form>
 {% endblock %}
