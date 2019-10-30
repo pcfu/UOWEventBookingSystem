@@ -32,7 +32,7 @@ class Event(db.Model):
 	description = db.Column(db.String)
 	price = db.Column(db.Float, nullable=False)
 	img_root = db.Column(db.String)
-	is_launched = db.Column(db.Boolean)
+	is_launched = db.Column(db.Boolean, nullable=False)
 	type_id = db.Column(db.Integer, ForeignKey('event_type.type_id'))
 	venue_id = db.Column(db.Integer, ForeignKey('venue.venue_id'), nullable=False)
 
