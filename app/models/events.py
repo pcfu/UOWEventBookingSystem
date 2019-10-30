@@ -33,7 +33,7 @@ class Event(db.Model):
 	price = db.Column(db.Float, nullable=False)
 	img_root = db.Column(db.String)
 	type_id = db.Column(db.Integer, ForeignKey('event_type.type_id'))
-	venue_id = db.Column(db.Integer, ForeignKey('venue.venue_id'))
+	venue_id = db.Column(db.Integer, ForeignKey('venue.venue_id'), nullable=False)
 
 	event_type = db.relationship('EventType', back_populates='events')
 	venue = db.relationship('Venue', back_populates='events')
