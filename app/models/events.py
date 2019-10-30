@@ -73,3 +73,7 @@ class EventSlot(db.Model):
 		derived_time = self.event_date + timedelta(minutes=duration)
 		dt = parse(str(derived_time))
 		return dt.time().strftime('%I:%M %p')
+
+	@property
+	def is_launched(self):
+		return self.event.is_launched

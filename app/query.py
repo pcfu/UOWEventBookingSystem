@@ -16,6 +16,7 @@ def staff_user_query(name):
 
 def query_all():
 	records = db.session.query(Event.event_id, Event.title, Event.img_root)\
+						.filter(Event.is_launched)\
 						.join(EventSlot, Event.event_id == EventSlot.event_id)\
 						.group_by(Event.event_id).order_by(Event.title).all()
 	return records
@@ -23,9 +24,9 @@ def query_all():
 
 def title_query(keyword):
 	records = db.session.query(Event.event_id, Event.title, Event.img_root)\
+						.filter(Event.is_launched, Event.title.ilike(f'%{keyword}%'))\
 						.join(EventSlot, Event.event_id == EventSlot.event_id)\
 						.group_by(Event.event_id).order_by(Event.title)\
-						.filter(Event.title.ilike(f'%{keyword}%'))\
 						.order_by(Event.title).all()
 	return records
 
@@ -33,7 +34,8 @@ def title_query(keyword):
 def type_query(keyword):
 	records = db.session.query(Event.event_id, Event.title, Event.img_root)\
 						.join(EventType, Event.type_id == EventType.type_id)\
-						.filter(EventType.name.ilike(f'%{keyword}%'))\
+						.filter(Event.is_launched,
+								EventType.name.ilike(f'%{keyword}%'))\
 						.join(EventSlot, Event.event_id == EventSlot.event_id)\
 						.group_by(Event.event_id).order_by(Event.title).all()
 	return records
@@ -46,7 +48,8 @@ def date_query(keyword):
 	else:
 		records = db.session.query(Event.event_id, Event.title, Event.img_root)\
 							.join(EventSlot, Event.event_id == EventSlot.event_id)\
-							.filter(func.DATE(EventSlot.event_date) == keyword)\
+							.filter(Event.is_launched,
+									func.DATE(EventSlot.event_date) == keyword)\
 							.group_by(Event.event_id).order_by(Event.title).all()
 
 	return records
@@ -54,7 +57,8 @@ def date_query(keyword):
 
 def price_query(keyword):
 	records = db.session.query(Event.event_id, Event.title,
-								   Event.price, Event.img_root)\
+							   Event.price, Event.img_root)\
+						.filter(Event.is_launched)\
 						.join(EventSlot, Event.event_id == EventSlot.event_id)\
 						.group_by(Event.event_id).order_by(Event.title)
 

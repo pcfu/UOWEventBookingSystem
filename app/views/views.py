@@ -64,15 +64,15 @@ class StaffEventView(StaffBaseView):
 	# List View Settings
 	can_view_details = True
 	column_display_pk = True
-	column_list = [ 'is_scheduled', 'event_id', 'title', 'event_type',
-					'venue', 'capacity', 'duration', 'price', 'img_root' ]
-	column_labels = dict(is_scheduled='Scheduled', event_id='ID', event_type='Type',
+	column_list = [ 'is_scheduled', 'is_launched', 'event_id',
+					'title', 'event_type', 'venue', 'capacity',
+					'duration', 'price', 'img_root' ]
+	column_labels = dict(is_scheduled='Scheduled', is_launched='Launched',
+						 event_id='ID', event_type='Type',
 						 duration='Duration (H)', img_root='Image File')
 
 	# Details View Settings
-	column_details_list = [ 'event_id', 'title', 'slots', 'venue',
-							'duration', 'capacity', 'event_type',
-							'description', 'price', 'img_root' ]
+	column_details_list = [ 'event_id', 'title', 'slots', 'description' ]
 
 	# Create/Edit Form Settings
 	form_extra_fields = {'path':
@@ -83,7 +83,7 @@ class StaffEventView(StaffBaseView):
 						}
 
 	form_columns = [ 'title', 'event_type', 'description', 'venue', 'capacity',
-					 'duration', 'price', 'img_root', 'path' ]
+					 'duration', 'price', 'img_root', 'path', 'is_launched' ]
 	form_args = dict(duration=dict(validators=[NumberRange(min=0.5),
 											   Interval(interval=0.25)]),
 					 capacity=dict(validators=[NumberRange(min=1)]),
@@ -111,9 +111,10 @@ class StaffEventSlotView(StaffBaseView):
 	# List View Settings
 	can_view_details = True
 	column_display_pk = True
-	column_list = [ 'slot_id', 'event', 'event_date', 'start_time', 'end_time' ]
-	column_labels = dict(slot_id='ID', event_date='Date',
-						 start_time='Start', end_time='End')
+	column_list = [ 'slot_id', 'is_launched', 'event',
+					'event_date', 'start_time', 'end_time' ]
+	column_labels = dict(slot_id='ID', is_launched='Launched',
+						 event_date='Date', start_time='Start', end_time='End')
 	column_sortable_list = ( 'slot_id', ('event', 'event.title'), 'event_date')
 	column_type_formatters = event_view_formatter
 
