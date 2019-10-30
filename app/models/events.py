@@ -2,7 +2,6 @@ from app import db
 from sqlalchemy import ForeignKey
 from dateutil.parser import parse
 from datetime import timedelta
-from sqlalchemy.ext.hybrid import hybrid_property
 
 
 class Venue(db.Model):
@@ -41,12 +40,11 @@ class Event(db.Model):
 	venue = db.relationship('Venue', back_populates='events')
 	slots = db.relationship('EventSlot', cascade='all, delete', back_populates='event')
 
-	@hybrid_property
 	def __repr__(self):
 		return '[ EID:{} ] {} ---------- [ {} ]'\
 			.format(self.event_id, self.title, self.venue)
 
-	@hybrid_property
+	@property
 	def is_scheduled(self):
 		return bool(self.slots)
 
