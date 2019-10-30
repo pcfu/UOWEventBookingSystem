@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block content %}
+<script>
+function refreshPrice(){
+    document.getElementById('price').value = document.getElementById('count').value * basePrice
+}
+</script>
+
+<form action="" method="post">
+	{{ form.hidden_tag() }}
+	<p>
+        {{ form.title.label }}
+        {{ form.title() }}<br>
+    </p>
+    <p>
+        {{ form.username.label }}
+        {{ form.username() }}<br>
+    </p>
+    <p>
+    	{{ form.date.label }}
+	    {{ form.date(size=1) }}<br>
+    </p>
+    <p>
+        {{ form.count.label }}
+        {{ form.count(onchange="refreshPrice()", max=capacity, onkeydown="return false") }}<br>
+        {% for error in form.count.errors %}
+	    <span style="color: red;">[{{ error }}]</span>
+    	{% endfor %}
+    </p>
+     <p>
+        {{ form.price.label }}
+        {{ form.price() }}<br>
+         <script>var basePrice= document.getElementById('price').value</script>
+
+    </p>
+	<p>{{ form.submit() }}</p>
+</form>
+{% endblock %}

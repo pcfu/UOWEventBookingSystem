@@ -1,11 +1,13 @@
 from app import app, db, query
 from app.models.users import User, Admin
 from app.models.events import Event, EventSlot
-from app.forms.forms import MemberLoginForm, StaffLoginForm, RegistrationForm, SearchForm #BookingForm
+from app.models.booking import Booking
+from app.forms.forms import MemberLoginForm, StaffLoginForm, RegistrationForm, \
+							SearchForm, BookingForm
 from flask import render_template, redirect, url_for
 from flask_login import current_user, login_user, logout_user
 from app.views.utils import is_admin_user
-#from dateutil.parser import parse
+from dateutil.parser import parse
 
 
 @app.login_manager.user_loader
@@ -127,26 +129,26 @@ def booking(eid):
 		return redirect(url_for('event_details', eid=eid))
 
 	selected_event = Event.query.get(eid)
-	event_slots = db.session.query(EventSlot.event_date). \
-					join(Event, EventSlot.event_id == Event.event_id).\
-					filter(EventSlot.event_id == eid).all()
+	event_slots = db.session.query(EventSlot.event_date, EventSlot.slot_id)\
+							.join(Event, EventSlot.event_id == Event.event_id)\
+							.filter(EventSlot.event_id == eid).all()
 
 	form = BookingForm()
 	form.title.data = selected_event.title
 	form.username.data = current_user.username
-	form.date.choices = [(es.event_date, es.event_date) for es in event_slots]
+	form.date.choices = [(es.slot_id, es.event_date) for es in event_slots]
 	form.price.data = selected_event.price
 	capacity = selected_event.capacity
 
 	if form.is_submitted():
 		uid = current_user.user_id
-		eid = selected_event.event_id
-		slot = parse(form.date.data)
+		esid = form.date.data
 		qty = form.count.data
-		#booking = Booking(user_id=uid, event_id=eid, event_date=slot, quantity=qty)
 
-		#db.session.add(booking)
-		#db.session.commit()
+		booking = Booking(user_id=uid, event_slot_id=esid, quantity=qty)
+		db.session.add(booking)
+		db.session.commit()
+
 		return f"<html><body><p>Booking completed. You will be redirected in 3 seconds</p><script>var timer = setTimeout(function() {{window.location='{ '/index' }'}}, 3000);</script></body></html>"
 
 	return render_template('booking.html', form=form, capacity=capacity)

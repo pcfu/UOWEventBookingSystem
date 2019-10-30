@@ -1,13 +1,12 @@
-from app.models.users import User, Admin
-from app.query import staff_user_query
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, BooleanField,\
+from app.models.users import User, Admin
+from wtforms import StringField, PasswordField, BooleanField, \
 					SubmitField, IntegerField, SelectField
 from wtforms.fields.html5 import DateField
-
 from wtforms.validators import DataRequired, EqualTo, ValidationError, \
 								NumberRange, Email
-#from wtforms_components import NumberInput
+from wtforms_components import NumberInput
+from app.query import staff_user_query
 from datetime import date
 
 
@@ -23,6 +22,7 @@ class BaseLogin(FlaskForm):
 	remember_me = BooleanField('Remember Me')
 	submit = SubmitField('Sign In')
 
+	### TRY MOVING CHILD authentication into Base again
 
 class MemberLoginForm(BaseLogin):
 	def validate(self):
@@ -90,12 +90,12 @@ class SearchForm(FlaskForm):
 	submit_search = SubmitField('Search')
 
 
-'''
 class BookingForm(FlaskForm):
 	title = StringField(render_kw={'readonly':'True'})
 	username = StringField(render_kw={'readonly':'True'})
 	date = SelectField()
-	count = IntegerField('Count', default=1, validators=[DataRequired(), NumberRange(min=1)], widget=NumberInput())
+	count = IntegerField('Count', default=1,
+						 validators=[DataRequired(), NumberRange(min=1)],
+						 widget=NumberInput())
 	price = IntegerField('Price', render_kw={'readonly':'True'})
 	submit = SubmitField('Book')
-'''
