@@ -63,13 +63,16 @@ class StaffEventView(StaffBaseView):
 
 	# List View Settings
 	can_view_details = True
+	can_set_page_size = True
 	column_display_pk = True
-	column_list = [ 'is_scheduled', 'is_launched', 'event_id',
+	column_list = [ 'event_id', 'is_scheduled', 'is_launched',
 					'title', 'event_type', 'venue', 'capacity',
 					'duration', 'price', 'img_root' ]
 	column_labels = dict(is_scheduled='Scheduled', is_launched='Launched',
 						 event_id='ID', event_type='Type',
 						 duration='Duration (H)', img_root='Image File')
+	column_editable_list = ( 'is_launched', 'title', 'event_type', 'venue',
+							 'capacity', 'duration', 'price' )
 
 	# Details View Settings
 	column_details_list = [ 'event_id', 'title', 'slots', 'description' ]
@@ -90,6 +93,7 @@ class StaffEventView(StaffBaseView):
 					 price=dict(validators=[NumberRange(min=0.0)]) )
 	form_widget_args = { 'img_root' : {'readonly' : True} }
 
+
 	# Perform data validation when creating/editing an event
 	def on_model_change(self, form, model, is_created):
 		if model.is_scheduled:
@@ -105,11 +109,14 @@ class StaffEventView(StaffBaseView):
 									func.Date(new_start)).all()
 
 				check_slot_clash(schedule, timing, slot.slot_id)
+		elif model.is_launched:
+			raise ValidationError('Cannot launch unscheduled event.')
 
 
 class StaffEventSlotView(StaffBaseView):
 	# List View Settings
 	can_view_details = True
+	can_set_page_size = True
 	column_display_pk = True
 	column_list = [ 'slot_id', 'is_launched', 'event',
 					'event_date', 'start_time', 'end_time' ]
@@ -141,6 +148,9 @@ class StaffEventSlotView(StaffBaseView):
 
 
 class StaffBookingView(StaffBaseView):
+	can_create = False
+	can_edit = False
+	can_delete = False
 	column_display_pk = True
 
 
