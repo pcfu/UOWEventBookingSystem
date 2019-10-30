@@ -73,7 +73,6 @@ class StaffEventView(StaffBaseView):
 						 duration='Duration (H)', img_root='Image File')
 	column_editable_list = ( 'is_launched', 'title', 'event_type', 'venue',
 							 'capacity', 'duration', 'price' )
-	column_sortable_list = [ 'event_id', 'is_scheduled', 'is_launched', 'title' ]
 
 	# Details View Settings
 	column_details_list = [ 'event_id', 'title', 'slots', 'description' ]
