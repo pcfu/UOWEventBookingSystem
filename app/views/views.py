@@ -32,6 +32,16 @@ class StaffBaseView(ModelView):
 		return redirect(url_for('staff_login'))
 
 
+class AdminBaseView(ModelView):
+	def is_accessible(self):
+		return is_admin_user()
+
+	def inaccessible_callback(self, name, **kwargs):
+		if is_staff_user():
+			return redirect(url_for('admin.index'))
+		return redirect(url_for('staff_login'))
+
+
 class StaffVenueView(StaffBaseView):
 	# List View Settings
 	column_display_pk = True
@@ -129,19 +139,12 @@ class StaffEventSlotView(StaffBaseView):
 		check_slot_clash(schedule, timing, model.slot_id)
 
 
+class StaffBookingView(StaffBaseView):
+	column_display_pk = True
 
-'''
-class StaffUserView(StaffBaseView):
+
+class AdminUserView(AdminBaseView):
 	# List View Settings
-	can_create = False
-	can_edit = False
-	can_delete = False
 	column_display_pk = True
 	column_labels = dict(user_id='ID')
 	column_exclude_list = ['password_hash']
-
-
-### To Update ###
-class StaffBookingView(StaffBaseView):
-	column_display_pk = True
-'''
