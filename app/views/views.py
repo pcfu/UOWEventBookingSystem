@@ -1,6 +1,4 @@
-from app import db #, routes
-from app.views.utils import is_staff_user, is_admin_user, event_view_formatter, \
-							check_slot_clash, img_filename_gen
+from app import db
 from app.models.events import Event, EventSlot
 from flask import redirect, url_for
 from flask_admin import AdminIndexView
@@ -8,6 +6,8 @@ from flask_admin.contrib.sqla import ModelView
 from flask_admin.form.upload import ImageUploadField
 from wtforms.validators import DataRequired, NumberRange, ValidationError
 from app.forms.custom_validators import Interval, DateInRange
+from app.views.utils import is_staff_user, is_admin_user, event_view_formatter, \
+							check_slot_clash, img_filename_gen
 from sqlalchemy.sql import func
 from datetime import date, timedelta
 from pathlib import Path
