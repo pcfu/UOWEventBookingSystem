@@ -56,7 +56,7 @@ class StaffEventView(StaffBaseView):
 	can_view_details = True
 	column_display_pk = True
 	column_list = [ 'is_scheduled', 'event_id', 'title', 'event_type',
-					'duration', 'venue', 'capacity', 'price', 'img_root' ]
+					'venue', 'capacity', 'duration', 'price', 'img_root' ]
 	column_labels = dict(is_scheduled='Scheduled', event_id='ID', event_type='Type',
 						 duration='Duration (H)', img_root='Image File')
 
@@ -73,8 +73,8 @@ class StaffEventView(StaffBaseView):
 							namegen=img_filename_gen)
 						}
 
-	form_columns = [ 'title', 'event_type', 'description', 'duration',
-					 'venue', 'capacity', 'price', 'img_root', 'path' ]
+	form_columns = [ 'title', 'event_type', 'description', 'venue', 'capacity',
+					 'duration', 'price', 'img_root', 'path' ]
 	form_args = dict(duration=dict(validators=[NumberRange(min=0.5),
 											   Interval(interval=0.25)]),
 					 capacity=dict(validators=[NumberRange(min=1)]),
