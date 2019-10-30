@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container main-container" style="margin-top: 70px;">
+	<table>
+		<tr>
+			<th>Event ID</th>
+			<th>Title</th>
+			<th>Dates</th>
+			<th>Times</th>
+			<th>Duration</th>
+			<th>Venue</th>
+			<th>Capacity</th>
+			<th>Event Type</th>
+			<th>Description</th>
+			<th>Price</th>
+		</tr>
+		{% for date in event.timings %}
+		<tr>
+			<th>{{ event.event_id }}</th>
+			<th>{{ event.title }}</th>
+			<th>{{ date }}</th>
+			<th>
+				{% for time in event.timings[date] %}
+				{{ time }}<br>
+				{% endfor %}
+			</th>
+			<th>{{ event.duration }}</th>
+			<th>{{ event.venue }}</th>
+			<th>{{ event.capacity }}</th>
+			<th>{{ event.type }}</th>
+			<th>{{ event.desc }}</th>
+			<th>{{ event.price }}</th>
+		</tr>
+		{% endfor %}
+	</table><br>
+
+	<div class="row main-row">
+		<div class="col-12" style="float: left;">
+		  {% if not is_admin %}
+		  <a href="{{url_for('booking', eid=event.event_id)}}" class="btn btn-secondary">book</a>
+  		  {% endif %}
+		  <a href="/search" class="btn btn-secondary" role="button">Back to events</a>
+		</div>
+	</div>
+</div>
+{% endblock %}

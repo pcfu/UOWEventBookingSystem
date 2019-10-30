@@ -69,7 +69,6 @@ def price_query(keyword):
 	return records
 
 
-### TEMP SOLUTION to interface details page with main
 def format_events(records):
 	common = records.first()
 	event = { 'title' : common.Event.title,
