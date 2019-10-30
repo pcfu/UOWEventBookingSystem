@@ -31,7 +31,7 @@ login_manager = LoginManager(app) # Flask login_manager
 
 
 from app import routes
-from app.models import users, events
+from app.models import users, events, booking
 from app.views import views
 
 
