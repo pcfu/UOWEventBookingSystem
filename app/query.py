@@ -79,6 +79,7 @@ def format_events(records):
 			  'type': common.Event.event_type,
 			  'desc': common.Event.description,
 			  'price' : common.Event.price,
+			  'img_root' : common.Event.img_root,
 			  'event_id' : common.Event.event_id }
 
 	for row in records.all():
