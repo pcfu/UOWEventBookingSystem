@@ -144,8 +144,8 @@ def booking(eid):
 		qty = form.count.data
 
 		booking = Booking(user_id=uid, event_slot_id=esid, quantity=qty)
-		#db.session.add(booking)
-		#db.session.commit()
+		db.session.add(booking)
+		db.session.commit()
 
 		return render_template('confirm_booking.html',
 	   						   add_admin_btn=(is_staff_user() or is_admin_user()))
