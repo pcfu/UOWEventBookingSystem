@@ -61,6 +61,14 @@
                     <a href="{{ origin }}myaccountpagehere"
 					   class="btn btn-outline-primary"
 					   role="button">Account</a>
+
+						<!-- if staff user, add link to admin page -->
+						{% if add_admin_btn %}
+						<a href="{{ url_for('admin.index') }}"
+						   class="btn btn-outline-primary"
+						   role="button">Admin Page</a>
+						{% endif %}
+
                     <a href="{{ url_for('logout') }}"
 					   class="btn btn-outline-primary"
 					   role="button">Logout</a>

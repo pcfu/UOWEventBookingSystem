@@ -6,7 +6,7 @@ from app.forms.forms import MemberLoginForm, StaffLoginForm, RegistrationForm, \
 							SearchForm, BookingForm
 from flask import render_template, redirect, url_for
 from flask_login import current_user, login_user, logout_user
-from app.views.utils import is_admin_user
+from app.views.utils import is_admin_user, is_staff_user
 from dateutil.parser import parse
 
 
@@ -39,10 +39,12 @@ def get_events(option):
 		keyword = str(form.search_field.data).strip()
 		if len(keyword) > 0:
 			return render_template('index.html', title='Event Booking System', form=form,
-								   event_list=get_events(search_type, keyword))
+								   event_list=get_events(search_type, keyword),
+								   add_admin_btn=(is_staff_user() or is_admin_user()))
 
 	return render_template('index.html', title='Event Booking System',
-						   form=form, event_list=get_events())
+						   form=form, event_list=get_events(),
+						   add_admin_btn=(is_staff_user() or is_admin_user()))
 
 
 
@@ -118,7 +120,8 @@ def event_details(eid):
 						.filter(Event.event_id == eid).order_by(EventSlot.event_date)
 	event = query.format_events(records)
 	return render_template('details.html', title='EBS: ' + event['title'],
-						   event=event, is_admin=is_admin_user())
+						   event=event, is_admin=is_admin_user(),
+						   add_admin_btn=(is_staff_user() or is_admin_user()))
 
 
 @app.route('/booking/<eid>', methods=['GET', 'POST'])
@@ -151,7 +154,8 @@ def booking(eid):
 
 		return f"<html><body><p>Booking completed. You will be redirected in 3 seconds</p><script>var timer = setTimeout(function() {{window.location='{ '/index' }'}}, 3000);</script></body></html>"
 
-	return render_template('booking.html', form=form, capacity=capacity)
+	return render_template('booking.html', form=form, capacity=capacity,
+						   add_admin_btn=(is_staff_user() or is_admin_user()))
 
 
 
