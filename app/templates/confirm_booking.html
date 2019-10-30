@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div>
+<p>Booking completed. You will be redirected in 3 seconds</p>
+
+<a href="{{ url_for('index') }}"
+   class="btn btn-secondary">
+  Click here to return immediately
+</a>
+
+<script>
+  var timer = setTimeout(
+	  function() {
+		  window.location='{{ '/index' }}'
+	  },
+	  3000);
+</script>
+</div>
+{% endblock %}

@@ -23,7 +23,7 @@ function refreshPrice(){
     </p>
     <p>
         {{ form.count.label }}
-        {{ form.count(onchange="refreshPrice()", max=capacity, onkeydown="return false") }}<br>
+        {{ form.count(onchange="refreshPrice()", max=form.capacity, onkeydown="return false") }}<br>
         {% for error in form.count.errors %}
 	    <span style="color: red;">[{{ error }}]</span>
     	{% endfor %}

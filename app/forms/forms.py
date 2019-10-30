@@ -94,3 +94,10 @@ class BookingForm(FlaskForm):
 						 widget=NumberInput())
 	price = IntegerField('Price', render_kw={'readonly':'True'})
 	submit = SubmitField('Book')
+
+	def preload(self, user, event, slots):
+		self.title.data = event.title
+		self.username.data = user.username
+		self.date.choices = [(slot.slot_id, slot.event_date) for slot in slots]
+		self.price.data = event.price
+		self.capacity = event.capacity

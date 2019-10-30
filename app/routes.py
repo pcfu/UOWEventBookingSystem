@@ -137,24 +137,20 @@ def booking(eid):
 							.filter(EventSlot.event_id == eid).all()
 
 	form = BookingForm()
-	form.title.data = selected_event.title
-	form.username.data = current_user.username
-	form.date.choices = [(es.slot_id, es.event_date) for es in event_slots]
-	form.price.data = selected_event.price
-	capacity = selected_event.capacity
-
+	form.preload(current_user, selected_event, event_slots)
 	if form.is_submitted():
 		uid = current_user.user_id
 		esid = form.date.data
 		qty = form.count.data
 
 		booking = Booking(user_id=uid, event_slot_id=esid, quantity=qty)
-		db.session.add(booking)
-		db.session.commit()
+		#db.session.add(booking)
+		#db.session.commit()
 
-		return f"<html><body><p>Booking completed. You will be redirected in 3 seconds</p><script>var timer = setTimeout(function() {{window.location='{ '/index' }'}}, 3000);</script></body></html>"
+		return render_template('confirm_booking.html',
+	   						   add_admin_btn=(is_staff_user() or is_admin_user()))
 
-	return render_template('booking.html', form=form, capacity=capacity,
+	return render_template('booking.html', form=form,
 						   add_admin_btn=(is_staff_user() or is_admin_user()))
 
 
