@@ -3,7 +3,7 @@
 {% block content %}
 <script>
 function refreshPrice(){
-    document.getElementById('price').value = document.getElementById('count').value * basePrice
+    document.getElementById('price').value = parseFloat(document.getElementById('count').value * basePrice).toFixed(2)
 }
 </script>
 
