@@ -23,12 +23,7 @@ class BaseLogin(FlaskForm):
 	submit = SubmitField('Sign In')
 
 	### TRY MOVING CHILD authentication into Base again
-
-class MemberLoginForm(BaseLogin):
-	def validate(self):
-		user = User.query.filter(User.is_staff == False,
-								 User.username == self.username.data).first()
-
+	def authenticate(self, user):
 		if user is None:
 			RaiseError(self.username, message='Invalid username')
 			return False
@@ -38,18 +33,18 @@ class MemberLoginForm(BaseLogin):
 		return True
 
 
+class MemberLoginForm(BaseLogin):
+	def validate(self):
+		user = User.query.filter(User.is_staff == False,
+								 User.username == self.username.data).first()
+		return super().authenticate(user)
+
+
 class StaffLoginForm(BaseLogin):
 	def validate(self):
 		target_name = self.username.data
 		staff = staff_user_query(target_name)
-
-		if staff is None:
-			RaiseError(self.username, message='Invalid username')
-			return False
-		if not staff.check_password(self.password.data):
-			RaiseError(self.password, message='Incorrect password')
-			return False
-		return True
+		return super().authenticate(staff)
 
 
 class RegistrationForm(FlaskForm):
