@@ -1,20 +1,18 @@
-#from app import db, routes
-from app.views.utils import is_staff_user, is_admin_user #, event_view_formatter, check_slot_clash, \
-#							img_filename_gen, event_venue_choices, event_type_choices
-#from app.models.users import User, Admin
+from app import db #, routes
+from app.views.utils import is_staff_user, is_admin_user, event_view_formatter, \
+							check_slot_clash, img_filename_gen
 #from app.models.events import Event, EventSlot
 from flask import redirect, url_for
 #from flask_login import current_user
 from flask_admin import AdminIndexView
 from flask_admin.contrib.sqla import ModelView
-#from wtforms import SelectField
-#from flask_admin.form.upload import ImageUploadField
-#from wtforms.validators import DataRequired, NumberRange, ValidationError
-#from app.forms.custom_validators import Interval, DateInRange
-#from sqlalchemy.sql import func
-#from datetime import date, timedelta
-#from pathlib import Path
-#from os import path
+from flask_admin.form.upload import ImageUploadField
+from wtforms.validators import DataRequired, NumberRange, ValidationError
+from app.forms.custom_validators import Interval, DateInRange
+from sqlalchemy.sql import func
+from datetime import date, timedelta
+from pathlib import Path
+from os import path
 
 
 class GlobalIndexView(AdminIndexView):
@@ -49,17 +47,6 @@ class StaffEventTypeView(StaffBaseView):
 	form_columns = [ 'name' ]
 
 
-'''
-class StaffUserView(StaffBaseView):
-	# List View Settings
-	can_create = False
-	can_edit = False
-	can_delete = False
-	column_display_pk = True
-	column_labels = dict(user_id='ID')
-	column_exclude_list = ['password_hash']
-
-
 class StaffEventView(StaffBaseView):
 	# File Paths
 	par_dir = Path(__file__).parents[1]
@@ -68,15 +55,15 @@ class StaffEventView(StaffBaseView):
 	# List View Settings
 	can_view_details = True
 	column_display_pk = True
-	column_list = [ 'creator', 'is_scheduled', 'event_id', 'title', 'event_type',
+	column_list = [ 'is_scheduled', 'event_id', 'title', 'event_type',
 					'duration', 'venue', 'capacity', 'price', 'img_root' ]
 	column_labels = dict(is_scheduled='Scheduled', event_id='ID', event_type='Type',
 						 duration='Duration (H)', img_root='Image File')
 
 	# Details View Settings
-	column_details_list = [ 'event_id', 'title', 'slots', 'venue', 'duration',
-							'capacity', 'event_type', 'description', 'price',
-							'img_root', 'creator' ]
+	column_details_list = [ 'event_id', 'title', 'slots', 'venue',
+							'duration', 'capacity', 'event_type',
+							'description', 'price', 'img_root' ]
 
 	# Create/Edit Form Settings
 	form_extra_fields = {'path':
@@ -85,28 +72,18 @@ class StaffEventView(StaffBaseView):
 							thumbnail_size=(200, 200, True),
 							namegen=img_filename_gen)
 						}
-	form_overrides = dict(event_type=SelectField,
-						  venue=SelectField )
 
-	form_columns = [ 'creator', 'title', 'event_type', 'description', 'duration',
+	form_columns = [ 'title', 'event_type', 'description', 'duration',
 					 'venue', 'capacity', 'price', 'img_root', 'path' ]
-	form_args = dict(event_type=dict(choices=event_type_choices),
-					 duration=dict(validators=[NumberRange(min=0.5),
+	form_args = dict(duration=dict(validators=[NumberRange(min=0.5),
 											   Interval(interval=0.25)]),
-					 venue=dict(choices=event_venue_choices),
 					 capacity=dict(validators=[NumberRange(min=1)]),
 					 price=dict(validators=[NumberRange(min=0.0)]) )
 	form_widget_args = { 'img_root' : {'readonly' : True} }
 
 	# Perform data validation when creating/editing an event
 	def on_model_change(self, form, model, is_created):
-		creator_entry = form.creator.data
-		if creator_entry is None:
-			raise ValidationError('Event must have a creator.')
-		elif is_created:
-			if creator_entry != current_user:
-				raise ValidationError('Cannot create event for other admin users.')
-		elif model.is_scheduled:
+		if model.is_scheduled:
 			for slot in model.slots:
 				new_start = slot.event_date
 				new_end = new_start + timedelta(minutes=int(model.duration * 60))
@@ -119,6 +96,18 @@ class StaffEventView(StaffBaseView):
 									func.Date(new_start)).all()
 
 				check_slot_clash(schedule, timing, slot.slot_id)
+
+
+
+'''
+class StaffUserView(StaffBaseView):
+	# List View Settings
+	can_create = False
+	can_edit = False
+	can_delete = False
+	column_display_pk = True
+	column_labels = dict(user_id='ID')
+	column_exclude_list = ['password_hash']
 
 
 class StaffEventSlotView(StaffBaseView):

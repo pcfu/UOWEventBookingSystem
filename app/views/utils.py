@@ -1,22 +1,12 @@
 from app.models.users import User, Admin
-#from app.models.events import Event
+from app.models.events import Event
 from flask_login import current_user
 from sqlalchemy.sql import literal_column
-#from werkzeug.utils import secure_filename
-#from wtforms.validators import ValidationError
-#from flask_admin.model import typefmt
-#from datetime import date, timedelta
-#from os import path
-
-
-'''
-def date_format(view, value):
-    return value.strftime('%d / %b / %Y')
-
-event_view_formatter = dict(typefmt.BASE_FORMATTERS)
-event_view_formatter.update({ type(None): typefmt.null_formatter,
-							  date: date_format })
-'''
+from werkzeug.utils import secure_filename
+from wtforms.validators import ValidationError
+from flask_admin.model import typefmt
+from datetime import date, timedelta
+from os import path
 
 
 def is_staff_user():
@@ -35,25 +25,12 @@ def is_admin_user():
 	return admin is not None
 
 
-'''
-event_venue_choices = [ ('room1', 'Room 1'),
-					  	('room2', 'Room 2'),
-					  	('room3', 'Room 3'),
-						('room4', 'Room 4'),
-						('room5', 'Room 5'),
-						('hall1', 'Hall 1'),
-						('hall2', 'Hall 2'),
-						('auditorium', 'Auditorium') ]
+def date_format(view, value):
+    return value.strftime('%d / %b / %Y')
 
-
-event_type_choices = [ ('lecture', 'Lecture'),
-					   ('seminar', 'Seminar'),
-			  		   ('conference', 'Conference'),
-					   ('workshop', 'Workshop'),
-					   ('talk', 'Talk'),
-					   ('networking', 'Networking'),
-					   ('party', 'Party'),
-					   ('concert', 'Concert') ]
+event_view_formatter = dict(typefmt.BASE_FORMATTERS)
+event_view_formatter.update({ type(None): typefmt.null_formatter,
+							  date: date_format })
 
 
 # Helper Function for ImageUploadField in forms
@@ -97,4 +74,3 @@ def check_slot_clash(schedule, timing, id_):
 			# Raise error if new end time lies in another event slot
 			if timing[1] > slot_start_time and timing[1] <= slot_end_time:
 					raise ValidationError(error_msg)
-'''
