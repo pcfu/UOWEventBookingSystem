@@ -1,5 +1,4 @@
 from wtforms.validators import ValidationError
-from flask_login import current_user
 from datetime import datetime
 
 

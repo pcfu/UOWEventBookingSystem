@@ -1,9 +1,8 @@
 from app import db #, routes
 from app.views.utils import is_staff_user, is_admin_user, event_view_formatter, \
 							check_slot_clash, img_filename_gen
-#from app.models.events import Event, EventSlot
+from app.models.events import Event, EventSlot
 from flask import redirect, url_for
-#from flask_login import current_user
 from flask_admin import AdminIndexView
 from flask_admin.contrib.sqla import ModelView
 from flask_admin.form.upload import ImageUploadField
@@ -98,29 +97,18 @@ class StaffEventView(StaffBaseView):
 				check_slot_clash(schedule, timing, slot.slot_id)
 
 
-
-'''
-class StaffUserView(StaffBaseView):
-	# List View Settings
-	can_create = False
-	can_edit = False
-	can_delete = False
-	column_display_pk = True
-	column_labels = dict(user_id='ID')
-	column_exclude_list = ['password_hash']
-
-
 class StaffEventSlotView(StaffBaseView):
 	# List View Settings
 	can_view_details = True
 	column_display_pk = True
 	column_list = [ 'slot_id', 'event', 'event_date', 'start_time', 'end_time' ]
-
 	column_labels = dict(slot_id='ID', event_date='Date',
 						 start_time='Start', end_time='End')
-
 	column_sortable_list = ( 'slot_id', ('event', 'event.title'), 'event_date')
 	column_type_formatters = event_view_formatter
+
+	# Details View Settings
+	column_details_list = [ 'slot_id', 'event', 'event_date' ]
 
 	# Create/Edit Form Settings
 	form_args = dict( event=dict(validators=[DataRequired()]),
@@ -139,6 +127,18 @@ class StaffEventSlotView(StaffBaseView):
 					.filter(Event.venue == new_venue).all()
 
 		check_slot_clash(schedule, timing, model.slot_id)
+
+
+
+'''
+class StaffUserView(StaffBaseView):
+	# List View Settings
+	can_create = False
+	can_edit = False
+	can_delete = False
+	column_display_pk = True
+	column_labels = dict(user_id='ID')
+	column_exclude_list = ['password_hash']
 
 
 ### To Update ###
