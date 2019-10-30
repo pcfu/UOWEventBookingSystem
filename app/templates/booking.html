@@ -18,10 +18,11 @@ function refreshPrice(){
         {{ form.username() }}<br>
     </p>
     <p>
-    	{{ form.date.label }}
-	    {{ form.date(size=1) }}<br>
+    	{{ form.dates.label }}
+	    {{ form.dates(size=1) }}
+    	{{ form.times.label }}
+	    {{ form.times(size=1) }}<br>
     </p>
-    <p>
         {{ form.count.label }}
         {{ form.count(onchange="refreshPrice()", max=form.capacity, onkeydown="return false") }}<br>
         {% for error in form.count.errors %}
@@ -32,8 +33,27 @@ function refreshPrice(){
         {{ form.price.label }}
         {{ form.price() }}<br>
          <script>var basePrice= document.getElementById('price').value</script>
+	 <p>{{ form.submit() }}</p>
 
-    </p>
-	<p>{{ form.submit() }}</p>
+	 <script>
+	   let date_select = document.getElementById('dates');
+	   let time_select = document.getElementById('times');
+
+	   date_select.onchange = function() {
+		   date = date_select.value;
+
+		   fetch('/booking/' + {{ eid }} + '/' + date).then(function(response) {
+			   response.json().then(function(data) {
+				   let time_choices_HTML = '';
+				   for (let timing of data.timings) {
+					   time_choices_HTML += '<option value="' + timing.slot_id +
+						   					'">' + timing.time + '</option>';
+				   }
+
+				   time_select.innerHTML = time_choices_HTML;
+			   });
+		   });
+	   }
+	 </script>
 </form>
 {% endblock %}

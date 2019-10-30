@@ -4,9 +4,10 @@ from app.models.events import Event, EventSlot
 from app.models.booking import Booking
 from app.forms.forms import MemberLoginForm, StaffLoginForm, RegistrationForm, \
 							SearchForm, BookingForm
-from flask import render_template, redirect, url_for
+from flask import render_template, redirect, url_for, jsonify
 from flask_login import current_user, login_user, logout_user
 from app.views.utils import is_admin_user, is_staff_user
+from sqlalchemy.sql import func
 from dateutil.parser import parse
 
 
@@ -131,16 +132,11 @@ def booking(eid):
 	elif is_admin_user():
 		return redirect(url_for('event_details', eid=eid))
 
-	selected_event = Event.query.get(eid)
-	event_slots = db.session.query(EventSlot.event_date, EventSlot.slot_id)\
-							.join(Event, EventSlot.event_id == Event.event_id)\
-							.filter(EventSlot.event_id == eid).all()
-
 	form = BookingForm()
-	form.preload(current_user, selected_event, event_slots)
+	form.preload(current_user, eid)
 	if form.is_submitted():
 		uid = current_user.user_id
-		esid = form.date.data
+		esid = form.times.data
 		qty = form.count.data
 
 		booking = Booking(user_id=uid, event_slot_id=esid, quantity=qty)
@@ -150,8 +146,26 @@ def booking(eid):
 		return render_template('confirm_booking.html',
 	   						   add_admin_btn=(is_staff_user() or is_admin_user()))
 
-	return render_template('booking.html', form=form,
+	return render_template('booking.html', form=form, eid=eid,
 						   add_admin_btn=(is_staff_user() or is_admin_user()))
+
+
+@app.route('/booking/<eid>/<date>')
+def booking_slot(eid, date):
+	records = db.session.query(EventSlot.slot_id,
+							   func.TIME(EventSlot.event_date).label('time'))\
+						.filter(EventSlot.event_id == eid,
+								func.DATE(EventSlot.event_date) == date)\
+						.order_by(EventSlot.event_date).all()
+
+	timings = []
+	for rec in records:
+		timing = {}
+		timing['slot_id'] = rec.slot_id
+		timing['time'] = rec.time
+		timings.append(timing)
+
+	return jsonify({ 'timings' : timings })
 
 
 
