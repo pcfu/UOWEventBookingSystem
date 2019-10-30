@@ -3,7 +3,7 @@ from app import db
 from app.models.users import User, Admin
 from app.models.events import Event, EventSlot
 from wtforms import StringField, PasswordField, BooleanField, \
-					SubmitField, IntegerField, SelectField
+					SubmitField, IntegerField, SelectField, FloatField
 from wtforms.fields.html5 import DateField
 from wtforms.validators import DataRequired, EqualTo, ValidationError, \
 								NumberRange, Email
@@ -96,7 +96,7 @@ class BookingForm(FlaskForm):
 	count = IntegerField('Count', default=1,
 						 validators=[DataRequired(), NumberRange(min=1)],
 						 widget=NumberInput())
-	price = IntegerField('Price', render_kw={'readonly':'True'})
+	price = FloatField('Price', render_kw={'readonly':'True'})
 	submit = SubmitField('Book')
 
 	def preload(self, user, eid):
