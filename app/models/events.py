@@ -70,15 +70,22 @@ class EventSlot(db.Model):
 
 	@start_time.expression
 	def start_time(cls):
-		return db.func.TIME(cls.event_date)
+		return db.func.time(cls.event_date)
 
-	@property
+	@hybrid_property
 	def end_time(self):
 		rec = Event.query.filter(Event.event_id == self.event_id).first()
 		duration = rec.duration * 60
 		derived_time = self.event_date + timedelta(minutes=duration)
 		dt = parse(str(derived_time))
 		return dt.time().strftime('%I:%M %p')
+
+	@end_time.expression
+	def end_time(cls):
+		durationSQL = Event.query.with_entities(Event.duration * 60)\
+						   .filter(Event.event_id == cls.event_id).as_scalar()
+		duration = '+' + durationSQL.cast(db.String) + ' minutes'
+		return db.func.time(cls.event_date, duration)
 
 	@hybrid_property
 	def is_launched(self):
@@ -101,5 +108,5 @@ class EventSlot(db.Model):
 	@num_bookings.expression
 	def num_bookings(cls):
 		return db.select([db.func.count(Booking.booking_no)])\
-			.where(Booking.event_slot_id == cls.slot_id)\
-			.label('num_bookings')
+				 .where(Booking.event_slot_id == cls.slot_id)\
+				 .label('num_bookings')
