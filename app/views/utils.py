@@ -1,3 +1,4 @@
+from app import db
 from app.models.users import User, Admin
 from app.models.events import Event
 from flask_login import current_user
@@ -37,8 +38,9 @@ event_view_formatter.update({ type(None): typefmt.null_formatter,
 def img_filename_gen(obj, file_data):
 	idx = ''
 	if obj.event_id is None:
-		last_event = Event.query.order_by(Event.event_id.desc()).first()
-		idx = f'{(last_event.event_id):04}'
+		with db.session.no_autoflush:
+			last_event = Event.query.order_by(Event.event_id.desc()).first()
+		idx = f'{(last_event.event_id + 1):04}'
 	else:
 		idx = f'{obj.event_id:04}'
 
