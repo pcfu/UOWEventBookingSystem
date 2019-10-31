@@ -7,7 +7,7 @@ from flask_admin.form.upload import ImageUploadField
 from wtforms.validators import DataRequired, NumberRange, ValidationError
 from app.forms.custom_validators import Interval, DateInRange
 from app.views.utils import is_staff_user, is_admin_user, event_view_formatter, \
-							check_slot_clash, img_filename_gen
+							check_slot_clash, img_filename_gen, FilterNull
 from sqlalchemy.sql import func
 from datetime import date, timedelta
 from pathlib import Path
@@ -71,11 +71,22 @@ class StaffEventView(StaffBaseView):
 	column_labels = dict(is_scheduled='Scheduled', is_launched='Launched',
 						 event_id='ID', event_type='Type',
 						 duration='Duration (H)', img_root='Image File')
-	column_editable_list = ('is_launched', 'title', 'event_type', 'venue',
-							'capacity', 'duration', 'price')
+	column_editable_list = ['is_launched', 'title', 'event_type', 'venue',
+							'capacity', 'duration', 'price']
 	column_sortable_list = ['event_id', 'is_scheduled', 'is_launched',
 							'title', ('event_type', 'event_type.name'),
 							('venue', 'venue.name'), 'capacity', 'duration', 'price']
+	column_filters = ['is_launched', 'title', 'event_type', 'venue', 'capacity',
+					  'duration', 'price', FilterNull(column=Event.img_root,
+													  name='has image')]
+	column_filter_labels = dict(event_type='Type', venue='Venue')
+
+	def scaffold_filters(self, name):
+		filters = super().scaffold_filters(name)
+		if name in self.column_filter_labels:
+			for f in filters:
+				f.name = self.column_filter_labels[name]
+		return filters
 
 	# Details View Settings
 	column_details_list = [ 'event_id', 'title', 'slots', 'description' ]
@@ -118,7 +129,6 @@ class StaffEventView(StaffBaseView):
 
 class StaffEventSlotView(StaffBaseView):
 	# List View Settings
-	can_view_details = True
 	can_set_page_size = True
 	column_display_pk = True
 	column_list = [ 'slot_id', 'is_launched', 'event', 'event_date',
@@ -129,6 +139,15 @@ class StaffEventSlotView(StaffBaseView):
 	column_sortable_list = ( 'slot_id', 'is_launched', ('event', 'event.title'),
 							 'event_date', 'num_bookings', 'start_time', 'end_time')
 	column_type_formatters = event_view_formatter
+	column_filters = ['event', 'event_date', 'num_bookings']
+	column_filter_labels = dict(event='Event', num_bookings='Total Bookings')
+
+	def scaffold_filters(self, name):
+		filters = super().scaffold_filters(name)
+		if name in self.column_filter_labels:
+			for f in filters:
+				f.name = self.column_filter_labels[name]
+		return filters
 
 	# Details View Settings
 	column_details_list = [ 'slot_id', 'event', 'event_date' ]

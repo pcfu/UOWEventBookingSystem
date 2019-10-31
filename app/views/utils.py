@@ -1,6 +1,8 @@
 from app import db
 from app.models.users import User, Admin
 from app.models.events import Event
+from flask_admin.contrib.sqla.filters import FilterEmpty
+from flask_admin.babel import lazy_gettext
 from flask_login import current_user
 from sqlalchemy.sql import literal_column
 from werkzeug.utils import secure_filename
@@ -8,6 +10,11 @@ from wtforms.validators import ValidationError
 from flask_admin.model import typefmt
 from datetime import date, timedelta
 from os import path
+
+
+class FilterNull(FilterEmpty):
+	def operation(self):
+		return lazy_gettext('is NULL')
 
 
 def is_staff_user():

@@ -35,6 +35,7 @@ from app.models import users, events, booking
 from app.views import views
 
 
+# Create admin and add views
 admin = Admin(app, name='UOW EBS', template_mode='bootstrap3',
 			  index_view=views.GlobalIndexView())
 admin.add_view(views.StaffVenueView(events.Venue, db.session))
