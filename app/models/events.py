@@ -1,10 +1,8 @@
 from app import db
-from app.models.booking import Booking
 from sqlalchemy import ForeignKey
 from dateutil.parser import parse
 from datetime import timedelta
 from sqlalchemy.ext.hybrid import hybrid_property
-
 
 class Venue(db.Model):
 	venue_id = db.Column(db.Integer, primary_key=True)
@@ -76,26 +74,10 @@ class EventSlot(db.Model):
 		dt = parse(str(derived_time))
 		return dt.time().strftime('%I:%M %p')
 
-	@hybrid_property
+	@property
 	def is_launched(self):
-		return bool(self.event.is_launched)
+		return self.event.is_launched
 
-	@is_launched.expression
-	def is_launched(cls):
-		return db.select([
-					db.case([( db.exists()\
-							   .where(db.and_(Event.event_id == cls.event_id,
-											  Event.is_launched == True))\
-							   .correlate(cls), True)],
-							else_=False)
-				])
-
-	@hybrid_property
+	@property
 	def num_bookings(self):
 		return len(self.bookings)
-
-	@num_bookings.expression
-	def num_bookings(cls):
-		return db.select([db.func.count(Booking.booking_no)])\
-			.where(Booking.event_slot_id == cls.slot_id)\
-			.label('num_bookings')
