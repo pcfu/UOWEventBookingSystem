@@ -77,3 +77,7 @@ class EventSlot(db.Model):
 	@property
 	def is_launched(self):
 		return self.event.is_launched
+
+	@property
+	def num_bookings(self):
+		return len(self.bookings)

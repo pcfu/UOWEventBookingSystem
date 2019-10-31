@@ -121,17 +121,20 @@ class StaffEventSlotView(StaffBaseView):
 	can_view_details = True
 	can_set_page_size = True
 	column_display_pk = True
-	column_list = [ 'slot_id', 'is_launched', 'event',
-					'event_date', 'start_time', 'end_time' ]
+	column_list = [ 'slot_id', 'is_launched', 'event', 'event_date',
+					'start_time', 'end_time', 'num_bookings' ]
 	column_labels = dict(slot_id='ID', is_launched='Launched',
-						 event_date='Date', start_time='Start', end_time='End')
-	column_sortable_list = ( 'slot_id', ('event', 'event.title'), 'event_date')
+						 event_date='Date', start_time='Start',
+						 end_time='End', num_bookings='Bookings')
+	column_sortable_list = ( 'slot_id', 'is_launched', ('event', 'event.title'),
+							 'event_date')
 	column_type_formatters = event_view_formatter
 
 	# Details View Settings
 	column_details_list = [ 'slot_id', 'event', 'event_date' ]
 
 	# Create/Edit Form Settings
+	form_columns = ( 'event', 'event_date' )
 	form_args = dict( event=dict(validators=[DataRequired()]),
 					  event_date=dict(validators=[DateInRange()]) )
 
