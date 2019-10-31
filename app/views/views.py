@@ -127,7 +127,7 @@ class StaffEventSlotView(StaffBaseView):
 						 event_date='Date', start_time='Start',
 						 end_time='End', num_bookings='Bookings')
 	column_sortable_list = ( 'slot_id', 'is_launched', ('event', 'event.title'),
-							 'event_date', 'num_bookings')
+							 'event_date', 'num_bookings', 'start_time')
 	column_type_formatters = event_view_formatter
 
 	# Details View Settings

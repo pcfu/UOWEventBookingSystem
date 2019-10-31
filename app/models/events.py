@@ -63,10 +63,14 @@ class EventSlot(db.Model):
 		return "[ EID:{} ] {} ------ Date: {}"\
 			.format(self.event_id, self.event.title, self.event_date)
 
-	@property
+	@hybrid_property
 	def start_time(self):
 		dt = parse(str(self.event_date))
 		return dt.time().strftime('%I:%M %p')
+
+	@start_time.expression
+	def start_time(cls):
+		return db.func.TIME(cls.event_date)
 
 	@property
 	def end_time(self):
