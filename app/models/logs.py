@@ -99,11 +99,19 @@ class LogoutHistory(db.Model):
 						  .correlate(cls)
 
 
-
 def add_login_record():
 	if is_admin_user():
 		log = LoginHistory(timestamp=datetime.now(), admin_id=current_user.admin_id)
 	else:
 		log = LoginHistory(timestamp=datetime.now(), user_id=current_user.user_id)
+	db.session.add(log)
+	db.session.commit()
+
+
+def add_logout_record():
+	if is_admin_user():
+		log = LogoutHistory(timestamp=datetime.now(), admin_id=current_user.admin_id)
+	else:
+		log = LogoutHistory(timestamp=datetime.now(), user_id=current_user.user_id)
 	db.session.add(log)
 	db.session.commit()

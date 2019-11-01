@@ -1,7 +1,7 @@
 from app import db
 from app.models.events import Event, EventSlot
 from app.models.booking import Booking
-from app.models.logs import LoginHistory
+from app.models.logs import LoginHistory, LogoutHistory
 from flask import redirect, url_for
 from flask_admin import AdminIndexView
 from flask_admin.contrib.sqla import ModelView, filters
@@ -283,6 +283,35 @@ class AdminLoginHistoryView(AdminBaseView):
    					   FilterStaffUsers(LoginHistory.is_staff, 'user type',
 										options=(('1', 'Yes'), ('0', 'No'))),
    					   FilterAdminUsers(LoginHistory.is_admin, 'user type',
+										options=(('1', 'Yes'), ('0', 'No')))
+					]
+	column_filter_labels = {'user.username' : 'user name',
+							'admin.username' : 'admin name'}
+
+	def scaffold_filters(self, name):
+		filters = super().scaffold_filters(name)
+		if name in self.column_filter_labels:
+			for f in filters:
+				f.name = self.column_filter_labels[name]
+		return filters
+
+
+class AdminLogoutHistoryView(AdminBaseView):
+	# List View Settings
+	can_create = False
+	can_edit = False
+	column_display_pk = True
+	column_labels = dict(out_id='ID')
+	column_list = ['out_id', 'timestamp', 'user', 'admin']
+	column_sortable_list = ['out_id', 'timestamp',
+							('user', 'user.username'),
+							('admin', 'admin.username')]
+	column_filters = [ 'user.username', 'admin.username',
+					   FilterRegularUsers(LogoutHistory.is_regular, 'user type',
+										options=(('1', 'Yes'), ('0', 'No'))),
+   					   FilterStaffUsers(LogoutHistory.is_staff, 'user type',
+										options=(('1', 'Yes'), ('0', 'No'))),
+   					   FilterAdminUsers(LogoutHistory.is_admin, 'user type',
 										options=(('1', 'Yes'), ('0', 'No')))
 					]
 	column_filter_labels = {'user.username' : 'user name',
