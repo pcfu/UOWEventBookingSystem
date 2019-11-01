@@ -43,9 +43,9 @@ admin = Admin(app, name='UOW EBS', template_mode='bootstrap3',
 # Add staff views
 admin.add_view(views.StaffVenueView(events.Venue, db.session))
 admin.add_view(views.StaffEventTypeView(events.EventType, db.session))
-admin.add_view(views.StaffEventView(events.Event, db.session))
 with warnings.catch_warnings():
 	warnings.filterwarnings('ignore', 'Fields missing from ruleset', UserWarning)
+	admin.add_view(views.StaffEventView(events.Event, db.session))
 	admin.add_view(views.StaffEventSlotView(events.EventSlot, db.session))
 admin.add_view(views.StaffBookingView(booking.Booking, db.session))
 
