@@ -11,6 +11,7 @@ class User(UserMixin, db.Model):
 	password_hash = db.Column(db.String(255), nullable=False)
 	is_staff = db.Column(db.Boolean, nullable=False)
 
+	logins = db.relationship('LoginHistory', back_populates='user')
 	bookings = db.relationship('Booking', back_populates='user')
 
 	def __repr__(self):
