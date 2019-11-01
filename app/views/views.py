@@ -131,15 +131,17 @@ class StaffEventSlotView(StaffBaseView):
 	# List View Settings
 	can_set_page_size = True
 	column_display_pk = True
-	column_list = [ 'slot_id', 'is_launched', 'event', 'event_date',
-					'start_time', 'end_time', 'num_bookings' ]
-	column_labels = dict(slot_id='ID', is_launched='Launched',
-						 event_date='Date', start_time='Start',
-						 end_time='End', num_bookings='Bookings')
-	column_sortable_list = ( 'slot_id', 'is_launched', ('event', 'event.title'),
-							 'event_date', 'num_bookings', 'start_time', 'end_time')
+	column_list = ['slot_id', 'is_launched', 'is_active', 'event',
+				   'event_date', 'start_time', 'end_time', 'num_bookings']
+	column_labels = dict(slot_id='ID', is_launched='Launched',is_active='Active',
+						 event_date='Date', start_time='Start', end_time='End',
+						 num_bookings='Bookings')
+	column_sortable_list = ['slot_id', 'is_launched', 'is_active',
+							('event', 'event.title'), 'event_date',
+							'num_bookings', 'start_time', 'end_time']
 	column_type_formatters = event_view_formatter
-	column_filters = ['event', 'event_date', 'num_bookings']
+	column_filters = [FilterNull(column=EventSlot.is_active, name='Active'),
+					  'event', 'event_date', 'num_bookings']
 	column_filter_labels = dict(event='Event', num_bookings='Total Bookings')
 
 	def scaffold_filters(self, name):
@@ -149,16 +151,18 @@ class StaffEventSlotView(StaffBaseView):
 				f.name = self.column_filter_labels[name]
 		return filters
 
-	# Details View Settings
-	column_details_list = [ 'slot_id', 'event', 'event_date' ]
-
 	# Create/Edit Form Settings
-	form_columns = ( 'event', 'event_date' )
-	form_args = dict( event=dict(validators=[DataRequired()]),
-					  event_date=dict(validators=[DateInRange()]) )
+	form_columns = ['event', 'event_date', 'is_active']
+	form_args = dict(event=dict(validators=[DataRequired()]),
+ 					 event_date=dict(validators=[DateInRange()]))
+	form_create_rules = ['event', 'event_date']
+	form_edit_rules = ['event', 'event_date', 'is_active']
 
 	# Perform data validation when creating/editing a slot
 	def on_model_change(self, form, model, is_created):
+		if is_created:
+			model.is_active = True
+
 		duration = form.event.data.duration
 		new_start = model.event_date
 		new_end = new_start + timedelta(minutes=duration * 60)
@@ -168,7 +172,6 @@ class StaffEventSlotView(StaffBaseView):
 		schedule = db.session.query(Event, EventSlot)\
 					.join(EventSlot, Event.event_id == EventSlot.event_id)\
 					.filter(Event.venue == new_venue).all()
-
 		check_slot_clash(schedule, timing, model.slot_id)
 
 
