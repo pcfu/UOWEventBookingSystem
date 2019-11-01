@@ -98,7 +98,6 @@ class StaffEventView(StaffBaseView):
 							thumbnail_size=(200, 200, True),
 							namegen=img_filename_gen)
 						}
-
 	form_columns = [ 'title', 'event_type', 'description', 'venue', 'capacity',
 					 'duration', 'price', 'img_root', 'path', 'is_launched' ]
 	form_args = dict(duration=dict(validators=[NumberRange(min=0.5),
@@ -106,10 +105,16 @@ class StaffEventView(StaffBaseView):
 					 capacity=dict(validators=[NumberRange(min=1)]),
 					 price=dict(validators=[NumberRange(min=0.0)]) )
 	form_widget_args = { 'img_root' : {'readonly' : True} }
-
+	form_create_rules = [ 'title', 'event_type', 'description', 'venue', 'capacity',
+						  'duration', 'price', 'img_root', 'path']
+	form_edit_rules = [ 'title', 'event_type', 'description', 'venue', 'capacity',
+						'duration', 'price', 'img_root', 'path', 'is_launched' ]
 
 	# Perform data validation when creating/editing an event
 	def on_model_change(self, form, model, is_created):
+		if is_created:
+			model.is_launched = False
+
 		if model.is_scheduled:
 			for slot in model.slots:
 				new_start = slot.event_date
@@ -173,14 +178,18 @@ class StaffEventSlotView(StaffBaseView):
 	# Perform data validation when creating/editing a slot
 	def on_model_change(self, form, model, is_created):
 		if is_created:
+			duration = form.event.data.duration
+			new_venue = form.event.data.venue
 			model.is_active = True
+		else:
+			event = Event.query.get(model.event_id)
+			duration = event.duration
+			new_venue = event.venue
 
-		duration = form.event.data.duration
 		new_start = model.event_date
 		new_end = new_start + timedelta(minutes=duration * 60)
 		timing = (new_start, new_end)
 
-		new_venue = form.event.data.venue
 		schedule = db.session.query(Event, EventSlot)\
 					.join(EventSlot, Event.event_id == EventSlot.event_id)\
 					.filter(Event.venue == new_venue).all()
@@ -199,9 +208,12 @@ class StaffBookingView(StaffBaseView):
 	###
 
 	column_display_pk = True
-	column_list = ['booking_no', 'user', 'slot', 'quantity']
-	column_sortable_list = ['booking_no', ('user', 'user.user_id'),
-							('slot', 'slot.slot_id'), 'quantity']
+	column_list = ['booking_no', 'user', 'slot', 'slot.event', 'quantity']
+	column_sortable_list = ['booking_no',
+							('user', 'user.username'),
+							('slot', 'slot.slot_id'),
+							('slot.event', 'slot.event.title'),
+							'quantity']
 
 
 class AdminUserView(AdminBaseView):
