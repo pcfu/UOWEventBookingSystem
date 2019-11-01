@@ -1,7 +1,7 @@
 from app import db
 from app.models.users import User, Admin
 from app.models.events import Event
-from flask_admin.contrib.sqla.filters import FilterEmpty
+from flask_admin.contrib.sqla.filters import BaseSQLAFilter, FilterEmpty
 from flask_admin.babel import lazy_gettext
 from flask_login import current_user
 from sqlalchemy.sql import literal_column

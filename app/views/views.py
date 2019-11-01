@@ -267,4 +267,11 @@ class AdminUserView(AdminBaseView):
 
 class AdminLoginHistoryView(AdminBaseView):
 	# List View Settings
+	can_create = False
+	can_edit = False
 	column_display_pk = True
+	column_labels = dict(in_id='ID')
+	column_list = ['in_id', 'timestamp', 'user', 'admin']
+	column_sortable_list = ['in_id', 'timestamp',
+							('user', 'user.username'),
+							('admin', 'admin.username')]
