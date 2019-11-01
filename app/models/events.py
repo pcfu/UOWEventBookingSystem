@@ -57,7 +57,6 @@ class Event(db.Model):
 	@has_active_slots.expression
 	def has_active_slots(cls):
 		return db.exists().where(db.and_(EventSlot.event_id == cls.event_id,
-										 cls.is_launched == True,
 										 EventSlot.is_active == True))\
 						  .correlate(cls)
 

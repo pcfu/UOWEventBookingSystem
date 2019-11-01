@@ -75,30 +75,40 @@ def price_query(keyword):
 
 
 def details_query(eid):
-	records = db.session.query(Event, EventSlot)\
-						.join(EventSlot, Event.event_id == EventSlot.event_id)\
-						.filter(Event.event_id == eid, EventSlot.is_active)\
-						.order_by(EventSlot.event_date)
-	return format_events(records)
+	return db.session.query(Event, EventSlot)\
+					 .join(EventSlot, Event.event_id == EventSlot.event_id)\
+					 .filter(Event.event_id == eid, Event.is_launched,
+							 EventSlot.is_active)\
+					 .order_by(EventSlot.event_date).all()
 
 
-def format_events(records):
-	common = records.first()
-	if common is None:
-		return None
+def event_dates_query(eid):
+	return db.session.query(func.DATE(EventSlot.event_date).label('date'))\
+					 .filter(EventSlot.event_id == eid, EventSlot.is_active)\
+					 .order_by(EventSlot.event_date).all()
 
-	event = { 'title' : common.Event.title,
-			  'venue' : common.Event.venue,
+
+def event_times_query(eid, date):
+	return db.session.query(EventSlot.slot_id,
+							func.TIME(EventSlot.event_date).label('time'))\
+					 .filter(EventSlot.event_id == eid, EventSlot.is_active,
+							 func.DATE(EventSlot.event_date) == date)\
+					 .order_by(EventSlot.event_date).all()
+
+
+def format_records(records):
+	event = { 'title' : records[0].Event.title,
+			  'venue' : records[0].Event.venue,
 			  'timings' : dict(),
-			  'duration' : common.Event.duration,
-			  'capacity' : common.Event.capacity,
-			  'type': common.Event.event_type,
-			  'desc': common.Event.description,
-			  'price' : common.Event.price,
-			  'img_root' : common.Event.img_root,
-			  'event_id' : common.Event.event_id }
+			  'duration' : records[0].Event.duration,
+			  'capacity' : records[0].Event.capacity,
+			  'type': records[0].Event.event_type,
+			  'desc': records[0].Event.description,
+			  'price' : records[0].Event.price,
+			  'img_root' : records[0].Event.img_root,
+			  'event_id' : records[0].Event.event_id }
 
-	for row in records.all():
+	for row in records:
 		dt = parse(str(row.EventSlot.event_date))
 		date = str(dt.date())
 		time = str(dt.time().strftime('%H:%M'))

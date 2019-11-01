@@ -109,9 +109,11 @@ def register():
 
 @app.route('/event/details/<eid>')
 def event_details(eid):
-	event = query.details_query(eid)
-	if event is None:
+	records = query.details_query(eid)
+	if not records:
 		return redirect(url_for('index'))
+	else:
+		event = query.format_records(records)
 
 	return render_template('details.html', title='EBS: ' + event['title'],
 						   event=event, is_admin=is_admin_user(),
@@ -131,7 +133,7 @@ def booking(eid):
 
 	# Create booking form
 	form = BookingForm()
-	form.preload(current_user, eid)
+	form.preload(current_user, event)
 	if form.is_submitted():
 		uid = current_user.user_id
 		esid = form.times.data
@@ -150,13 +152,9 @@ def booking(eid):
 
 @app.route('/booking/<eid>/<date>')
 def booking_slot(eid, date):
-	records = db.session.query(EventSlot.slot_id,
-							   func.TIME(EventSlot.event_date).label('time'))\
-						.filter(EventSlot.event_id == eid,
-								func.DATE(EventSlot.event_date) == date)\
-						.order_by(EventSlot.event_date).all()
-
 	timings = []
+
+	records = query.event_times_query(eid, date)
 	for rec in records:
 		timing = {}
 		timing['slot_id'] = rec.slot_id

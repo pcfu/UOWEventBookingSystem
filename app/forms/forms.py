@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from app import db
+from app import db, query
 from app.models.users import User, Admin
 from app.models.events import Event, EventSlot
 from wtforms import StringField, PasswordField, BooleanField, \
@@ -99,16 +99,12 @@ class BookingForm(FlaskForm):
 	price = DecimalField('Price', render_kw={'readonly':'True'}, places=2)
 	submit = SubmitField('Book')
 
-	def preload(self, user, eid):
-		event = Event.query.get(eid)
+	def preload(self, user, event):
 		self.title.data = event.title
 		self.username.data = user.username
 
 		# Get dates
-		date_records = \
-			db.session.query(func.DATE(EventSlot.event_date).label('date'))\
-					  .filter(EventSlot.event_id == eid)\
-					  .order_by(EventSlot.event_date).all()
+		date_records = query.event_dates_query(event.event_id)
 		date_list = []
 		for rec in date_records:
 			if rec.date not in date_list:
@@ -117,11 +113,7 @@ class BookingForm(FlaskForm):
 		self.dates.data = date_list[0]	#set first item as pre-selected default
 
 		# Get timings for pre-selected date
-		timings = db.session.query(EventSlot.slot_id,
-								func.TIME(EventSlot.event_date).label('time'))\
-							.filter(EventSlot.event_id == event.event_id,
-								func.DATE(EventSlot.event_date) == self.dates.data)\
-							.order_by(EventSlot.event_date).all()
+		timings = query.event_times_query(event.event_id, self.dates.data)
 		self.times.choices = [(timing.slot_id, timing.time) for timing in timings]
 
 		self.price.data = event.price
