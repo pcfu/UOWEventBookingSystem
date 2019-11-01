@@ -4,8 +4,9 @@ from app.models.booking import Booking
 from flask import redirect, url_for
 from flask_admin import AdminIndexView
 from flask_admin.contrib.sqla import ModelView, filters
+from wtforms import StringField
 from flask_admin.form.upload import ImageUploadField
-from wtforms.validators import DataRequired, NumberRange, ValidationError
+from wtforms.validators import DataRequired, NumberRange, ValidationError, Email
 from app.forms.custom_validators import Interval, DateInRange
 from app.views.utils import is_staff_user, is_admin_user, event_view_formatter, \
 							check_slot_clash, check_event_active_slots, \
@@ -237,9 +238,28 @@ class StaffBookingView(StaffBaseView):
 		return filters
 
 
-
 class AdminUserView(AdminBaseView):
 	# List View Settings
 	column_display_pk = True
 	column_labels = dict(user_id='ID')
 	column_exclude_list = ['password_hash']
+
+	# Create/Edit Form Settings
+	form_extra_fields =	{'password' : StringField('Password',
+												  validators=[DataRequired()]),
+						 'change_password': StringField('Change Password')}
+	form_columns = ['username', 'email', 'password', 'change_password',
+					'password_hash', 'is_staff']
+	form_args = dict(email=dict(validators=[DataRequired(), Email()]))
+	form_widget_args = { 'password_hash' : {'readonly' : True} }
+	form_create_rules = ['username', 'email', 'password', 'is_staff']
+	form_edit_rules = ['username', 'email', 'change_password',
+					   'password_hash', 'is_staff']
+
+	# Perform data validation when creating/editing a slot
+	def on_model_change(self, form, model, is_created):
+		if is_created:
+			model.set_password(form.password.data)
+		else:
+			if form.change_password.data:
+				model.set_password(form.change_password.data)

@@ -50,7 +50,9 @@ with warnings.catch_warnings():
 admin.add_view(views.StaffBookingView(booking.Booking, db.session))
 
 # Add administrator views
-admin.add_view(views.AdminUserView(users.User, db.session))
+with warnings.catch_warnings():
+	warnings.filterwarnings('ignore', 'Fields missing from ruleset', UserWarning)
+	admin.add_view(views.AdminUserView(users.User, db.session))
 
 # Add extra navbar links
 admin.add_link(MenuLink(name='front page', category='', url='/'))
