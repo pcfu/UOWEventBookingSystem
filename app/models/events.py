@@ -45,9 +45,11 @@ class Event(db.Model):
 		return '[ EID:{:0>4} ] {}'\
 			.format(self.event_id, self.title)
 
+	''' Deprecated: REMOVE AFTER a period of checking
 	@hybrid_property
 	def is_scheduled(self):
 		return bool(self.slots)
+	'''
 
 	@hybrid_property
 	def has_active_slots(self):

@@ -7,7 +7,8 @@ from flask_admin.form.upload import ImageUploadField
 from wtforms.validators import DataRequired, NumberRange, ValidationError
 from app.forms.custom_validators import Interval, DateInRange
 from app.views.utils import is_staff_user, is_admin_user, event_view_formatter, \
-							check_slot_clash, img_filename_gen, FilterNull
+							check_slot_clash, check_event_active_slots, \
+							img_filename_gen, FilterNull
 from sqlalchemy.sql import func
 from datetime import date, timedelta
 from pathlib import Path
@@ -65,15 +66,15 @@ class StaffEventView(StaffBaseView):
 	can_view_details = True
 	can_set_page_size = True
 	column_display_pk = True
-	column_list = [ 'event_id', 'is_scheduled', 'is_launched',
+	column_list = [ 'event_id', 'has_active_slots', 'is_launched',
 					'title', 'event_type', 'venue', 'capacity',
 					'duration', 'price', 'img_root' ]
-	column_labels = dict(is_scheduled='Scheduled', is_launched='Launched',
+	column_labels = dict(has_active_slots='Active Slots', is_launched='Launched',
 						 event_id='ID', event_type='Type',
 						 duration='Duration (H)', img_root='Image File')
 	column_editable_list = ['is_launched', 'title', 'event_type', 'venue',
 							'capacity', 'duration', 'price']
-	column_sortable_list = ['event_id', 'is_scheduled', 'is_launched',
+	column_sortable_list = ['event_id', 'has_active_slots', 'is_launched',
 							'title', ('event_type', 'event_type.name'),
 							('venue', 'venue.name'), 'capacity', 'duration', 'price']
 	column_filters = ['is_launched', 'title', 'event_type', 'venue', 'capacity',
@@ -115,7 +116,7 @@ class StaffEventView(StaffBaseView):
 		if is_created:
 			model.is_launched = False
 
-		if model.is_scheduled:
+		if model.has_active_slots:
 			for slot in model.slots:
 				new_start = slot.event_date
 				new_end = new_start + timedelta(minutes=int(model.duration * 60))
@@ -129,7 +130,7 @@ class StaffEventView(StaffBaseView):
 
 				check_slot_clash(schedule, timing, slot.slot_id)
 		elif model.is_launched:
-			raise ValidationError('Cannot launch unscheduled event.')
+			raise ValidationError('Cannot launch event with no active slots.')
 
 	def on_model_delete(self, model):
 		for slot in model.slots:
@@ -194,10 +195,12 @@ class StaffEventSlotView(StaffBaseView):
 					.join(EventSlot, Event.event_id == EventSlot.event_id)\
 					.filter(Event.venue == new_venue).all()
 		check_slot_clash(schedule, timing, model.slot_id)
+		check_event_active_slots(model.event_id)
 
 	def on_model_delete(self, model):
 		if model.bookings:
 			raise ValidationError('Cannot delete a slot that has bookings.')
+		check_event_active_slots(model.event_id, mode='delete', sid=model.slot_id)
 
 
 class StaffBookingView(StaffBaseView):

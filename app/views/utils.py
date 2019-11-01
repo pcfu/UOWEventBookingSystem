@@ -83,3 +83,15 @@ def check_slot_clash(schedule, timing, id_):
 			# Raise error if new end time lies in another event slot
 			if timing[1] > slot_start_time and timing[1] <= slot_end_time:
 					raise ValidationError(error_msg)
+
+
+def check_event_active_slots(eid, mode='edit', sid=None):
+	active_slots = []
+	event = Event.query.get(eid)
+	for slot in event.slots:
+		if mode == 'delete' and slot != sid:
+			active_slots.append(slot)
+
+	if not active_slots:
+		event.is_launched = False
+		db.session.commit()
