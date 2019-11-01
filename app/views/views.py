@@ -1,6 +1,7 @@
 from app import db
 from app.models.events import Event, EventSlot
 from app.models.booking import Booking
+from app.models.logs import LoginHistory
 from flask import redirect, url_for
 from flask_admin import AdminIndexView
 from flask_admin.contrib.sqla import ModelView, filters
@@ -10,7 +11,8 @@ from wtforms.validators import DataRequired, NumberRange, ValidationError, Email
 from app.forms.custom_validators import Interval, DateInRange
 from app.views.utils import is_staff_user, is_admin_user, event_view_formatter, \
 							check_slot_clash, check_event_active_slots, \
-							img_filename_gen, FilterNull
+							img_filename_gen, FilterNull, FilterRegularUsers, \
+							FilterStaffUsers, FilterAdminUsers
 from sqlalchemy.sql import func
 from datetime import date, timedelta
 from pathlib import Path
@@ -275,3 +277,20 @@ class AdminLoginHistoryView(AdminBaseView):
 	column_sortable_list = ['in_id', 'timestamp',
 							('user', 'user.username'),
 							('admin', 'admin.username')]
+	column_filters = [ 'user.username', 'admin.username',
+					   FilterRegularUsers(LoginHistory.is_regular, 'user type',
+										options=(('1', 'Yes'), ('0', 'No'))),
+   					   FilterStaffUsers(LoginHistory.is_staff, 'user type',
+										options=(('1', 'Yes'), ('0', 'No'))),
+   					   FilterAdminUsers(LoginHistory.is_admin, 'user type',
+										options=(('1', 'Yes'), ('0', 'No')))
+					]
+	column_filter_labels = {'user.username' : 'user name',
+							'admin.username' : 'admin name'}
+
+	def scaffold_filters(self, name):
+		filters = super().scaffold_filters(name)
+		if name in self.column_filter_labels:
+			for f in filters:
+				f.name = self.column_filter_labels[name]
+		return filters

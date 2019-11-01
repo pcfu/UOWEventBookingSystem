@@ -17,6 +17,39 @@ class FilterNull(FilterEmpty):
 		return lazy_gettext('is NULL')
 
 
+class FilterRegularUsers(BaseSQLAFilter):
+	def apply(self, query, value, alias=None):
+		if value == '1':
+			return query.filter(self.column == True)
+		else:
+			return query.filter(self.column == False)
+
+	def operation(self):
+		return 'regular'
+
+
+class FilterStaffUsers(BaseSQLAFilter):
+	def apply(self, query, value, alias=None):
+		if value == '1':
+			return query.filter(self.column == True)
+		else:
+			return query.filter(self.column == False)
+
+	def operation(self):
+		return 'staff'
+
+
+class FilterAdminUsers(BaseSQLAFilter):
+	def apply(self, query, value, alias=None):
+		if value == '1':
+			return query.filter(self.column == True)
+		else:
+			return query.filter(self.column == False)
+
+	def operation(self):
+		return 'admin'
+
+
 def is_staff_user():
 	staff = None
 	if current_user.is_authenticated:
