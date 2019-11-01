@@ -1,8 +1,9 @@
 from app import db
 from app.models.events import Event, EventSlot
+from app.models.booking import Booking
 from flask import redirect, url_for
 from flask_admin import AdminIndexView
-from flask_admin.contrib.sqla import ModelView
+from flask_admin.contrib.sqla import ModelView, filters
 from flask_admin.form.upload import ImageUploadField
 from wtforms.validators import DataRequired, NumberRange, ValidationError
 from app.forms.custom_validators import Interval, DateInRange
@@ -206,12 +207,10 @@ class StaffEventSlotView(StaffBaseView):
 
 
 class StaffBookingView(StaffBaseView):
-	### TEMP SETTINGS: Set to false for prod ###
-	can_create = True
-	can_edit = True
-	can_delete = True
-	###
-
+	# List View Settings
+	can_create = False
+	can_edit = False
+	can_delete = False
 	column_display_pk = True
 	column_list = ['booking_no', 'user', 'slot', 'slot.event', 'quantity']
 	column_sortable_list = ['booking_no',
@@ -219,6 +218,24 @@ class StaffBookingView(StaffBaseView):
 							('slot', 'slot.slot_id'),
 							('slot.event', 'slot.event.title'),
 							'quantity']
+	column_labels = { 'booking_no' : 'ID',
+					  'slot.event' : 'Event' }
+	column_filters = ['user.username', 'user.user_id', 'slot.event_date',
+					  'slot.slot_id', 'slot.event.title', 'slot.event.event_id']
+	column_filter_labels = { 'user.username' : 'username',
+							 'user.user_id' : 'user id',
+							 'slot.event_date' : 'event date',
+							 'slot.slot_id' : 'slot id',
+							 'slot.event.title' : 'event name',
+							 'slot.event.event_id' : 'event id'}
+
+	def scaffold_filters(self, name):
+		filters = super().scaffold_filters(name)
+		if name in self.column_filter_labels:
+			for f in filters:
+				f.name = self.column_filter_labels[name]
+		return filters
+
 
 
 class AdminUserView(AdminBaseView):
