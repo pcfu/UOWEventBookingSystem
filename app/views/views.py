@@ -126,19 +126,25 @@ class StaffEventView(StaffBaseView):
 		elif model.is_launched:
 			raise ValidationError('Cannot launch unscheduled event.')
 
+	def on_model_delete(self, model):
+		for slot in model.slots:
+			if slot.bookings:
+				raise ValidationError('Cannot delete event. One or more of its slots has bookings.')
+
 
 class StaffEventSlotView(StaffBaseView):
 	# List View Settings
 	can_set_page_size = True
 	column_display_pk = True
-	column_list = ['slot_id', 'is_launched', 'is_active', 'event',
+	column_list = ['slot_id', 'is_launched', 'is_active', 'event', 'event.venue',
 				   'event_date', 'start_time', 'end_time', 'num_bookings']
 	column_labels = dict(slot_id='ID', is_launched='Event Launched',
 						 is_active='Active', event_date='Date', start_time='Start',
 						 end_time='End', num_bookings='Bookings')
 	column_editable_list = ['is_active', 'event', 'event_date']
 	column_sortable_list = ['slot_id', 'is_launched', 'is_active',
-							('event', 'event.title'), 'event_date',
+							('event', 'event.title'),
+							('event.venue', 'event.venue.name'), 'event_date',
 							'num_bookings', 'start_time', 'end_time']
 	column_type_formatters = event_view_formatter
 	column_filters = [FilterNull(column=EventSlot.is_active, name='Active'),
@@ -175,12 +181,22 @@ class StaffEventSlotView(StaffBaseView):
 					.filter(Event.venue == new_venue).all()
 		check_slot_clash(schedule, timing, model.slot_id)
 
+	def on_model_delete(self, model):
+		if model.bookings:
+			raise ValidationError('Cannot delete a slot that has bookings.')
+
 
 class StaffBookingView(StaffBaseView):
-	can_create = False
-	can_edit = False
-	can_delete = False
+	### TEMP SETTINGS: Set to false for prod ###
+	can_create = True
+	can_edit = True
+	can_delete = True
+	###
+
 	column_display_pk = True
+	column_list = ['booking_no', 'user', 'slot', 'quantity']
+	column_sortable_list = ['booking_no', ('user', 'user.user_id'),
+							('slot', 'slot.slot_id'), 'quantity']
 
 
 class AdminUserView(AdminBaseView):

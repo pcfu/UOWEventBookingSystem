@@ -42,8 +42,8 @@ class Event(db.Model):
 	venue = db.relationship('Venue', back_populates='events')
 	slots = db.relationship('EventSlot', cascade='all, delete', back_populates='event')
 	def __repr__(self):
-		return '[ EID:{} ] {} ---------- [ {} ]'\
-			.format(self.event_id, self.title, self.venue)
+		return '[ EID:{:0>4} ] {}'\
+			.format(self.event_id, self.title)
 
 	@hybrid_property
 	def is_scheduled(self):
@@ -71,8 +71,8 @@ class EventSlot(db.Model):
 	bookings = db.relationship('Booking', back_populates='slot')
 
 	def __repr__(self):
-		return "[ EID:{} ] {} ------ Date: {}"\
-			.format(self.event_id, self.event.title, self.event_date)
+		return "[ SID:{:0>4} ] Date: {}"\
+			.format(self.slot_id, self.event_date, self.event_id)
 
 	@hybrid_property
 	def start_time(self):
