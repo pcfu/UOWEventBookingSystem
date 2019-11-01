@@ -136,6 +136,7 @@ class StaffEventSlotView(StaffBaseView):
 	column_labels = dict(slot_id='ID', is_launched='Event Launched',
 						 is_active='Active', event_date='Date', start_time='Start',
 						 end_time='End', num_bookings='Bookings')
+	column_editable_list = ['is_active', 'event', 'event_date']
 	column_sortable_list = ['slot_id', 'is_launched', 'is_active',
 							('event', 'event.title'), 'event_date',
 							'num_bookings', 'start_time', 'end_time']
