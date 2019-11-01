@@ -263,3 +263,8 @@ class AdminUserView(AdminBaseView):
 		else:
 			if form.change_password.data:
 				model.set_password(form.change_password.data)
+
+
+class AdminLoginHistoryView(AdminBaseView):
+	# List View Settings
+	column_display_pk = True
