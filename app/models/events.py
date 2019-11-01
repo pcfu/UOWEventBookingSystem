@@ -41,7 +41,6 @@ class Event(db.Model):
 	event_type = db.relationship('EventType', back_populates='events')
 	venue = db.relationship('Venue', back_populates='events')
 	slots = db.relationship('EventSlot', cascade='all, delete', back_populates='event')
-
 	def __repr__(self):
 		return '[ EID:{} ] {} ---------- [ {} ]'\
 			.format(self.event_id, self.title, self.venue)
@@ -50,10 +49,17 @@ class Event(db.Model):
 	def is_scheduled(self):
 		return bool(self.slots)
 
-	@property
+	@hybrid_property
 	def has_active_slots(self):
 		active_slots = [slot for slot in self.slots if slot.is_active]
 		return bool(active_slots)
+
+	@has_active_slots.expression
+	def has_active_slots(cls):
+		return db.exists().where(db.and_(EventSlot.event_id == cls.event_id,
+										 cls.is_launched == True,
+										 EventSlot.is_active == True))\
+						  .correlate(cls)
 
 
 class EventSlot(db.Model):
@@ -99,6 +105,7 @@ class EventSlot(db.Model):
 
 	@is_launched.expression
 	def is_launched(cls):
+		''' Testing trimmed query below. Keep block for the time-being
 		return db.select([
 					db.case([( db.exists()\
 							   .where(db.and_(Event.event_id == cls.event_id,
@@ -106,6 +113,11 @@ class EventSlot(db.Model):
 							   .correlate(cls), True)],
 							else_=False)
 				])
+		'''
+
+		return db.exists().where(db.and_(Event.event_id == cls.event_id,
+										 Event.is_launched == True))\
+						  .correlate(cls)
 
 	@hybrid_property
 	def num_bookings(self):
