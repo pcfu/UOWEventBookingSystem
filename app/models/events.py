@@ -50,6 +50,11 @@ class Event(db.Model):
 	def is_scheduled(self):
 		return bool(self.slots)
 
+	@property
+	def has_active_slots(self):
+		active_slots = [slot for slot in self.slots if slot.is_active]
+		return bool(active_slots)
+
 
 class EventSlot(db.Model):
 	slot_id = db.Column(db.Integer, primary_key=True)
