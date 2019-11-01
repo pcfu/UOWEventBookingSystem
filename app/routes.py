@@ -2,6 +2,7 @@ from app import app, db, query
 from app.models.users import User, Admin
 from app.models.events import Event, EventSlot
 from app.models.booking import Booking
+from app.models.logs import add_login_record
 from app.forms.forms import MemberLoginForm, StaffLoginForm, RegistrationForm, \
 							SearchForm, BookingForm
 from flask import render_template, redirect, url_for, jsonify
@@ -59,6 +60,7 @@ def user_login():
 		# if login is successful, return user to 'index'
 		user = User.query.filter_by(username=form.username.data).first()
 		login_user(user, remember=form.remember_me.data)
+		add_login_record()
 		return redirect(url_for('index'))
 
 	# render login page
@@ -75,7 +77,7 @@ def staff_login():
 	if form.validate_on_submit():
 		staff = query.staff_user_query(form.username.data)
 		login_user(staff, remember=form.remember_me.data)
-		#redirect to admin page using flask_admin(endpoint=admin)
+		add_login_record()
 		return redirect(url_for('admin.index'))
 
 	# renders staff login page
