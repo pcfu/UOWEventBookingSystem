@@ -33,6 +33,8 @@ class Admin(UserMixin, db.Model):
 	email = db.Column(db.String(30), index=True, unique=True, nullable=False)
 	password_hash = db.Column(db.String(255), nullable=False)
 
+	logins = db.relationship('LoginHistory', back_populates='admin')
+
 	def __repr__(self):
 		return '[ AID:{:0>4} ] {}'.format(self.admin_id, self.username)
 

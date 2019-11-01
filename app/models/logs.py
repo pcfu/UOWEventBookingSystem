@@ -10,3 +10,4 @@ class LoginHistory(db.Model):
 
 	#add relationships
 	user = db.relationship('User', back_populates='logins')
+	admin = db.relationship('Admin', back_populates='logins')
