@@ -132,6 +132,7 @@ class StaffEventView(StaffBaseView):
 		elif model.is_launched:
 			raise ValidationError('Cannot launch event with no active slots.')
 
+	# Perform data validation when deleting an event
 	def on_model_delete(self, model):
 		for slot in model.slots:
 			if slot.bookings:
@@ -197,10 +198,11 @@ class StaffEventSlotView(StaffBaseView):
 		check_slot_clash(schedule, timing, model.slot_id)
 		check_event_active_slots(model.event_id)
 
+	# Perform data validation when deleting a slot
 	def on_model_delete(self, model):
 		if model.bookings:
 			raise ValidationError('Cannot delete a slot that has bookings.')
-		check_event_active_slots(model.event_id, mode='delete', sid=model.slot_id)
+		check_event_active_slots(model.event_id, sid=model.slot_id, mode='delete')
 
 
 class StaffBookingView(StaffBaseView):

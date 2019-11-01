@@ -85,11 +85,13 @@ def check_slot_clash(schedule, timing, id_):
 					raise ValidationError(error_msg)
 
 
-def check_event_active_slots(eid, mode='edit', sid=None):
+def check_event_active_slots(eid, sid=None, mode='edit'):
 	active_slots = []
 	event = Event.query.get(eid)
 	for slot in event.slots:
-		if mode == 'delete' and slot != sid:
+		if mode == 'delete' and slot.slot_id != sid and slot.is_active:
+			active_slots.append(slot)
+		elif mode == 'edit' and slot.is_active:
 			active_slots.append(slot)
 
 	if not active_slots:
