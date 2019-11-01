@@ -12,7 +12,7 @@ class User(UserMixin, db.Model):
 	is_staff = db.Column(db.Boolean, nullable=False)
 
 	logins = db.relationship('LoginHistory', back_populates='user')
-	#logouts = db.relationship('LogoutHistory', back_populates='user')
+	logouts = db.relationship('LogoutHistory', back_populates='user')
 	bookings = db.relationship('Booking', back_populates='user')
 
 	def __repr__(self):
@@ -35,7 +35,7 @@ class Admin(UserMixin, db.Model):
 	password_hash = db.Column(db.String(255), nullable=False)
 
 	logins = db.relationship('LoginHistory', back_populates='admin')
-	#logouts = db.relationship('LogoutHistory', back_populates='admin')
+	logouts = db.relationship('LogoutHistory', back_populates='admin')
 
 	def __repr__(self):
 		return '[ AID:{:0>4} ] {}'.format(self.admin_id, self.username)
