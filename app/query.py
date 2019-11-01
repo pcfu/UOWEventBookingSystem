@@ -74,8 +74,19 @@ def price_query(keyword):
 	return records
 
 
+def details_query(eid):
+	records = db.session.query(Event, EventSlot)\
+						.join(EventSlot, Event.event_id == EventSlot.event_id)\
+						.filter(Event.event_id == eid, EventSlot.is_active)\
+						.order_by(EventSlot.event_date)
+	return format_events(records)
+
+
 def format_events(records):
 	common = records.first()
+	if common is None:
+		return None
+
 	event = { 'title' : common.Event.title,
 			  'venue' : common.Event.venue,
 			  'timings' : dict(),
@@ -91,7 +102,6 @@ def format_events(records):
 		dt = parse(str(row.EventSlot.event_date))
 		date = str(dt.date())
 		time = str(dt.time().strftime('%H:%M'))
-
 		if date in event['timings']:
 			event['timings'][date].append(time)
 		else:

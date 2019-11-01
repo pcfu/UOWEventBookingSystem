@@ -48,7 +48,6 @@ def get_events(option):
 						   add_admin_btn=(is_staff_user() or is_admin_user()))
 
 
-
 @app.route('/login', methods=['GET', 'POST'])
 def user_login():
 	# if already logged in redirect to homepage
@@ -108,18 +107,12 @@ def register():
 	return render_template('register.html', title='EBS: Account Registration', form=form)
 
 
-
-@app.route('/event/details')
-def get_details():
-	return redirect(url_for('event_details', eid='1'))
-
-
 @app.route('/event/details/<eid>')
 def event_details(eid):
-	records = db.session.query(Event, EventSlot)\
-						.join(EventSlot, Event.event_id == EventSlot.event_id)\
-						.filter(Event.event_id == eid).order_by(EventSlot.event_date)
-	event = query.format_events(records)
+	event = query.details_query(eid)
+	if event is None:
+		return redirect(url_for('index'))
+
 	return render_template('details.html', title='EBS: ' + event['title'],
 						   event=event, is_admin=is_admin_user(),
 						   add_admin_btn=(is_staff_user() or is_admin_user()))
@@ -127,11 +120,16 @@ def event_details(eid):
 
 @app.route('/booking/<eid>', methods=['GET', 'POST'])
 def booking(eid):
+	# Redirect to other endpoint if pre-reqs not met
 	if not current_user.is_authenticated:
 		return redirect(url_for('user_login'))
 	elif is_admin_user():
 		return redirect(url_for('event_details', eid=eid))
+	event = Event.query.get(eid)
+	if not event.is_launched or not event.has_active_slots:
+		return redirect(url_for('index'))
 
+	# Create booking form
 	form = BookingForm()
 	form.preload(current_user, eid)
 	if form.is_submitted():
