@@ -54,6 +54,7 @@ class Event(db.Model):
 class EventSlot(db.Model):
 	slot_id = db.Column(db.Integer, primary_key=True)
 	event_date = db.Column(db.DateTime, nullable=False)
+	is_active = db.Column(db.Boolean)
 	event_id = db.Column(db.Integer, ForeignKey('event.event_id'))
 
 	event = db.relationship('Event', back_populates='slots')
