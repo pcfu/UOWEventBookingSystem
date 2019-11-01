@@ -6,6 +6,7 @@ from flask_migrate import Migrate
 from flask_login import LoginManager
 from flask_admin import Admin
 from flask_admin.menu import MenuLink
+import warnings
 
 
 # Create the main app object that is called by event_system.py
@@ -35,14 +36,22 @@ from app.models import users, events, booking
 from app.views import views
 
 
-# Create admin and add views
+# Create admin
 admin = Admin(app, name='UOW EBS', template_mode='bootstrap3',
 			  index_view=views.GlobalIndexView())
+
+# Add staff views
 admin.add_view(views.StaffVenueView(events.Venue, db.session))
 admin.add_view(views.StaffEventTypeView(events.EventType, db.session))
 admin.add_view(views.StaffEventView(events.Event, db.session))
-admin.add_view(views.StaffEventSlotView(events.EventSlot, db.session))
+with warnings.catch_warnings():
+	warnings.filterwarnings('ignore', 'Fields missing from ruleset', UserWarning)
+	admin.add_view(views.StaffEventSlotView(events.EventSlot, db.session))
 admin.add_view(views.StaffBookingView(booking.Booking, db.session))
+
+# Add administrator views
 admin.add_view(views.AdminUserView(users.User, db.session))
+
+# Add extra navbar links
 admin.add_link(MenuLink(name='front page', category='', url='/'))
 admin.add_link(MenuLink(name='logout', category='', url='/logout'))
