@@ -2,7 +2,7 @@ from app import app, db, query
 from app.models.users import User, Admin
 from app.models.events import Event, EventSlot
 from app.models.booking import Booking
-from app.models.logs import add_login_record, add_logout_record
+from app.models.logs import add_login_record
 from app.forms.forms import MemberLoginForm, StaffLoginForm, RegistrationForm, \
 							SearchForm, BookingForm
 from flask import render_template, redirect, url_for, jsonify
@@ -87,7 +87,6 @@ def staff_login():
 @app.route('/logout')
 def logout():
 	logout_user()
-	add_logout_record()
 	return redirect(url_for('index'))
 
 

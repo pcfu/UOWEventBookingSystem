@@ -294,34 +294,3 @@ class AdminLoginHistoryView(AdminBaseView):
 			for f in filters:
 				f.name = self.column_filter_labels[name]
 		return filters
-
-
-'''
-class AdminLogoutHistoryView(AdminBaseView):
-	# List View Settings
-	can_create = False
-	can_edit = False
-	column_display_pk = True
-	column_labels = dict(out_id='ID')
-	column_list = ['in_id', 'timestamp', 'user', 'admin']
-	column_sortable_list = ['in_id', 'timestamp',
-							('user', 'user.username'),
-							('admin', 'admin.username')]
-	column_filters = [ 'user.username', 'admin.username',
-					   FilterRegularUsers(LoginHistory.is_regular, 'user type',
-										options=(('1', 'Yes'), ('0', 'No'))),
-   					   FilterStaffUsers(LoginHistory.is_staff, 'user type',
-										options=(('1', 'Yes'), ('0', 'No'))),
-   					   FilterAdminUsers(LoginHistory.is_admin, 'user type',
-										options=(('1', 'Yes'), ('0', 'No')))
-					]
-	column_filter_labels = {'user.username' : 'user name',
-							'admin.username' : 'admin name'}
-
-	def scaffold_filters(self, name):
-		filters = super().scaffold_filters(name)
-		if name in self.column_filter_labels:
-			for f in filters:
-				f.name = self.column_filter_labels[name]
-		return filters
-'''
