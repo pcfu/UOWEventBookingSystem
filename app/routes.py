@@ -4,12 +4,13 @@ from app.models.events import Event, EventSlot
 from app.models.booking import Booking
 from app.models.logs import add_login_record, add_logout_record
 from app.forms.forms import MemberLoginForm, StaffLoginForm, RegistrationForm, \
-							SearchForm, BookingForm
-from flask import render_template, redirect, url_for, jsonify
+							SearchForm, BookingForm, PaymentForm
+from flask import render_template, redirect, url_for, request, session, jsonify
 from flask_login import current_user, login_user, logout_user
 from app.views.utils import is_admin_user, is_staff_user
 from sqlalchemy.sql import func
 from dateutil.parser import parse
+import ast, datetime
 
 
 @app.login_manager.user_loader
@@ -47,6 +48,7 @@ def get_events(option):
 	return render_template('index.html', title='Event Booking System',
 						   form=form, event_list=get_events(),
 						   add_admin_btn=(is_staff_user() or is_admin_user()))
+
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -131,7 +133,7 @@ def booking(eid):
 	elif is_admin_user():
 		return redirect(url_for('event_details', eid=eid))
 	event = Event.query.get(eid)
-	if not event.is_launched or not event.has_active_slots:
+	if not event or not event.is_launched or not event.has_active_slots:
 		return redirect(url_for('index'))
 
 	# Create booking form
@@ -141,13 +143,14 @@ def booking(eid):
 		uid = current_user.user_id
 		esid = form.times.data
 		qty = form.count.data
-
-		booking = Booking(user_id=uid, event_slot_id=esid, quantity=qty)
-		db.session.add(booking)
-		db.session.commit()
-
-		return render_template('confirm_booking.html',
-	   						   add_admin_btn=(is_staff_user() or is_admin_user()))
+		price = format(event.price * qty, '.2f')
+		return redirect((url_for('payment', booking_details={
+					'event_id': eid,
+					'user_id': uid,
+					'slot_id': esid,
+					'quantity': qty,
+					'price': price
+				})))
 
 	return render_template('booking.html', form=form, eid=eid,
 						   add_admin_btn=(is_staff_user() or is_admin_user()))
@@ -165,6 +168,35 @@ def booking_slot(eid, date):
 		timings.append(timing)
 
 	return jsonify({ 'timings' : timings })
+
+
+@app.route('/booking/payment/<booking_details>', methods=['GET', 'POST'])
+def payment(booking_details):
+	if not current_user.is_authenticated:
+		return redirect(url_for('user_login'))
+	elif is_admin_user():
+		return redirect(url_for('event_details', eid=booking_details['event_id']))
+
+	form = PaymentForm()
+	# typecast booking_details to dict. redirect converts it to a dict str literal
+	booking_details = ast.literal_eval(booking_details)
+	title = db.session.query(Event.title).filter(booking_details['event_id']
+												== Event.event_id).all()[0]
+	time = db.session.query(EventSlot.event_date).filter(booking_details['slot_id']
+												== EventSlot.slot_id).all()[0]
+
+	booking_details['title'] = ([t for t in title][0])
+	booking_details['time'] = ([t for t in time][0]).strftime("%m/%d/%Y, %H:%M:%S")
+
+	if form.validate_on_submit():
+		booking = Booking(user_id=booking_details['user_id'],
+						event_slot_id=booking_details['slot_id'],
+						quantity=booking_details['quantity'])
+		db.session.add(booking)
+		db.session.commit()
+		return render_template('confirm_booking.html')
+	return render_template('payment.html', form=form, booking_details=booking_details,
+	 						add_admin_btn=(is_staff_user() or is_admin_user()))
 
 
 ########################

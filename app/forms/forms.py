@@ -1,16 +1,16 @@
 from flask_wtf import FlaskForm
 from app import db, query
 from app.models.users import User, Admin
-from app.models.events import Event, EventSlot
 from wtforms import StringField, PasswordField, BooleanField, \
 					SubmitField, IntegerField, SelectField, DecimalField
 from wtforms.fields.html5 import DateField
 from wtforms.validators import DataRequired, EqualTo, ValidationError, \
-								NumberRange, Email
+								NumberRange, Email, Length, InputRequired, Optional
 from wtforms_components import NumberInput
 from sqlalchemy.sql import func
 from app.query import staff_user_query
-from datetime import date
+from datetime import date, datetime
+import re
 
 
 def RaiseError(field, message='Invalid data'):
@@ -25,7 +25,6 @@ class BaseLogin(FlaskForm):
 	remember_me = BooleanField('Remember Me')
 	submit = SubmitField('Sign In')
 
-	### TRY MOVING CHILD authentication into Base again
 	def authenticate(self, user):
 		if user is None:
 			RaiseError(self.username, message='Invalid username')
@@ -118,3 +117,50 @@ class BookingForm(FlaskForm):
 
 		self.price.data = event.price
 		self.capacity = event.capacity
+
+
+'''
+For now, Payment forms have double-sided validation on html and python.
+Address, postal code and contact is set as optional becuz i duno if its required.
+the card_number validation is a simple length 14 - 16 check unless we want to implement Luhn's algorithm
+name on card uses a regex to match if string contains any special characters (with exception of hyphens)
+'''
+
+class PaymentForm(FlaskForm):
+	card_number = IntegerField('Card Number', validators=[DataRequired()])
+	name_on_card = StringField('Name on card', validators=[DataRequired()])
+	expire_month = IntegerField('Expiry Date', validators=[DataRequired()], render_kw={'placeholder':'MM'})
+	expire_year = IntegerField(validators=[DataRequired()], render_kw={'placeholder':'YY'})
+	cvv = IntegerField('CVV', validators=[DataRequired()])
+	address = StringField('Billing Address', validators=[Optional()])
+	postal_code = IntegerField('Postal Code', validators=[Optional()], render_kw={'placeholder':'i.e. 599491'})
+	contact = IntegerField('Contact Number', validators=[Optional()])
+	submit = SubmitField('Pay')
+
+	def validate_card_number(self, card_number):
+		if len(str(card_number.data)) < 14 or len(str(card_number.data)) > 16:
+			raise ValidationError('Invalid card number!')
+
+	def validate_name_on_card(self, name_on_card):
+		pattern = '[\d!@#$%^&*_+=]' #pattern allows hyphens in names
+		if re.search(pattern, name_on_card.data):
+			raise ValidationError('Invalid name!')
+
+	def validate_expire_month(self, expire_month):
+		if expire_month.data < 1 or expire_month.data > 12:
+			raise ValidationError('Invalid month!')
+
+	def validate_expire_year(self, expire_year):
+		if (expire_year.data > int(datetime.now().strftime("%y")) + 5) or \
+		(expire_year.data < int(datetime.now().strftime("%y"))) or (expire_year.data < 1):
+			raise ValidationError('Invalid year!')
+
+	def validate_postal_code(self, postal_code):
+		if postal_code is not None:
+			if not len(str(postal_code.data)) == 6:
+				raise ValidationError('Invalid postal code!' + len(postal_code.data))
+
+	def validate_contact(self, contact):
+		if contact is not None:
+			if not len(str(contact.data)) == 8:
+				raise ValidationError('Invalid contact number')

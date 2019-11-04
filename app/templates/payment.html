@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+
+<div>
+    <h2>Confirmation:</h2>
+    You have selected <b>{{booking_details['quantity']}}</b> ticket(s) for <b>{{booking_details['title']}}</b>
+    on <b>{{booking_details['time']}}</b><br/>
+    The amount payable is <b>${{booking_details['price']}}</b>
+</div><br/>
+
+<form action="" method="post" novalidate>
+    {{ form.hidden_tag() }}
+
+    <p>
+        {{ form.card_number.label }}
+        {{ form.card_number(maxlength=16) }}
+
+    </p>
+    <p>
+        {{ form.expire_month.label }}
+        {{ form.expire_month(style="width:50px", maxlength=2) }}
+        {{ form.expire_year(style="width:50px", maxlength=2) }}
+        &nbsp;&nbsp;&nbsp;&nbsp;
+        {{ form.cvv.label }}
+        {{ form.cvv(minlength=3, maxlength=3, style="width:75px") }}<br>
+
+    </p>
+    <p>
+        {{ form.name_on_card.label }}
+        {{ form.name_on_card(pattern="[a-zA-Z-]*") }}<br>
+    </p>
+    <p>
+        {{ form.address.label }}
+        {{ form.address(style="width:500px;text-align:left") }}
+    </p>
+
+    <p>
+        {{ form.postal_code.label }}
+        {{ form.postal_code(maxlength=6, style="width:125px") }}
+    </p>
+
+    <p>
+        {{ form.contact.label }}
+        {{ form.contact(maxlength=8, style="width:150px") }}
+    </p>
+    <p>{{ form.submit() }}</p>
+
+    {% if form.errors %}
+    {% for error in form.errors %}
+    {{error}} is required <br/>
+    {% endfor %}
+    {% endif %}
+
+
+
+
+</form>
+{% endblock %}
