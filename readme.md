@@ -25,19 +25,14 @@ http://localhost:4000/ to access the website
 
 
 ## Tasks
-1. Currently the login system is kind of botched. The login authentication grabs User_user.id when authenticating even if you are logging in as admin.
-Since Staff and User are 2 different tables, naturally they have clashing ids which in this case messes up the Flask_Login.
-A temporary implementation is to redirect User level login to 'index' and Staff level login to 'admin/index' from the Flask_Admin library
-    
-    Requires more research on Flask_Login to understand if there is a way to implement user/admin system,
-or using @roles_required decorators are better
-
-2. Probably need some revision on the Database design, particularly on Event and User, maybe considering merging Staff into User with a is_admin attribute?
-
-3. Research on the optimal way to use Flask_Admin - I think the current way of using ModelView is not the best
-
-4. Integrate frontend html which is separately made into this program, and probably good to look up on Flask_Bootstrap
-
+1. Implement Payment model to track payment records for successful bookings
+2. Page for user to view, amend or cancel bookings
+3. Adding payments when increasing booking quantity from user's booking page - updating entry in db
+4. Implement Refund model for refunds
+5. Issuing refund when decreasing quantity from user's booking page - updating entry in db
+6. Promotion codes for bookings (Promotion model)
+7. Account page for users to change email, password, etc etc.
+8. Fix CVV validation for month if current_year = year but entered month is < current_month
 
 
 ## Contributing
