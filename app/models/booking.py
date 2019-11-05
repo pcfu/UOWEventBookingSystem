@@ -7,7 +7,6 @@ class Booking(db.Model):
 	quantity = db.Column(db.Integer, nullable=False)
 	user_id = db.Column(db.Integer, ForeignKey('user.user_id'))
 	event_slot_id = db.Column(db.Integer, ForeignKey('event_slot.slot_id'))
-	payment_id = db.Column(db.Integer, ForeignKey('payment.payment_id'))
 
 	user = db.relationship('User', back_populates='bookings')
 	slot = db.relationship('EventSlot', back_populates='bookings')
