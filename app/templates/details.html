@@ -2,27 +2,75 @@
 
 {% block content %}
 <div class="container main-container" style="margin-top: 70px;">
-	<div class="row main-row">
+	<div class="row main-row mb-3">
 		<div class="col-4">
 			<div class="container">
-				<div class="row">
+				<div class="row mb-3">
 					<div class="col-auto m-auto">
 						{% set path = '/static/images/' ~ event.img_root ~ '.jpg' %}
 						<img src='{{ path }}' style='height: 100%; width: 100%; object-fit: contain'>
+					</div>
+				</div>
+				<div class="row book-button">
+					<div class="col" style="text-align: center;">
+						<a href="/search" class="btn btn-secondary" role="button">◄ Back</a>
+						{% if not is_admin %}
+						<a href="{{url_for('booking', eid=event.event_id)}}" class="btn btn-primary">Book</a>
+						{% endif %}
 					</div>
 				</div>
 			</div>
 		</div>
 		<div class="col-8">
 			<div class="container event-desc-container">
-				<div class="row event-title pb-1">
-					<div class="col title">
+				<div class="row event-title pb-1 ">
+					<div class="col-2 label">
+						<label class="details-label">Event Title: </label>
+					</div>
+					<div class="col title px-0">
 						{{ event.title }}
+					</div>
+				</div>
+				<div class="row event-duration-row pb-1">
+					<div class="col-2 label">
+						<label class="details-label">Duration: </label>
+					</div>
+					<div class="col event-duration-col px-0">
+						{{ event.duration * 60}} minutes
+					</div>
+				</div>
+				<div class="row event-location-row pb-1">
+					<div class="col-2 label">
+						<label class="details-label">Venue: </label>
+					</div>
+					<div class="col event-location-col px-0">
+						{{ event.venue }}
+					</div>
+				</div>
+				<div class="row event-price-row pb-1">
+					<div class="col-2 label">
+						<label class="details-label">Price: </label>
+					</div>
+					<div class="col event-price-col px-0">
+						${{ event.price }}
+					</div>
+				</div>
+				<div class="row event-desc-row align-items-start pb-1">
+					<div class="col-2 label">
+						<label class="details-label">Description: </label>
+					</div>
+					<div class="col event-desc-col px-0" style="width: 500px;">
+						{{ event.desc }}
+					</div>
+				</div>
+				<div class="row event-date-time-label">
+					<div class="col-2 label">
+						<label class="details-label">Date/Time: </label>
 					</div>
 				</div>
 				<div class="row event-datetime-row pb-1">
 					<div class="col event-datetime-col">
-						<div class = "overflow-auto border" style="max-width: 300px; max-height: 65px;">
+						<div class="overflow-auto" style="max-width: 300px; max-height: 300px;">
 							{% for date in event.timings %}
 							{{ date }}
 							<br>
@@ -35,34 +83,14 @@
 						</div>
 					</div>
 				</div>
-				<div class="row event-duration-row pb-1">
-					<div class="col event-duration-col">
-						{{ event.duration * 60}} minutes
-					</div>
-				</div>
-				<div class="row event-location-row pb-1">
-					<div class="col event-location-col">
-						{{ event.venue }}
-					</div>
-				</div>
-				<div class="row event-price-row pb-1">
-					<div class="col event-price-col">
-						${{ event.price }}
-					</div>
-				</div>
-				<div class="row event-desc-row align-items-start pb-3">
-					<div class="col event-desc-col" style="width: 500px;">
-						{{ event.desc }}
-					</div>
-				</div>
-				<div class="row book-button">
+				<!--<div class="row book-button">
 					<div class="col-12" style="float: left;">
 						{% if not is_admin %}
 						<a href="{{url_for('booking', eid=event.event_id)}}" class="btn btn-secondary">Book</a>
 						{% endif %}
 						<a href="/search" class="btn btn-secondary" role="button">Back to events</a>
 					</div>
-				</div>
+				</div>-->
 			</div>
 		</div>
 	</div>

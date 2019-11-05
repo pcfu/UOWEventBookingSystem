@@ -12,7 +12,7 @@ body {
     padding: 50px;
 }
 
-#mainbody {
+.main-container {
   -webkit-animation: fadein 2s; /* Safari, Chrome and Opera > 12.1 */
  -moz-animation: fadein 2s; /* Firefox < 16 */
   -ms-animation: fadein 2s; /* Internet Explorer */
@@ -49,7 +49,6 @@ body {
     to   { opacity: 1; }
 }
 
-}
 .login {
     margin: 20px auto;
     width: 300px;
