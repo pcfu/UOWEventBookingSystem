@@ -144,14 +144,13 @@ def booking(eid):
 		uid = current_user.user_id
 		esid = form.times.data
 		qty = form.count.data
-		price = format(event.price * qty, '.2f')
 		return redirect((url_for('payment', booking_details={
-					'event_id': eid,
-					'user_id': uid,
-					'slot_id': esid,
-					'quantity': qty,
-					'price': price
-				})))
+												'event_id': eid,
+												'user_id': uid,
+												'slot_id': esid,
+												'quantity': qty,
+												'price': event.price })
+						))
 
 	return render_template('booking.html', form=form, eid=eid,
 						   add_admin_btn=(is_staff_user() or is_admin_user()))
@@ -195,12 +194,13 @@ def payment(booking_details):
 						quantity=booking_details['quantity'])
 		db.session.add(booking)
 		db.session.commit()
-		amount = booking.count.data * booking.price.data
-		payment = Payment(booking_id=booking.booking_id, user_id=booking_details['user_id'],
-						amount=amount, card_number=form.card_number.data)
+		amount = booking_details['price'] * booking_details['quantity']
+		payment = Payment(booking_id=booking.booking_id, amount=amount,
+						  card_number=form.card_number.data)
 		db.session.add(payment)
 		db.session.commit()
 		return render_template('confirm_booking.html')
+
 	return render_template('payment.html', form=form, booking_details=booking_details,
 	 						add_admin_btn=(is_staff_user() or is_admin_user()))
 
