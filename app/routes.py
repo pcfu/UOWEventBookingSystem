@@ -180,13 +180,8 @@ def payment(booking_details):
 	form = PaymentForm()
 	# typecast booking_details to dict. redirect converts it to a dict str literal
 	booking_details = ast.literal_eval(booking_details)
-	title = db.session.query(Event.title).filter(booking_details['event_id']
-												== Event.event_id).all()[0]
-	time = db.session.query(EventSlot.event_date).filter(booking_details['slot_id']
-												== EventSlot.slot_id).all()[0]
-
-	booking_details['title'] = ([t for t in title][0])
-	booking_details['time'] = ([t for t in time][0]).strftime("%m/%d/%Y, %H:%M:%S")
+	booking_details['title'] = Event.query.get(booking_details['event_id']).title
+	booking_details['time'] = EventSlot.query.get(booking_details['slot_id']).event_date
 
 	if form.validate_on_submit():
 		booking = Booking(user_id=booking_details['user_id'],
@@ -194,6 +189,7 @@ def payment(booking_details):
 						quantity=booking_details['quantity'])
 		db.session.add(booking)
 		db.session.commit()
+
 		amount = booking_details['price'] * booking_details['quantity']
 		payment = Payment(booking_id=booking.booking_id, amount=amount,
 						  card_number=form.card_number.data)
