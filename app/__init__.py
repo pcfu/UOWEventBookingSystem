@@ -1,8 +1,9 @@
-from flask import Flask
+from flask import Flask, session
 from app.config import Config
 from sqlalchemy import MetaData
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
+from flask_session import Session
 from flask_login import LoginManager
 from flask_admin import Admin
 from flask_admin.menu import MenuLink
@@ -25,6 +26,10 @@ convention = {
 
 db = SQLAlchemy(app, metadata=MetaData(naming_convention=convention)) # DB instance
 migrate = Migrate(app, db, render_as_batch=True) # Flask database migration manager
+
+
+# Set up session
+Session(app)
 
 
 # Create login manager

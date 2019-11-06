@@ -8,4 +8,5 @@ class Config(object):
 		'sqlite:///' + os.path.join(basedir, 'csit214_database.db')
 	SQLALCHEMY_TRACK_MODIFICATIONS = False
 	SECRET_KEY = 'secret'
+	SESSION_TYPE = 'filesystem'
 	FLASK_ADMIN_SWATCH = 'sandstone'
