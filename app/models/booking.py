@@ -7,10 +7,10 @@ class Booking(db.Model):
 	quantity = db.Column(db.Integer, nullable=False)
 	user_id = db.Column(db.Integer, ForeignKey('user.user_id'))
 	event_slot_id = db.Column(db.Integer, ForeignKey('event_slot.slot_id'))
-	### payment_id (to be included later)
 
 	user = db.relationship('User', back_populates='bookings')
 	slot = db.relationship('EventSlot', back_populates='bookings')
+	payments = db.relationship('Payment', back_populates='booking')
 
 	def __repr__(self):
 		return "Booking No: {}\nUserID: {}".format(self.booking_no, self.user_id)
