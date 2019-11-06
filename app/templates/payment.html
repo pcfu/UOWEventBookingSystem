@@ -12,7 +12,7 @@
 		<div class="col">
 			You have selected <b>{{booking_details['quantity']}}</b> ticket(s) for <b>{{booking_details['title']}}</b>
 			on <b>{{booking_details['time']}}</b><br/>
-			The amount payable is <b>${{booking_details['price']}}</b>
+			The amount payable is <b>${{ booking_details['price'] * booking_details['quantity'] }}</b>
 		</div>
 	</div>
 
