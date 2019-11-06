@@ -45,12 +45,6 @@ class Event(db.Model):
 		return '[ EID:{:0>4} ] {}'\
 			.format(self.event_id, self.title)
 
-	''' Deprecated: REMOVE AFTER a period of checking
-	@hybrid_property
-	def is_scheduled(self):
-		return bool(self.slots)
-	'''
-
 	@hybrid_property
 	def has_active_slots(self):
 		active_slots = [slot for slot in self.slots if slot.is_active]
@@ -106,16 +100,6 @@ class EventSlot(db.Model):
 
 	@is_launched.expression
 	def is_launched(cls):
-		''' Testing trimmed query below. Keep block for the time-being
-		return db.select([
-					db.case([( db.exists()\
-							   .where(db.and_(Event.event_id == cls.event_id,
-											  Event.is_launched == True))\
-							   .correlate(cls), True)],
-							else_=False)
-				])
-		'''
-
 		return db.exists().where(db.and_(Event.event_id == cls.event_id,
 										 Event.is_launched == True))\
 						  .correlate(cls)
@@ -126,6 +110,6 @@ class EventSlot(db.Model):
 
 	@num_bookings.expression
 	def num_bookings(cls):
-		return db.select([db.func.count(Booking.booking_no)])\
+		return db.select([db.func.count(Booking.booking_id)])\
 				 .where(Booking.event_slot_id == cls.slot_id)\
 				 .label('num_bookings')

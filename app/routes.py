@@ -196,7 +196,7 @@ def payment(booking_details):
 		db.session.add(booking)
 		db.session.commit()
 		amount = booking.count.data * booking.price.data
-		payment = Payment(booking_id=booking.booking_no, user_id=booking_details['user_id'],
+		payment = Payment(booking_id=booking.booking_id, user_id=booking_details['user_id'],
 						amount=amount, card_number=form.card_number.data)
 		db.session.add(payment)
 		db.session.commit()

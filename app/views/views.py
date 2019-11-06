@@ -215,13 +215,13 @@ class StaffBookingView(StaffBaseView):
 	can_edit = False
 	can_delete = False
 	column_display_pk = True
-	column_list = ['booking_no', 'user', 'slot', 'slot.event', 'quantity']
-	column_sortable_list = ['booking_no',
+	column_list = ['booking_id', 'user', 'slot', 'slot.event', 'quantity']
+	column_sortable_list = ['booking_id',
 							('user', 'user.username'),
 							('slot', 'slot.slot_id'),
 							('slot.event', 'slot.event.title'),
 							'quantity']
-	column_labels = { 'booking_no' : 'ID',
+	column_labels = { 'booking_id' : 'ID',
 					  'slot.event' : 'Event' }
 	column_filters = ['user.username', 'user.user_id', 'slot.event_date',
 					  'slot.slot_id', 'slot.event.title', 'slot.event.event_id']
