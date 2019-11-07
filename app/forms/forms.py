@@ -1,6 +1,7 @@
 from flask_wtf import FlaskForm
 from app import db, query
 from app.models.users import User, Admin
+from app.models.events import EventSlot
 from wtforms import StringField, PasswordField, BooleanField, \
 					SubmitField, IntegerField, SelectField, DecimalField
 from wtforms.fields.html5 import DateField
@@ -92,6 +93,7 @@ class BookingForm(FlaskForm):
 	username = StringField(render_kw={'readonly':'True'})
 	dates = SelectField(choices=[])
 	times = SelectField(choices=[])
+	vacancy = StringField(render_kw={'readonly':'True'})
 	count = IntegerField('Count', default=1,
 						 validators=[DataRequired(), NumberRange(min=1)],
 						 widget=NumberInput())
@@ -115,6 +117,8 @@ class BookingForm(FlaskForm):
 		timings = query.event_times_query(event.event_id, self.dates.data)
 		self.times.choices = [(timing.slot_id, timing.time) for timing in timings]
 
+		default_slot_id = self.times.choices[0][0]
+		self.vacancy.data = EventSlot.query.get(default_slot_id).vacancy
 		self.price.data = event.price
 		self.capacity = event.capacity
 

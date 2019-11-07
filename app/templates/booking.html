@@ -41,6 +41,17 @@
 			</div>
 		</div>
 
+		<!-- Vacancy -->
+		<div class="row mb-2">
+			<div class="col-1">
+				Available Seats:
+			</div>
+			<div class="col-1">
+				{{ form.vacancy(size=1) }}
+			</div>
+		</div>
+
+
 		<!-- No. of Tickets -->
 		<div class="row mb-2">
 			<div class="col-1">
@@ -83,22 +94,40 @@ function refreshPrice(){
 }
 </script>
 
-<!-- Dynamically update available times based on date selected -->
+<!-- Dynamic updates -->
 <script>
   let date_select = document.getElementById('dates');
   let time_select = document.getElementById('times');
 
+  // Update available times and vacancy based on date selected
   date_select.onchange = function() {
 	  date = date_select.value;
 
 	  fetch('/booking/' + {{ eid }} + '/' + date).then(function(response) {
 		  response.json().then(function(data) {
 			  let time_choices_HTML = '';
+
+			  let count = 0;
 			  for (let timing of data.timings) {
 				  time_choices_HTML += '<option value="' + timing.slot_id
-					  					+ '">' + timing.time + '</option>';
+										  + '">' + timing.time + '</option>';
+				  if (count == 0) {
+					  document.getElementById('vacancy').value = timing.vacancy;
+				  }
+				  ++count;
 			  }
+
 			  time_select.innerHTML = time_choices_HTML;
+		  });
+	  });
+  }
+
+  // Update vacancy based on time selected
+  time_select.onchange = function() {
+	  sid = time_select.value;
+	  fetch('/booking/vacancy/' + sid).then(function(response) {
+		  response.json().then(function(data) {
+			   document.getElementById('vacancy').value = data.vacancy;
 		  });
 	  });
   }

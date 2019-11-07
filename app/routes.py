@@ -188,9 +188,16 @@ def booking_slot(eid, date):
 		timing = {}
 		timing['slot_id'] = rec.slot_id
 		timing['time'] = rec.time
+		timing['vacancy'] = EventSlot.query.get(rec.slot_id).vacancy
 		timings.append(timing)
 
 	return jsonify({ 'timings' : timings })
+
+
+@app.route('/booking/vacancy/<sid>')
+def booking_vacancy(sid):
+	vacancy = EventSlot.query.get(sid).vacancy
+	return jsonify({ 'vacancy' : vacancy })
 
 
 @app.route('/booking/payment', methods=['GET', 'POST'])
