@@ -126,10 +126,11 @@ def format_events(records):
 		dt = parse(str(row.EventSlot.event_date))
 		date = str(dt.date())
 		time = str(dt.time().strftime('%H:%M'))
+		vacancy = row.EventSlot.vacancy
 		if date in event['timings']:
-			event['timings'][date].append(time)
+			event['timings'][date].append((time, vacancy))
 		else:
-			event['timings'][date] = [time]
+			event['timings'][date] = [(time, vacancy)]
 
 	return event
 

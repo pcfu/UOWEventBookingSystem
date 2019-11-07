@@ -74,8 +74,10 @@
 							{% for date in event.timings %}
 							{{ date }}
 							<br>
-							{% for time in event.timings[date] %}
-							{{ time }} &nbsp
+							{% for timeslot in event.timings[date] %}
+							<!-- timeslot[0] = time
+								 timeslot[1] = seats left for that timeslot -->
+							{{ timeslot[0] }} | Seats left: {{ timeslot[1] }}<br>
 							{% endfor %}
 							<br>
 							<br>
