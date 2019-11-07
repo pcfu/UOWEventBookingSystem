@@ -4,6 +4,7 @@ from sqlalchemy import ForeignKey
 from dateutil.parser import parse
 from datetime import timedelta
 from sqlalchemy.ext.hybrid import hybrid_property
+from sqlalchemy.sql import func
 
 
 class Venue(db.Model):
@@ -103,6 +104,22 @@ class EventSlot(db.Model):
 		return db.exists().where(db.and_(Event.event_id == cls.event_id,
 										 Event.is_launched == True))\
 						  .correlate(cls)
+
+	@hybrid_property
+	def vacancy(self):
+		seats = self.event.capacity
+		for booking in self.bookings:
+			seats -= booking.quantity
+		return seats
+
+	@vacancy.expression
+	def vacancy(cls):
+		occupied = db.select([db.func.ifnull(db.func.sum(Booking.quantity), 0)])\
+					 .where(Booking.event_slot_id == cls.slot_id)\
+					 .correlate(cls)
+		return db.select([Event.capacity - occupied])\
+				 .where(Event.event_id == cls.event_id)\
+				 .correlate(cls)
 
 	@hybrid_property
 	def num_bookings(self):
