@@ -11,7 +11,7 @@
   <td><b>Time:</b> {{ b.time }}</td>
   <td><b>Tickets:</b> {{ b.qty }}</td>
   <td>
-	<a href="{{url_for('test', bid=b.id)}}"
+	<a href="{{url_for('edit_booking', bid=b.id)}}"
 	   class="btn btn-primary">Edit</a>
   </td>
 </tr>

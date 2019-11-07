@@ -49,7 +49,6 @@ def get_events(option):
 						   add_admin_btn=(is_staff_user() or is_admin_user()))
 
 
-
 @app.route('/login', methods=['GET', 'POST'])
 def user_login():
 	# if already logged in redirect to homepage
@@ -127,13 +126,17 @@ def my_bookings():
 	return render_template('my_bookings.html', bookings=bookings)
 
 
-## Placeholder link for edit bookings page
-@app.route('/test/<bid>')
-def test(bid=None):
-	if bid is None:
+@app.route('/my_bookings/edit/<bid>')
+def edit_booking(bid):
+	if not current_user.is_authenticated:
+		return redirect(url_for('user_login'))
+	elif is_admin_user():
 		return redirect(url_for('index'))
-	else:
-		return 'Edit page for booking id ' + bid
+	booking = Booking.query.get(bid)
+	if booking is None or booking.user_id != current_user.user_id:
+		return redirect(url_for('index'))
+
+	return bid
 
 
 @app.route('/event/details/<eid>')
