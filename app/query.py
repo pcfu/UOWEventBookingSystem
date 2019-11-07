@@ -97,7 +97,20 @@ def event_times_query(eid, date):
 					 .order_by(EventSlot.event_date).all()
 
 
-def format_records(records):
+def get_event_list(search_type=None, keyword=None):
+	if keyword is None:
+		return query_all()
+	elif search_type == 'title':
+		return title_query(keyword)
+	elif search_type == 'type':
+		return type_query(keyword)
+	elif search_type == 'date':
+		return date_query(keyword)
+	else:
+		return price_query(keyword)
+
+
+def format_events(records):
 	event = { 'title' : records[0].Event.title,
 			  'venue' : records[0].Event.venue,
 			  'timings' : dict(),

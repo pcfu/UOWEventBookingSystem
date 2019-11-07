@@ -27,7 +27,6 @@ def index():
 	return redirect(url_for('get_events', option='title'))
 
 
-### this function should be renamed; nameclash with supporting function
 @app.route('/search/<option>', methods=['GET', 'POST'])
 def get_events(option):
 	form = SearchForm()
@@ -42,11 +41,11 @@ def get_events(option):
 		keyword = str(form.search_field.data).strip()
 		if len(keyword) > 0:
 			return render_template('index.html', title='Event Booking System', form=form,
-								   event_list=get_events(search_type, keyword),
+								   event_list=query.get_event_list(search_type, keyword),
 								   add_admin_btn=(is_staff_user() or is_admin_user()))
 
 	return render_template('index.html', title='Event Booking System',
-						   form=form, event_list=get_events(),
+						   form=form, event_list=query.get_event_list(),
 						   add_admin_btn=(is_staff_user() or is_admin_user()))
 
 
@@ -139,7 +138,7 @@ def event_details(eid):
 	if not records:
 		return redirect(url_for('index'))
 	else:
-		event = query.format_records(records)
+		event = query.format_events(records)
 
 	return render_template('details.html', title='EBS: ' + event['title'],
 						   event=event, is_admin=is_admin_user(),
@@ -219,20 +218,3 @@ def payment(booking_details):
 
 	return render_template('payment.html', form=form, booking_details=booking_details,
 	 						add_admin_btn=(is_staff_user() or is_admin_user()))
-
-
-########################
-# SUPPORTING FUNCTIONS #
-########################
-
-def get_events(search_type=None, keyword=None):
-	if keyword is None:
-		return query.query_all()
-	elif search_type == 'title':
-		return query.title_query(keyword)
-	elif search_type == 'type':
-		return query.type_query(keyword)
-	elif search_type == 'date':
-		return query.date_query(keyword)
-	else:
-		return query.price_query(keyword)
