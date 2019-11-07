@@ -9,9 +9,7 @@ from app.forms.forms import MemberLoginForm, StaffLoginForm, RegistrationForm, \
 from flask import render_template, redirect, url_for, request, session, jsonify
 from flask_login import current_user, login_user, logout_user
 from app.views.utils import is_admin_user, is_staff_user
-from sqlalchemy.sql import func
-from dateutil.parser import parse
-import ast, datetime
+import ast
 
 
 @app.login_manager.user_loader
@@ -29,6 +27,7 @@ def index():
 	return redirect(url_for('get_events', option='title'))
 
 
+### this function should be renamed; nameclash with supporting function
 @app.route('/search/<option>', methods=['GET', 'POST'])
 def get_events(option):
 	form = SearchForm()
@@ -111,6 +110,27 @@ def register():
 		login_user(new_user)
 		return redirect(url_for('index'))
 	return render_template('register.html', title='EBS: Account Registration', form=form)
+
+
+@app.route('/my_bookings')
+def my_bookings():
+	if not current_user.is_authenticated:
+		return redirect(url_for('user_login'))
+	elif is_admin_user():
+		return redirect(url_for('index'))
+
+	records = Booking.query.filter(Booking.user_id == current_user.user_id).all()
+	bookings = query.format_bookings(records)
+	return render_template('my_bookings.html', bookings=bookings)
+
+
+## Placeholder link for edit bookings page
+@app.route('/test/<bid>')
+def test(bid=None):
+	if bid is None:
+		return redirect(url_for('index'))
+	else:
+		return 'Edit page for booking id ' + bid
 
 
 @app.route('/event/details/<eid>')

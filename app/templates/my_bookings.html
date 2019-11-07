@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>List of booked events for this user</h1>
+
+<table>
+{% for b in bookings  %}
+<tr>
+  <td><b>Event:</b> {{ b.title }}</td>
+  <td><b>Date:</b> {{ b.date }}</td>
+  <td><b>Time:</b> {{ b.time }}</td>
+  <td><b>Tickets:</b> {{ b.qty }}</td>
+  <td>
+	<a href="{{url_for('test', bid=b.id)}}"
+	   class="btn btn-primary">Edit</a>
+  </td>
+</tr>
+{% endfor %}
+</table>
+{% endblock %}

@@ -1,6 +1,7 @@
 from app import db
 from app.models.users import User, Admin
 from app.models.events import Event, EventSlot, EventType
+from app.models.booking import Booking
 from flask import flash
 from sqlalchemy.sql import func
 from datetime import datetime, date
@@ -118,3 +119,19 @@ def format_records(records):
 			event['timings'][date] = [time]
 
 	return event
+
+
+def format_bookings(records):
+	records = sorted(records, key=lambda k: k.slot.event_date)
+
+	bookings = []
+	for row in records:
+		dt = parse(str(row.slot.event_date))
+		date = str(dt.date())
+		time = str(dt.time().strftime('%H:%M'))
+		bookings.append({ 'id' : row.booking_id,
+						  'title' : row.slot.event.title,
+						  'date' : date,
+						  'time' : time,
+						  'qty' : row.quantity })
+	return bookings
