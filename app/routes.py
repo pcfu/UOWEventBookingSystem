@@ -1,4 +1,4 @@
-from app import app, db, query
+from app import app, db, query, session
 from app.models.payments import Payment
 from app.models.users import User, Admin
 from app.models.events import Event, EventSlot
@@ -62,6 +62,7 @@ def user_login():
 		user = User.query.filter_by(username=form.username.data).first()
 		login_user(user, remember=form.remember_me.data)
 		add_login_record()
+		session['payment_due'] = None
 		return redirect(url_for('index'))
 
 	# render login page
@@ -79,6 +80,7 @@ def staff_login():
 		staff = query.staff_user_query(form.username.data)
 		login_user(staff, remember=form.remember_me.data)
 		add_login_record()
+		session['payment_due'] = None
 		return redirect(url_for('admin.index'))
 
 	# renders staff login page
@@ -87,6 +89,7 @@ def staff_login():
 
 @app.route('/logout')
 def logout():
+	session['payment_due'] = None
 	add_logout_record()
 	logout_user()
 	return redirect(url_for('index'))
@@ -108,6 +111,7 @@ def register():
 		db.session.commit()
 		login_user(new_user)
 		return redirect(url_for('index'))
+
 	return render_template('register.html', title='EBS: Account Registration', form=form)
 
 
@@ -160,16 +164,13 @@ def booking(eid):
 	form = BookingForm()
 	form.preload(current_user, event)
 	if form.is_submitted():
-		uid = current_user.user_id
-		esid = form.times.data
-		qty = form.count.data
-		return redirect((url_for('payment', booking_details={
-												'event_id': eid,
-												'user_id': uid,
-												'slot_id': esid,
-												'quantity': qty,
-												'price': event.price })
-						))
+		# Load payment details into session
+		session['payment_due'] = {'event_id': eid,
+								  'user_id': current_user.user_id,
+								  'slot_id': form.times.data,
+								  'quantity': form.count.data,
+								  'price': event.price}
+		return redirect(url_for('payment'))
 
 	return render_template('booking.html', form=form, eid=eid,
 						   add_admin_btn=(is_staff_user() or is_admin_user()))
@@ -189,32 +190,37 @@ def booking_slot(eid, date):
 	return jsonify({ 'timings' : timings })
 
 
-@app.route('/booking/payment/<booking_details>', methods=['GET', 'POST'])
-def payment(booking_details):
+@app.route('/booking/payment', methods=['GET', 'POST'])
+def payment():
+	# Redirect to other endpoint if pre-reqs not met
 	if not current_user.is_authenticated:
 		return redirect(url_for('user_login'))
-	elif is_admin_user():
-		return redirect(url_for('event_details', eid=booking_details['event_id']))
+	elif is_admin_user() or session['payment_due'] is None:
+		return redirect(url_for('index'))
+
+	# Retrieve payment details from session object
+	payment = session['payment_due']
+	payment['title'] = Event.query.get(payment['event_id']).title
+	payment['time'] = EventSlot.query.get(payment['slot_id']).event_date
 
 	form = PaymentForm()
-	# typecast booking_details to dict. redirect converts it to a dict str literal
-	booking_details = ast.literal_eval(booking_details)
-	booking_details['title'] = Event.query.get(booking_details['event_id']).title
-	booking_details['time'] = EventSlot.query.get(booking_details['slot_id']).event_date
-
 	if form.validate_on_submit():
-		booking = Booking(user_id=booking_details['user_id'],
-						event_slot_id=booking_details['slot_id'],
-						quantity=booking_details['quantity'])
+		# Update db with new booking record
+		booking = Booking(user_id=payment['user_id'],
+						  event_slot_id=payment['slot_id'],
+						  quantity=payment['quantity'])
 		db.session.add(booking)
 		db.session.commit()
 
-		amount = booking_details['price'] * booking_details['quantity']
-		payment = Payment(booking_id=booking.booking_id, amount=amount,
+		# Update db with new payment record
+		payment = Payment(booking_id=booking.booking_id,
+						  amount=(payment['price'] * payment['quantity']),
 						  card_number=form.card_number.data)
 		db.session.add(payment)
 		db.session.commit()
+
+		session['payment_due'] = None
 		return render_template('confirm_booking.html')
 
-	return render_template('payment.html', form=form, booking_details=booking_details,
+	return render_template('payment.html', form=form, booking_details=payment,
 	 						add_admin_btn=(is_staff_user() or is_admin_user()))
