@@ -43,22 +43,24 @@
 	</div>
 	
 	<div class="row remember-me-row justify-content-center no-gutters">
-		<div class="col-2 label-col text-center">
+		<div class="col-lg-2 label-col text-center">
 			{{ form.remember_me.label() }}
-			{{ form.remember_me(style="width:12px; margin-left:20px;") }}
+		</div>
+		<div>
+			{{ form.remember_me(style="width:12px;") }}
 		</div>
 	</div>
 	
-	<div class="row submit-row mt-2">
-		<div class="col submit-col">
+	<div class="row submit-row mt-2 justify-content-center">
+		<div class="col-3 submit-col">
 			<!-- sign-in -->
 			{{ form.submit(class_='signin-btn btn') }}
 		</div>
 	</div>
 	</form>
 	
-	<div class="row register-row mt-4">
-		<div class="col register-col">
+	<div class="row register-row justify-content-center mt-4">
+		<div class="col-3 register-col">
 			<!-- register button -->
 			<a href="{{ url_for('register') }}" class="signin-btn btn" role="button">Register</a>
 		</div>
