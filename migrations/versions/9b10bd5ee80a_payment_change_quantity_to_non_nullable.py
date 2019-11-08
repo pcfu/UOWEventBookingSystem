@@ -1,8 +1,8 @@
 """Payment: change quantity to non-nullable
 
-Revision ID: fe7c24788437
-Revises: b13244610058
-Create Date: 2019-11-08 20:44:39.359023
+Revision ID: 9b10bd5ee80a
+Revises: 1d3baa7d669d
+Create Date: 2019-11-08 22:27:56.983749
 
 """
 from alembic import op
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'fe7c24788437'
-down_revision = 'b13244610058'
+revision = '9b10bd5ee80a'
+down_revision = '1d3baa7d669d'
 branch_labels = None
 depends_on = None
 
