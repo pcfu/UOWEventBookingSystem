@@ -147,38 +147,46 @@ def add_to_booking(bid, delta):
 
 @app.route('/my_bookings/cancel/<bid>/<delta>')
 def cancel_booking(bid, delta):
+	# Redirect to other endpoint if pre-reqs not met
 	booking = Booking.query.get(bid)
-	requested_qty = int(delta)
+	if not current_user.is_authenticated:
+		return redirect(url_for('user_login'))
+	elif is_admin_user() or current_user.user_id != booking.user_id:
+		return redirect(url_for('index'))
+
+	# Throw error if requested refund quantity exceeds total booking quantity
+	request_balance = int(delta)
+	if request_balance > booking.quantity:
+		return 'Error in refund quantity. Unable to proceed.'
+
+	# Loop through payments to refund as much request_balance as possible
 	refund_amount = 0.0
-
 	for payment in booking.payments:
-		if requested_qty > booking.quantity or requested_qty < 0:
-			return 'Error in booking/refund quantity calculations. Cannot proceed.'
-
-		if requested_qty > 0:
-			remaining_refunds = payment.quantity - payment.total_refund_qty
-			if remaining_refunds > 0:
-				new_refund_qty = min(remaining_refunds, requested_qty)
+		if request_balance > 0:
+			payment_avail_refunds = payment.quantity - payment.total_refund_qty
+			if payment_avail_refunds > 0:
+				# Add new refund record to db
+				new_refund_qty = min(payment_avail_refunds, request_balance)
 				new_refund = Refund(quantity=new_refund_qty,
 									payment_id=payment.payment_id)
 				db.session.add(new_refund)
-				db.session.commit()
 
+				# Update cumulative changes
 				booking.quantity -= new_refund_qty
-				db.session.commit()
-
-				print('REFUND:')
-				print('ticket price: {}'.format(payment.amount / payment.quantity))
-				print('refund qty: {}'.format(new_refund_qty))
-				print('refund amount: {}'\
-					  .format(payment.amount / payment.quantity * new_refund_qty))
-				print('------END--REFUND--CALC-------')
-
 				refund_amount += payment.amount / payment.quantity * new_refund_qty
-				requested_qty -= new_refund_qty
+				request_balance -= new_refund_qty
 
-	return 'Refunding ${} for {} tickets to Booking {}'\
-		.format(refund_amount, delta, bid)
+	# Rollback db and throw error if total refunded exceeds requested refund quantity
+	if request_balance < 0:
+		db.session.rollback()
+		return 'Error occurred while processing refunds. Unable to proceed.'
+
+	# Commit changes and redirect to confirmation page
+	db.session.commit()
+	details = query.format_bookings([booking])[0]
+	return render_template('confirm_refund.html',
+						   amount=refund_amount, qty=delta, details=details,
+						   add_admin_btn=(is_staff_user() or is_admin_user()))
 
 
 @app.route('/event/details/<eid>')
@@ -287,7 +295,8 @@ def payment():
 			db.session.commit()
 
 			session['payment_due'] = None
-			return render_template('confirm_booking.html')
+			return render_template('confirm_booking.html',
+					   add_admin_btn=(is_staff_user() or is_admin_user()))
 
 	return render_template('payment.html', form=form, booking_details=payment,
 	 						add_admin_btn=(is_staff_user() or is_admin_user()))

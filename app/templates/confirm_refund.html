@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div>
+  <p>
+	Refunded <b>{{ qty }}</b> ticket(s)
+	to <b>{{ details['title'] }}</b>
+	on <b>{{ details.date }} {{ details.time }}.</b>
+	Total amount refunded is <b>${{ amount }}</b>
+  </p>
+  <p>
+	You will be redirected to your bookings page in 3 seconds.
+  </p>
+
+<a href="{{ url_for('my_bookings') }}"
+   class="btn btn-secondary">
+  Click here to return immediately
+</a>
+
+<script>
+  var timer = setTimeout(
+	  function() {
+		  window.location='{{ '/my_bookings' }}'
+	  },
+	  3000);
+</script>
+</div>
+{% endblock %}
