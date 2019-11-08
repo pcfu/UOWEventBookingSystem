@@ -39,13 +39,27 @@ def get_events(option):
 		search_type = form.search_type.data
 		keyword = str(form.search_field.data).strip()
 		if len(keyword) > 0:
-			return render_template('index.html', title='Event Booking System', form=form,
-								   event_list=query.get_event_list(search_type, keyword),
-								   add_admin_btn=(is_staff_user() or is_admin_user()))
+			return render_template(
+				'index.html', title='Event Booking System', form=form,
+				event_list=query.get_event_list(search_type, keyword),
+				is_admin=is_admin_user(), is_staff=is_staff_user())
 
 	return render_template('index.html', title='Event Booking System',
 						   form=form, event_list=query.get_event_list(),
-						   add_admin_btn=(is_staff_user() or is_admin_user()))
+						   is_admin=is_admin_user(), is_staff=is_staff_user())
+
+
+@app.route('/event/details/<eid>')
+def event_details(eid):
+	# Redirect to homepage if no event with specified eid
+	records = query.details_query(eid)
+	if not records:
+		return redirect(url_for('index'))
+
+	event = query.format_events(records)
+	return render_template('details.html',
+						   title='EBS: {}'.format(event['title']), event=event,
+						   is_admin=is_admin_user(), is_staff=is_staff_user())
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -110,11 +124,14 @@ def register():
 		login_user(new_user)
 		return redirect(url_for('index'))
 
-	return render_template('register.html', title='EBS: Account Registration', form=form)
+	return render_template('register.html',
+						   title='EBS: Account Registration',
+						   form=form)
 
 
 @app.route('/my_bookings')
 def my_bookings():
+	# Redirect to other endpoint if pre-reqs not met
 	if not current_user.is_authenticated:
 		return redirect(url_for('user_login'))
 	elif is_admin_user():
@@ -124,7 +141,7 @@ def my_bookings():
 								   Booking.quantity > 0).all()
 	bookings = query.format_bookings(records)
 	return render_template('my_bookings.html', bookings=bookings,
-		 				   add_admin_btn=(is_staff_user() or is_admin_user()))
+						   is_admin=is_admin_user(), is_staff=is_staff_user())
 
 
 @app.route('/my_bookings/add_to/<bid>/<delta>')
@@ -136,6 +153,7 @@ def add_to_booking(bid, delta):
 	elif is_admin_user() or current_user.user_id != booking.user_id:
 		return redirect(url_for('index'))
 
+	# Save payment details in current session object
 	session['payment_due'] = {'event_id' : booking.slot.event.event_id,
 							  'user_id' : current_user.user_id,
 							  'slot_id' : booking.event_slot_id,
@@ -177,7 +195,7 @@ def cancel_booking(bid, delta):
 				refund_amount += payment.amount / payment.quantity * new_refund_qty
 				request_balance -= new_refund_qty
 
-	# Rollback db and throw error if total refunds exceed total booking quantity
+	# Rollback db and throw error if created refunds exceed total booking quantity
 	if request_balance < 0:
 		db.session.rollback()
 		return 'Error occurred during processing. Unable to proceed.'
@@ -187,20 +205,7 @@ def cancel_booking(bid, delta):
 	details = query.format_bookings([booking])[0]
 	return render_template('confirm_refund.html',
 						   amount=refund_amount, qty=delta, details=details,
-						   add_admin_btn=(is_staff_user() or is_admin_user()))
-
-
-@app.route('/event/details/<eid>')
-def event_details(eid):
-	records = query.details_query(eid)
-	if not records:
-		return redirect(url_for('index'))
-	else:
-		event = query.format_events(records)
-
-	return render_template('details.html', title='EBS: ' + event['title'],
-						   event=event, is_admin=is_admin_user(),
-						   add_admin_btn=(is_staff_user() or is_admin_user()))
+						   is_admin=is_admin_user(), is_staff=is_staff_user())
 
 
 @app.route('/booking/<eid>', methods=['GET', 'POST'])
@@ -211,7 +216,7 @@ def booking(eid):
 	elif is_admin_user():
 		return redirect(url_for('event_details', eid=eid))
 	event = Event.query.get(eid)
-	if not event or not event.is_launched or not event.has_active_slots:
+	if not event or not event.is_launched:
 		return redirect(url_for('index'))
 
 	# Create booking form
@@ -228,7 +233,7 @@ def booking(eid):
 		return redirect(url_for('payment'))
 
 	return render_template('booking.html', form=form, eid=eid,
-						   add_admin_btn=(is_staff_user() or is_admin_user()))
+						   is_admin=is_admin_user(), is_staff=is_staff_user())
 
 
 @app.route('/booking/<eid>/<date>')
@@ -237,6 +242,7 @@ def booking_slot(eid, date):
 
 	records = query.event_times_query(eid, date)
 	for rec in records:
+		# Only add timings for slots that still have available seats
 		if rec.vacancy > 0:
 			timing = {}
 			timing['slot_id'] = rec.slot_id
@@ -268,39 +274,41 @@ def payment():
 
 	form = PaymentForm()
 	if form.validate_on_submit():
-		# Final db check for slot vacancy in case bookings were made by other users
-		# during the period between booking and payment
+		# Throw error if booking quantity more than current slot vacancy
 		current_vacancy = EventSlot.query.get(payment['slot_id']).vacancy
 		if payment['quantity'] > current_vacancy:
 			session['[payment_due'] = None
-			return render_template('payment_error.html', event_id=payment['event_id'],
-			 					   add_admin_btn=(is_staff_user() or is_admin_user()))
-		else:
-			# Update db with new booking or edit exiting booking
-			if payment['booking_type'] == 'new':
-				booking = Booking(user_id=payment['user_id'],
-								  event_slot_id=payment['slot_id'],
-								  quantity=payment['quantity'])
-				db.session.add(booking)
-			elif payment['booking_type'] == 'update':
-				booking = Booking.query.get(payment['booking_id'])
-				booking.quantity += payment['quantity']
-			db.session.commit()
+			return render_template('payment_error.html',
+								   event_id=payment['event_id'],
+								   is_admin=is_admin_user(),
+								   is_staff=is_staff_user())
 
-			# Update db with new payment record
-			new_payment = Payment(quantity=payment['quantity'],
-								  amount=(payment['price'] * payment['quantity']),
-								  card_number=form.card_number.data,
-								  booking_id=booking.booking_id)
-			db.session.add(new_payment)
-			db.session.commit()
+		# Update db with new booking or edit existing booking
+		if payment['booking_type'] == 'new':
+			booking = Booking(user_id=payment['user_id'],
+							  event_slot_id=payment['slot_id'],
+							  quantity=payment['quantity'])
+			db.session.add(booking)
+		elif payment['booking_type'] == 'update':
+			booking = Booking.query.get(payment['booking_id'])
+			booking.quantity += payment['quantity']
+		db.session.commit()
 
-			session['payment_due'] = None
-			is_new_booking = payment['booking_type'] == 'new'
-			return render_template('confirm_booking.html',
-								   redirect_homepage=is_new_booking,
-								   add_admin_btn=(is_staff_user() or
-												  is_admin_user()) )
+		# Update db with new payment record
+		new_payment = Payment(quantity=payment['quantity'],
+							  amount=(payment['price'] * payment['quantity']),
+							  card_number=form.card_number.data,
+							  booking_id=booking.booking_id)
+		db.session.add(new_payment)
+		db.session.commit()
+
+		# Clear session object and confirm booking
+		session['payment_due'] = None
+		is_new_booking = payment['booking_type'] == 'new'
+		return render_template('confirm_booking.html',
+							   redirect_homepage=is_new_booking,
+							   is_admin=is_admin_user(),
+							   is_staff=is_staff_user())
 
 	return render_template('payment.html', form=form, booking_details=payment,
-	 						add_admin_btn=(is_staff_user() or is_admin_user()))
+						   is_admin=is_admin_user(), is_staff=is_staff_user())

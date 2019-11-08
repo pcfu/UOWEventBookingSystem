@@ -78,8 +78,7 @@ def price_query(keyword):
 def details_query(eid):
 	return db.session.query(Event, EventSlot)\
 					 .join(EventSlot, Event.event_id == EventSlot.event_id)\
-					 .filter(Event.event_id == eid, Event.is_launched,
-							 EventSlot.is_active)\
+					 .filter(Event.event_id == eid, Event.is_launched)\
 					 .order_by(EventSlot.event_date).all()
 
 
