@@ -51,14 +51,14 @@
 			</div>
 		</div>
 
-
 		<!-- No. of Tickets -->
 		<div class="row mb-2">
 			<div class="col-1">
 				Tickets
 			</div>
 			<div class="col-8">
-				{{ form.count(onchange="refreshPrice()", max=capacity, onkeydown="return false") }}
+			  	{{ form.count(onchange="refreshPrice()", max=form.vacancy.data) }}
+				<!-- {{ form.count(onchange="refreshPrice()", max=capacity, onkeydown="return false") }} -->
 				{% for error in form.count.errors %}
 				<span style="color: red;">[{{ error }}]</span>
 				{% endfor %}
@@ -113,6 +113,7 @@ function refreshPrice(){
 										  + '">' + timing.time + '</option>';
 				  if (count == 0) {
 					  document.getElementById('vacancy').value = timing.vacancy;
+					  document.getElementById('count').max = timing.vacancy;
 				  }
 				  ++count;
 			  }
@@ -127,7 +128,8 @@ function refreshPrice(){
 	  sid = time_select.value;
 	  fetch('/booking/vacancy/' + sid).then(function(response) {
 		  response.json().then(function(data) {
-			   document.getElementById('vacancy').value = data.vacancy;
+			  document.getElementById('vacancy').value = data.vacancy;
+			  document.getElementById('count').max = data.vacancy;
 		  });
 	  });
   }
