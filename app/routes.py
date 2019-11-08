@@ -124,9 +124,24 @@ def my_bookings():
 	bookings = query.format_bookings(records)
 	return render_template('my_bookings.html', bookings=bookings)
 
+
 @app.route('/my_bookings/add_to/<bid>/<delta>')
 def add_to_booking(bid, delta):
-	return 'Increasing ticket quantity by ' + delta + ' for booking ' + bid
+	# Redirect to other endpoint if pre-reqs not met
+	booking = Booking.query.get(bid)
+	if not current_user.is_authenticated:
+		return redirect(url_for('user_login'))
+	elif is_admin_user() or current_user.user_id != booking.user_id:
+		return redirect(url_for('index'))
+
+	session['payment_due'] = {'event_id' : booking.slot.event.event_id,
+							  'user_id' : current_user.user_id,
+							  'slot_id' : booking.event_slot_id,
+							  'quantity' : int(delta),
+							  'price' : booking.slot.event.price,
+							  'booking_type' : 'update',
+							  'booking_id' : bid}
+	return redirect(url_for('payment'))
 
 
 @app.route('/my_bookings/edit/<bid>')
@@ -171,11 +186,12 @@ def booking(eid):
 	form.preload(current_user, event)
 	if form.is_submitted():
 		# Load payment details into session
-		session['payment_due'] = {'event_id': eid,
-								  'user_id': current_user.user_id,
-								  'slot_id': form.times.data,
-								  'quantity': form.count.data,
-								  'price': event.price}
+		session['payment_due'] = {'event_id' : eid,
+								  'user_id' : current_user.user_id,
+								  'slot_id' : form.times.data,
+								  'quantity' : form.count.data,
+								  'price' : event.price,
+								  'booking_type' : 'new'}
 		return redirect(url_for('payment'))
 
 	return render_template('booking.html', form=form, eid=eid,
@@ -227,11 +243,15 @@ def payment():
 			return render_template('payment_error.html', event_id=payment['event_id'],
 			 					   add_admin_btn=(is_staff_user() or is_admin_user()))
 		else:
-			# Update db with new booking record
-			booking = Booking(user_id=payment['user_id'],
-							  event_slot_id=payment['slot_id'],
-							  quantity=payment['quantity'])
-			db.session.add(booking)
+			# Update db with new booking or edit exiting booking
+			if payment['booking_type'] == 'new':
+				booking = Booking(user_id=payment['user_id'],
+								  event_slot_id=payment['slot_id'],
+								  quantity=payment['quantity'])
+				db.session.add(booking)
+			elif payment['booking_type'] == 'update':
+				booking = Booking.query.get(payment['booking_id'])
+				booking.quantity += payment['quantity']
 			db.session.commit()
 
 			# Update db with new payment record

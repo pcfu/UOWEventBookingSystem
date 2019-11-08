@@ -4,25 +4,40 @@
 <h1>List of booked events for this user</h1>
 
 <table>
-{% for b in bookings  %}
+{% for booking in bookings  %}
 <tr>
-  <td><b>Event:</b> {{ b.title }}</td>
-  <td><b>Date:</b> {{ b.date }}</td>
-  <td><b>Time:</b> {{ b.time }}</td>
+  <!-- Event title and active status -->
+  <td>
+	<b>Event:</b>
+	{{ booking.title }}
+	<span id="a{{booking.id}}" style="color: red;">
+	  {% if not booking.is_active %}
+	  (inactive)
+	  {% endif %}
+	</span>
+  </td>
+
+  <!-- Date and Time -->
+  <td><b>Date:</b> {{ booking.date }}</td>
+  <td><b>Time:</b> {{ booking.time }}</td>
+
+  <!-- Current slot vacancy -->
   <td>
 	<b>Available Seats:</b>
-	<span id="v{{b.id}}">{{ b.vacancy }}</span>
+	<span id="v{{booking.id}}">{{ booking.vacancy }}</span>
   </td>
+
+  <!-- Current number of tickets -->
   <td>
-	<b>Tickets:</b>	<span id="c{{b.id}}">{{ b.qty }}</span>
+	<b>Tickets:</b>	<span id="c{{booking.id}}">{{ booking.qty }}</span>
   </td>
 
   <!-- Ticket quantity change -->
   <td>
 	<form action="javascript:void(0)">
 	  <b>Edit Qty</b>
-	  ±<input id={{b.id}} type="number"
-			  value="0" min=-{{b.qty}} max={{b.vacancy}}
+	  ±<input id={{booking.id}} type="number"
+			  value="0" min=-{{booking.qty}} max={{booking.vacancy}}
 			  style="width: 75px; height: 40px;"
 			  onchange="update(this.id, this.value)">
 	  </input>
@@ -31,7 +46,7 @@
 
   <!-- Update button -->
   <td>
-	<a id="btn{{b.id}}" href="#"
+	<a id="btn{{booking.id}}" href="#"
 	   class="btn btn-primary"
 	   style="opacity: 0.5">
 	  update
@@ -45,8 +60,17 @@
   function update(booking_id, change_qty) {
 	  let current_qty = document.getElementById(`c${booking_id}`).innerHTML;
 	  let vacant_qty = document.getElementById(`v${booking_id}`).innerHTML;
+	  let is_active = document.getElementById(`a${booking_id}`).innerHTML;
 	  let update_button = document.getElementById(`btn${booking_id}`);
-	  let run_check = `return check_qty(${change_qty}, ${current_qty}, ${vacant_qty})`;
+
+	  var run_check;
+	  if (is_active.trim().length == 0) {
+	 	  run_check = `return check_qty(${booking_id}, ${change_qty}, `
+			  			+ `${current_qty}, ${vacant_qty}, true)`;
+	  } else {
+	 	  run_check = `return check_qty(${booking_id}, ${change_qty}, `
+			  			+ `${current_qty}, ${vacant_qty}, false)`;
+	  }
 
 	  if (change_qty > 0) {
 		  update_button.setAttribute("href",
@@ -66,16 +90,21 @@
 </script>
 
 <script>
-  function check_qty(change_qty, current_qty, vacant_qty) {
+  function check_qty(bid, change_qty, current_qty, vacant_qty, is_active) {
 	  if (change_qty < 0 && Math.abs(change_qty) > current_qty) {
-		  alert("Cannot return more number of tickets booked.");
-		  return false;
+		  alert("Cannot return more than number of tickets booked.");
+	  } else if (change_qty > 0 && !is_active) {
+		  alert("Cannot add tickets for inactive slots.");
 	  } else if (change_qty > 0 && change_qty > vacant_qty) {
 		  alert("Cannot add more than available seats.");
-		  return false;
 	  } else {
 		  return confirm('confirm update');
 	  }
+
+	  document.getElementById(bid).value = 0;
+	  update(bid, 0);
+	  return false;
   }
 </script>
+
 {% endblock %}

@@ -150,5 +150,8 @@ def format_bookings(records):
 						  'date' : date,
 						  'time' : time,
 						  'vacancy' : row.slot.vacancy,
-						  'qty' : row.quantity })
+						  'qty' : row.quantity,
+						  'is_active' : row.slot.event.is_launched and
+						  				row.slot.is_active
+						})
 	return bookings
