@@ -9,12 +9,51 @@
   <td><b>Event:</b> {{ b.title }}</td>
   <td><b>Date:</b> {{ b.date }}</td>
   <td><b>Time:</b> {{ b.time }}</td>
-  <td><b>Tickets:</b> {{ b.qty }}</td>
   <td>
-	<a href="{{url_for('edit_booking', bid=b.id)}}"
-	   class="btn btn-primary">Edit</a>
+	<b>Tickets:</b>	<span id="q{{b.id}}">{{ b.qty }}</span>
+  </td>
+
+  <!-- Ticket quantity change -->
+  <td>
+	<form action="javascript:void(0)">
+	  <input id={{b.id}} type="number" value="0"
+			 min=-{{b.qty}} onchange="update(this.id, this.value)">
+	  </input>
+	</form>
+  </td>
+
+  <!-- Update button -->
+  <td>
+	<a id="btn{{b.id}}" href="#"
+	   class="btn btn-primary"
+	   style="opacity: 0.5">
+	  update
+	</a>
   </td>
 </tr>
 {% endfor %}
 </table>
+
+<script>
+  function update(change_id, change_qty) {
+	  let current_tickets_id = "q" + change_id;
+	  let current_tickets = document.getElementById(current_tickets_id).innerHTML;
+	  let button_id = "btn" + change_id;
+	  let update_button = document.getElementById(button_id);
+
+	  if (change_qty > 0) {
+		  update_button.setAttribute("href", "/my_bookings/edit/" + change_id);
+		  update_button.setAttribute("style", "opacity: 1");
+		  update_button.setAttribute("onclick", "return confirm('confirm update')");
+	  } else if (change_qty < 0) {
+		  update_button.setAttribute("href", "/my_bookings/edit/" + change_id);
+		  update_button.setAttribute("style", "opacity: 1");
+		  update_button.setAttribute("onclick", "return confirm('confirm update')");
+	  } else {
+		  update_button.setAttribute("href", "#");
+		  update_button.setAttribute("style", "opacity: 0.5");
+		  update_button.setAttribute("onclick", "");
+	  }
+  }
+</script>
 {% endblock %}
