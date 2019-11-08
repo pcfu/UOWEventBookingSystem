@@ -5,13 +5,13 @@
 	<div class="row header-row">
 		<div class="col header-col mb-3">
 			<!-- main header -->
-			<h1 class="center">Staff Login</h1>
+			<h1 class="center">Staff Sign In</h1><br>
 		</div>
 	</div>
 
 	<form action="" method="post" novalidate>
     {{ form.hidden_tag() }}
-	
+
 	<div class="row label-row justify-content-center">
 		<div class="col-2 label-col text-center">
 			<!-- username field -->
@@ -26,7 +26,7 @@
 			{% endfor %}
 		</div>
 	</div>
-	
+
 	<div class="row label-row justify-content-center mb-2">
 		<div class="col-2 label-col text-center">
 			<!-- password field -->
@@ -41,16 +41,18 @@
 			{% endfor %}
 		</div>
 	</div>
-	
+
 	<div class="row remember-me-row justify-content-center no-gutters">
-		<div class="col-2 label-col text-center">
+		<div class="col-lg-2 label-col text-center">
 			{{ form.remember_me.label() }}
-			{{ form.remember_me(style="width:12px; margin-left:20px;") }}
+		</div>
+		<div>
+			{{ form.remember_me(style="width:12px;") }}
 		</div>
 	</div>
-	
-	<div class="row submit-row mt-2">
-		<div class="col submit-col">
+
+	<div class="row submit-row mt-2 justify-content-center">
+		<div class="col-3 submit-col">
 			<!-- sign-in -->
 			{{ form.submit(class_='signin-btn btn') }}
 		</div>
