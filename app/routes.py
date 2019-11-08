@@ -122,7 +122,8 @@ def my_bookings():
 
 	records = Booking.query.filter(Booking.user_id == current_user.user_id).all()
 	bookings = query.format_bookings(records)
-	return render_template('my_bookings.html', bookings=bookings)
+	return render_template('my_bookings.html', bookings=bookings,
+		 				   add_admin_btn=(is_staff_user() or is_admin_user()))
 
 
 @app.route('/my_bookings/add_to/<bid>/<delta>')
@@ -255,9 +256,10 @@ def payment():
 			db.session.commit()
 
 			# Update db with new payment record
-			payment = Payment(booking_id=booking.booking_id,
+			payment = Payment(quantity=payment['quantity'],
 							  amount=(payment['price'] * payment['quantity']),
-							  card_number=form.card_number.data)
+							  card_number=form.card_number.data,
+							  booking_id=booking.booking_id)
 			db.session.add(payment)
 			db.session.commit()
 
