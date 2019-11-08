@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div>
+  <p>
+	Number of tickets exceed available seats. Please edit your booking.
+	Redirecting to booking page in 3 seconds.
+  </p>
+
+<a href="{{ url_for('booking', eid=event_id) }}"
+   class="btn btn-secondary">
+  Click here to return immediately
+</a>
+
+<script>
+  var timer = setTimeout(
+	  function() {
+		  window.location='/booking/' + {{ event_id }}
+	  },
+	  3000);
+</script>
+</div>
+{% endblock %}

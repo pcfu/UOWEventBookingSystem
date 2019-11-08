@@ -9,7 +9,6 @@ from app.forms.forms import MemberLoginForm, StaffLoginForm, RegistrationForm, \
 from flask import render_template, redirect, url_for, request, session, jsonify
 from flask_login import current_user, login_user, logout_user
 from app.views.utils import is_admin_user, is_staff_user
-import ast
 
 
 @app.login_manager.user_loader
@@ -215,22 +214,30 @@ def payment():
 
 	form = PaymentForm()
 	if form.validate_on_submit():
-		# Update db with new booking record
-		booking = Booking(user_id=payment['user_id'],
-						  event_slot_id=payment['slot_id'],
-						  quantity=payment['quantity'])
-		db.session.add(booking)
-		db.session.commit()
+		# Final db check for slot vacancy in case bookings were made by other users
+		# during the period between booking and payment
+		current_vacancy = EventSlot.query.get(payment['slot_id']).vacancy
+		if payment['quantity'] > current_vacancy:
+			session['[payment_due'] = None
+			return render_template('payment_error.html', event_id=payment['event_id'],
+			 					   add_admin_btn=(is_staff_user() or is_admin_user()))
+		else:
+			# Update db with new booking record
+			booking = Booking(user_id=payment['user_id'],
+							  event_slot_id=payment['slot_id'],
+							  quantity=payment['quantity'])
+			db.session.add(booking)
+			db.session.commit()
 
-		# Update db with new payment record
-		payment = Payment(booking_id=booking.booking_id,
-						  amount=(payment['price'] * payment['quantity']),
-						  card_number=form.card_number.data)
-		db.session.add(payment)
-		db.session.commit()
+			# Update db with new payment record
+			payment = Payment(booking_id=booking.booking_id,
+							  amount=(payment['price'] * payment['quantity']),
+							  card_number=form.card_number.data)
+			db.session.add(payment)
+			db.session.commit()
 
-		session['payment_due'] = None
-		return render_template('confirm_booking.html')
+			session['payment_due'] = None
+			return render_template('confirm_booking.html')
 
 	return render_template('payment.html', form=form, booking_details=payment,
 	 						add_admin_btn=(is_staff_user() or is_admin_user()))
