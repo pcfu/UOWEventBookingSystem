@@ -42,18 +42,19 @@
 </table>
 
 <script>
-  function update(change_id, change_qty) {
-	  let current_qty = document.getElementById(`c${change_id}`).innerHTML;
-	  let vacant_qty = document.getElementById(`v${change_id}`).innerHTML;
-	  let update_button = document.getElementById(`btn${change_id}`);
+  function update(booking_id, change_qty) {
+	  let current_qty = document.getElementById(`c${booking_id}`).innerHTML;
+	  let vacant_qty = document.getElementById(`v${booking_id}`).innerHTML;
+	  let update_button = document.getElementById(`btn${booking_id}`);
 	  let run_check = `return check_qty(${change_qty}, ${current_qty}, ${vacant_qty})`;
 
 	  if (change_qty > 0) {
-		  update_button.setAttribute("href", "/my_bookings/edit/" + change_id);
+		  update_button.setAttribute("href",
+				"/my_bookings/add_to/" + booking_id + "/" + change_qty);
 		  update_button.setAttribute("style", "opacity: 1");
 		  update_button.setAttribute("onclick", run_check);
 	  } else if (change_qty < 0) {
-		  update_button.setAttribute("href", "/my_bookings/edit/" + change_id);
+		  update_button.setAttribute("href", "/my_bookings/edit/" + booking_id);
 		  update_button.setAttribute("style", "opacity: 1");
 		  update_button.setAttribute("onclick", run_check);
 	  } else {

@@ -124,6 +124,10 @@ def my_bookings():
 	bookings = query.format_bookings(records)
 	return render_template('my_bookings.html', bookings=bookings)
 
+@app.route('/my_bookings/add_to/<bid>/<delta>')
+def add_to_booking(bid, delta):
+	return 'Increasing ticket quantity by ' + delta + ' for booking ' + bid
+
 
 @app.route('/my_bookings/edit/<bid>')
 def edit_booking(bid):
