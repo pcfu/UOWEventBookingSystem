@@ -10,14 +10,21 @@
   <td><b>Date:</b> {{ b.date }}</td>
   <td><b>Time:</b> {{ b.time }}</td>
   <td>
-	<b>Tickets:</b>	<span id="q{{b.id}}">{{ b.qty }}</span>
+	<b>Available Seats:</b>
+	<span id="v{{b.id}}">{{ b.vacancy }}</span>
+  </td>
+  <td>
+	<b>Tickets:</b>	<span id="c{{b.id}}">{{ b.qty }}</span>
   </td>
 
   <!-- Ticket quantity change -->
   <td>
 	<form action="javascript:void(0)">
-	  <input id={{b.id}} type="number" value="0"
-			 min=-{{b.qty}} onchange="update(this.id, this.value)">
+	  <b>Edit Qty</b>
+	  ±<input id={{b.id}} type="number"
+			  value="0" min=-{{b.qty}} max={{b.vacancy}}
+			  style="width: 75px; height: 40px;"
+			  onchange="update(this.id, this.value)">
 	  </input>
 	</form>
   </td>
@@ -36,23 +43,37 @@
 
 <script>
   function update(change_id, change_qty) {
-	  let current_tickets_id = "q" + change_id;
-	  let current_tickets = document.getElementById(current_tickets_id).innerHTML;
-	  let button_id = "btn" + change_id;
-	  let update_button = document.getElementById(button_id);
+	  let current_qty = document.getElementById(`c${change_id}`).innerHTML;
+	  let vacant_qty = document.getElementById(`v${change_id}`).innerHTML;
+	  let update_button = document.getElementById(`btn${change_id}`);
+	  let run_check = `return check_qty(${change_qty}, ${current_qty}, ${vacant_qty})`;
 
 	  if (change_qty > 0) {
 		  update_button.setAttribute("href", "/my_bookings/edit/" + change_id);
 		  update_button.setAttribute("style", "opacity: 1");
-		  update_button.setAttribute("onclick", "return confirm('confirm update')");
+		  update_button.setAttribute("onclick", run_check);
 	  } else if (change_qty < 0) {
 		  update_button.setAttribute("href", "/my_bookings/edit/" + change_id);
 		  update_button.setAttribute("style", "opacity: 1");
-		  update_button.setAttribute("onclick", "return confirm('confirm update')");
+		  update_button.setAttribute("onclick", run_check);
 	  } else {
 		  update_button.setAttribute("href", "#");
 		  update_button.setAttribute("style", "opacity: 0.5");
 		  update_button.setAttribute("onclick", "");
+	  }
+  }
+</script>
+
+<script>
+  function check_qty(change_qty, current_qty, vacant_qty) {
+	  if (change_qty < 0 && Math.abs(change_qty) > current_qty) {
+		  alert("Cannot return more number of tickets booked.");
+		  return false;
+	  } else if (change_qty > 0 && change_qty > vacant_qty) {
+		  alert("Cannot add more than available seats.");
+		  return false;
+	  } else {
+		  return confirm('confirm update');
 	  }
   }
 </script>

@@ -149,5 +149,6 @@ def format_bookings(records):
 						  'title' : row.slot.event.title,
 						  'date' : date,
 						  'time' : time,
+						  'vacancy' : row.slot.vacancy,
 						  'qty' : row.quantity })
 	return bookings
