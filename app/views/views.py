@@ -240,6 +240,16 @@ class StaffBookingView(StaffBaseView):
 		return filters
 
 
+class StaffPaymentView(StaffBaseView):
+	# List View Settings
+	can_create = False
+	can_edit = False
+	can_delete = False
+	column_display_pk = True
+	column_list = ['payment_id', 'booking_id', 'booking.user', 'booking.slot',
+				   'booking.quantity', 'amount', 'card_number']
+
+
 class AdminUserView(AdminBaseView):
 	# List View Settings
 	column_display_pk = True

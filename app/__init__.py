@@ -53,7 +53,7 @@ with warnings.catch_warnings():
 	admin.add_view(views.StaffEventView(events.Event, db.session))
 	admin.add_view(views.StaffEventSlotView(events.EventSlot, db.session))
 admin.add_view(views.StaffBookingView(booking.Booking, db.session))
-admin.add_view(views.StaffBaseView(payments.Payment, db.session))
+admin.add_view(views.StaffPaymentView(payments.Payment, db.session))
 
 # Add administrator views
 with warnings.catch_warnings():
