@@ -23,43 +23,43 @@
 		</div>
 		<div class="col-8">
 			<div class="container event-desc-container">
-				<div class="row event-title pb-1 ">
-					<div class="col-2 label">
+				<div class="row event-title pb-1">
+					<div class="col-lg-2 col-md-3 label">
 						<label class="details-label">Event Title: </label>
 					</div>
-					<div class="col title px-0">
+					<div class="col-lg-8 col-md-8 title">
 						{{ event.title }}
 					</div>
 				</div>
 				<div class="row event-duration-row pb-1">
-					<div class="col-2 label">
+					<div class="col-lg-2 col-md-3 label">
 						<label class="details-label">Duration: </label>
 					</div>
-					<div class="col event-duration-col px-0">
+					<div class="col-lg-8 col-md-8 event-duration-col">
 						{{ event.duration * 60}} minutes
 					</div>
 				</div>
 				<div class="row event-location-row pb-1">
-					<div class="col-2 label">
+					<div class="col-lg-2 col-md-3 label">
 						<label class="details-label">Venue: </label>
 					</div>
-					<div class="col event-location-col px-0">
+					<div class="col-lg-8 col-md-8 event-location-col">
 						{{ event.venue }}
 					</div>
 				</div>
 				<div class="row event-price-row pb-1">
-					<div class="col-2 label">
+					<div class="col-lg-2 col-md-3 label">
 						<label class="details-label">Price: </label>
 					</div>
-					<div class="col event-price-col px-0">
-						${{ event.price }}
+					<div class="col-lg-8 col-md-8 event-price-col">
+						{{ event.price }}
 					</div>
 				</div>
 				<div class="row event-desc-row align-items-start pb-1">
-					<div class="col-2 label">
+					<div class="col-lg-2 col-md-3 label">
 						<label class="details-label">Description: </label>
 					</div>
-					<div class="col event-desc-col px-0" style="width: 500px;">
+					<div class="col-lg-8 col-md-8 event-desc-col">
 						{{ event.desc }}
 					</div>
 				</div>
@@ -75,13 +75,13 @@
 							{{ date }}
 							<br>
 							{% for timeslot in event.timings[date] %}
-							<!-- timeslot[0] == time
-								 timeslot[1] == seats remaining for that time -->
-							{{ timeslot[0] }}
+								<!-- timeslot[0] == time
+									 timeslot[1] == seats remaining for that time -->
+								{{ timeslot[0] }}
 								{% if timeslot[1] == 0 %}
 								<span style="color: red;">(F)</span>
 								{% endif %}
-							&nbsp
+								&nbsp
 							{% endfor %}
 							<br>
 							<br>
@@ -89,14 +89,6 @@
 						</div>
 					</div>
 				</div>
-				<!--<div class="row book-button">
-					<div class="col-12" style="float: left;">
-						{% if not is_admin %}
-						<a href="{{url_for('booking', eid=event.event_id)}}" class="btn btn-secondary">Book</a>
-						{% endif %}
-						<a href="/search" class="btn btn-secondary" role="button">Back to events</a>
-					</div>
-				</div>-->
 			</div>
 		</div>
 	</div>
