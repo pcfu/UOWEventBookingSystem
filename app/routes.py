@@ -184,11 +184,12 @@ def booking_slot(eid, date):
 
 	records = query.event_times_query(eid, date)
 	for rec in records:
-		timing = {}
-		timing['slot_id'] = rec.slot_id
-		timing['time'] = rec.time
-		timing['vacancy'] = EventSlot.query.get(rec.slot_id).vacancy
-		timings.append(timing)
+		if rec.vacancy > 0:
+			timing = {}
+			timing['slot_id'] = rec.slot_id
+			timing['time'] = rec.time
+			timing['vacancy'] = EventSlot.query.get(rec.slot_id).vacancy
+			timings.append(timing)
 
 	return jsonify({ 'timings' : timings })
 

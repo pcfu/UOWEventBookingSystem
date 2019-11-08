@@ -84,14 +84,16 @@ def details_query(eid):
 
 
 def event_dates_query(eid):
-	return db.session.query(func.DATE(EventSlot.event_date).label('date'))\
+	return db.session.query(func.DATE(EventSlot.event_date).label('date'),
+							EventSlot.vacancy.label('vacancy'))\
 					 .filter(EventSlot.event_id == eid, EventSlot.is_active)\
 					 .order_by(EventSlot.event_date).all()
 
 
 def event_times_query(eid, date):
 	return db.session.query(EventSlot.slot_id,
-							func.TIME(EventSlot.event_date).label('time'))\
+							func.TIME(EventSlot.event_date).label('time'),
+							EventSlot.vacancy.label('vacancy'))\
 					 .filter(EventSlot.event_id == eid, EventSlot.is_active,
 							 func.DATE(EventSlot.event_date) == date)\
 					 .order_by(EventSlot.event_date).all()

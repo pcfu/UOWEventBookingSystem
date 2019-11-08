@@ -108,14 +108,16 @@ class BookingForm(FlaskForm):
 		date_records = query.event_dates_query(event.event_id)
 		date_list = []
 		for rec in date_records:
-			if rec.date not in date_list:
+			if rec.date not in date_list and rec.vacancy > 0:
 				date_list.append(rec.date)
 				self.dates.choices.append((rec.date, rec.date))
 		self.dates.data = date_list[0]	#set first item as pre-selected default
 
 		# Get timings for pre-selected date
 		timings = query.event_times_query(event.event_id, self.dates.data)
-		self.times.choices = [(timing.slot_id, timing.time) for timing in timings]
+		for timing in timings:
+			if timing.vacancy > 0:
+				self.times.choices.append((timing.slot_id, timing.time))
 
 		default_slot_id = self.times.choices[0][0]
 		self.vacancy.data = EventSlot.query.get(default_slot_id).vacancy
