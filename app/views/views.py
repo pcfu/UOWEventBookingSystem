@@ -247,7 +247,19 @@ class StaffPaymentView(StaffBaseView):
 	can_delete = False
 	column_display_pk = True
 	column_list = ['payment_id', 'booking_id', 'booking.user', 'booking.slot',
-				   'booking.quantity', 'amount', 'card_number']
+				   'booking.quantity', 'quantity', 'amount', 'card_number']
+	column_sortable_list = ['payment_id',
+							'booking_id',
+							('booking.user', 'booking.user.username'),
+							('booking.slot', 'booking.slot.slot_id'),
+							'booking.quantity',
+							'quantity']
+	column_labels = { 'payment_id' : 'ID',
+					  'booking_id' : 'Booking#',
+					  'booking.user' : 'User',
+					  'booking.slot' : 'Slot',
+					  'booking.quantity' : 'Total BK Qty',
+					  'quantity' : 'Payment Qty' }
 
 
 class AdminUserView(AdminBaseView):
