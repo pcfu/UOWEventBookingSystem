@@ -52,6 +52,15 @@
 	  update
 	</a>
   </td>
+
+  <!-- Cancel booking -->
+  <td>
+	<a id="cancel{{booking.id}}" href="#"
+	   class="btn btn-primary"
+	   onclick="cancel_booking({{booking.id}}); return false;">
+	  cancel
+	</a>
+  </td>
 </tr>
 {% endfor %}
 </table>
@@ -108,4 +117,13 @@
   }
 </script>
 
+<script>
+  function cancel_booking(booking_id) {
+	  let qty = document.getElementById(`c${booking_id}`).innerHTML;
+	  let url = "/my_bookings/cancel/" + booking_id + "/" + Math.abs(qty);
+	  if (confirm("Cancel this booking?")) {
+		  window.location.href = url;
+	  }
+  }
+</script>
 {% endblock %}

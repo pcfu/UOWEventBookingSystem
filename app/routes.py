@@ -120,7 +120,8 @@ def my_bookings():
 	elif is_admin_user():
 		return redirect(url_for('index'))
 
-	records = Booking.query.filter(Booking.user_id == current_user.user_id).all()
+	records = Booking.query.filter(Booking.user_id == current_user.user_id,
+								   Booking.quantity > 0).all()
 	bookings = query.format_bookings(records)
 	return render_template('my_bookings.html', bookings=bookings,
 		 				   add_admin_btn=(is_staff_user() or is_admin_user()))
@@ -176,10 +177,10 @@ def cancel_booking(bid, delta):
 				refund_amount += payment.amount / payment.quantity * new_refund_qty
 				request_balance -= new_refund_qty
 
-	# Rollback db and throw error if total refunded exceeds requested refund quantity
+	# Rollback db and throw error if total refunds exceed total booking quantity
 	if request_balance < 0:
 		db.session.rollback()
-		return 'Error occurred while processing refunds. Unable to proceed.'
+		return 'Error occurred during processing. Unable to proceed.'
 
 	# Commit changes and redirect to confirmation page
 	db.session.commit()
