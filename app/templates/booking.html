@@ -7,56 +7,56 @@
 
 		<!-- Event title -->
 		<div class="row mb-2">
-			<div class="col-1">
+			<div class="col-md-1">
 				{{ form.title.label }}
 			</div>
-			<div class="col-8">
+			<div class="col-md-8">
 				{{ form.title() }}
 			</div>
 		</div>
 
 		<!-- Username -->
 		<div class="row mb-2">
-			<div class="col-1">
+			<div class="col-md-1">
 				{{ form.username.label }}
 			</div>
-			<div class="col-8">
+			<div class="col-md-8">
 				{{ form.username() }}
 			</div>
 		</div>
 
 		<!-- Date and Time -->
 		<div class="row mb-2">
-			<div class="col-1">
+			<div class="col-md-1">
 				{{ form.dates.label }}
 			</div>
-			<div class="col-2">
+			<div class="col-md-2">
 				{{ form.dates(size=1) }}
 			</div>
-			<div class="col-1">
+			<div class="col-md-1">
 				{{ form.times.label }}
 			</div>
-			<div class="col-1">
+			<div class="col-md-1">
 				{{ form.times(size=1) }}
 			</div>
 		</div>
 
 		<!-- Vacancy -->
 		<div class="row mb-2">
-			<div class="col-1">
+			<div class="col-md-1">
 				Available Seats:
 			</div>
-			<div class="col-1">
-				{{ form.vacancy(size=1) }}
+			<div class="col-md-8">
+				{{ form.vacancy() }}
 			</div>
 		</div>
 
 		<!-- No. of Tickets -->
 		<div class="row mb-2">
-			<div class="col-1">
+			<div class="col-md-1">
 				Tickets
 			</div>
-			<div class="col-8">
+			<div class="col-md-8">
 			  	{{ form.count(onchange="refreshPrice()", max=form.vacancy.data) }}
 				<!-- {{ form.count(onchange="refreshPrice()", max=capacity, onkeydown="return false") }} -->
 				{% for error in form.count.errors %}
@@ -67,10 +67,10 @@
 
 		<!-- Total Cost -->
 		<div class="row mb-2">
-			 <div class="col-1">
+			 <div class="col-md-1">
 			   Total ($)
 			 </div>
-			 <div class="col-8">
+			 <div class="col-md-8">
 			   {{ form.price() }}
 			   <script>var basePrice = document.getElementById('price').value</script>
 			 </div>
@@ -86,7 +86,7 @@
 	</form>
 </div>
 
-<!-- Dynamically update total cost -->
+<!-- Dynamic updates -->
 <script>
 function refreshPrice(){
     document.getElementById('price').value =
@@ -94,7 +94,7 @@ function refreshPrice(){
 }
 </script>
 
-<!-- Dynamic updates -->
+<!-- Dynamically update available times based on date selected -->
 <script>
   let date_select = document.getElementById('dates');
   let time_select = document.getElementById('times');
@@ -106,11 +106,11 @@ function refreshPrice(){
 	  fetch('/booking/' + {{ eid }} + '/' + date).then(function(response) {
 		  response.json().then(function(data) {
 			  let time_choices_HTML = '';
-
 			  let count = 0;
+
 			  for (let timing of data.timings) {
 				  time_choices_HTML += '<option value="' + timing.slot_id
-										  + '">' + timing.time + '</option>';
+										+ '">' + timing.time + '</option>';
 				  if (count == 0) {
 					  document.getElementById('vacancy').value = timing.vacancy;
 					  document.getElementById('count').max = timing.vacancy;
