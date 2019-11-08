@@ -288,16 +288,19 @@ def payment():
 			db.session.commit()
 
 			# Update db with new payment record
-			payment = Payment(quantity=payment['quantity'],
-							  amount=(payment['price'] * payment['quantity']),
-							  card_number=form.card_number.data,
-							  booking_id=booking.booking_id)
-			db.session.add(payment)
+			new_payment = Payment(quantity=payment['quantity'],
+								  amount=(payment['price'] * payment['quantity']),
+								  card_number=form.card_number.data,
+								  booking_id=booking.booking_id)
+			db.session.add(new_payment)
 			db.session.commit()
 
 			session['payment_due'] = None
+			is_new_booking = payment['booking_type'] == 'new'
 			return render_template('confirm_booking.html',
-					   add_admin_btn=(is_staff_user() or is_admin_user()))
+								   redirect_homepage=is_new_booking,
+								   add_admin_btn=(is_staff_user() or
+												  is_admin_user()) )
 
 	return render_template('payment.html', form=form, booking_details=payment,
 	 						add_admin_btn=(is_staff_user() or is_admin_user()))
