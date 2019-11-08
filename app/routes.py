@@ -1,5 +1,5 @@
 from app import app, db, query, session
-from app.models.payments import Payment
+from app.models.payments import Payment, Refund
 from app.models.users import User, Admin
 from app.models.events import Event, EventSlot
 from app.models.booking import Booking
@@ -145,17 +145,40 @@ def add_to_booking(bid, delta):
 	return redirect(url_for('payment'))
 
 
-@app.route('/my_bookings/edit/<bid>')
-def edit_booking(bid):
-	if not current_user.is_authenticated:
-		return redirect(url_for('user_login'))
-	elif is_admin_user():
-		return redirect(url_for('index'))
+@app.route('/my_bookings/cancel/<bid>/<delta>')
+def cancel_booking(bid, delta):
 	booking = Booking.query.get(bid)
-	if booking is None or booking.user_id != current_user.user_id:
-		return redirect(url_for('index'))
+	requested_qty = int(delta)
+	refund_amount = 0.0
 
-	return bid
+	for payment in booking.payments:
+		if requested_qty > booking.quantity or requested_qty < 0:
+			return 'Error in booking/refund quantity calculations. Cannot proceed.'
+
+		if requested_qty > 0:
+			remaining_refunds = payment.quantity - payment.total_refund_qty
+			if remaining_refunds > 0:
+				new_refund_qty = min(remaining_refunds, requested_qty)
+				new_refund = Refund(quantity=new_refund_qty,
+									payment_id=payment.payment_id)
+				db.session.add(new_refund)
+				db.session.commit()
+
+				booking.quantity -= new_refund_qty
+				db.session.commit()
+
+				print('REFUND:')
+				print('ticket price: {}'.format(payment.amount / payment.quantity))
+				print('refund qty: {}'.format(new_refund_qty))
+				print('refund amount: {}'\
+					  .format(payment.amount / payment.quantity * new_refund_qty))
+				print('------END--REFUND--CALC-------')
+
+				refund_amount += payment.amount / payment.quantity * new_refund_qty
+				requested_qty -= new_refund_qty
+
+	return 'Refunding ${} for {} tickets to Booking {}'\
+		.format(refund_amount, delta, bid)
 
 
 @app.route('/event/details/<eid>')

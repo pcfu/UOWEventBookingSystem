@@ -78,7 +78,8 @@
 		  update_button.setAttribute("style", "opacity: 1");
 		  update_button.setAttribute("onclick", run_check);
 	  } else if (change_qty < 0) {
-		  update_button.setAttribute("href", "/my_bookings/edit/" + booking_id);
+		  update_button.setAttribute("href",
+				"/my_bookings/cancel/" + booking_id + "/" + Math.abs(change_qty));
 		  update_button.setAttribute("style", "opacity: 1");
 		  update_button.setAttribute("onclick", run_check);
 	  } else {
