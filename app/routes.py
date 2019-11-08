@@ -5,7 +5,7 @@ from app.models.events import Event, EventSlot
 from app.models.booking import Booking
 from app.models.logs import add_login_record, add_logout_record
 from app.forms.forms import MemberLoginForm, StaffLoginForm, RegistrationForm, \
-							SearchForm, BookingForm, PaymentForm
+							SearchForm, BookingForm, PaymentForm, RaiseError
 from flask import render_template, redirect, url_for, request, session, jsonify
 from flask_login import current_user, login_user, logout_user
 from app.views.utils import is_admin_user, is_staff_user
@@ -163,17 +163,23 @@ def booking(eid):
 	if not event or not event.is_launched or not event.has_active_slots:
 		return redirect(url_for('index'))
 
-	# Create booking form
 	form = BookingForm()
 	form.preload(current_user, event)
 	if form.is_submitted():
-		# Load payment details into session
-		session['payment_due'] = {'event_id': eid,
-								  'user_id': current_user.user_id,
-								  'slot_id': form.times.data,
-								  'quantity': form.count.data,
-								  'price': event.price}
-		return redirect(url_for('payment'))
+		# Final db check for vacancy (in case other users booked in the meantime)
+		current_vacancy = EventSlot.query.get(form.times.data).vacancy
+		if form.count.data > current_vacancy:
+			# Update form with new vacancy and raise error
+			form.vacancy.data = current_vacancy
+			RaiseError(form.count, message='Number of tickets exceed available seats')
+		else:
+			# Load payment details into session
+			session['payment_due'] = {'event_id': eid,
+									  'user_id': current_user.user_id,
+									  'slot_id': form.times.data,
+									  'quantity': form.count.data,
+									  'price': event.price}
+			return redirect(url_for('payment'))
 
 	return render_template('booking.html', form=form, eid=eid,
 						   add_admin_btn=(is_staff_user() or is_admin_user()))
