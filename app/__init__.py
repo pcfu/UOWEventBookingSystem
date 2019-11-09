@@ -54,6 +54,8 @@ with warnings.catch_warnings():
 	admin.add_view(views.StaffEventSlotView(events.EventSlot, db.session))
 admin.add_view(views.StaffBookingView(booking.Booking, db.session))
 admin.add_view(views.StaffPaymentView(payments.Payment, db.session))
+admin.add_view(views.StaffBaseView(payments.Promotion, db.session))
+admin.add_view(views.StaffBaseView(payments.EventPromotion, db.session))
 
 # Add administrator views
 with warnings.catch_warnings():
@@ -61,6 +63,7 @@ with warnings.catch_warnings():
 	admin.add_view(views.AdminUserView(users.User, db.session))
 admin.add_view(views.AdminLoginHistoryView(logs.LoginHistory, db.session))
 admin.add_view(views.AdminLogoutHistoryView(logs.LogoutHistory, db.session))
+
 
 # Add extra navbar links
 admin.add_link(MenuLink(name='front page', category='', url='/'))
