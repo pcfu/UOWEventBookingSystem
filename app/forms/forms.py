@@ -2,11 +2,12 @@ from flask_wtf import FlaskForm
 from app import db, query
 from app.models.users import User, Admin
 from app.models.events import EventSlot
+from app.models.payments import EventPromotion, Promotion
 from wtforms import FormField, StringField, PasswordField, BooleanField, \
 					SubmitField, IntegerField, SelectField, DecimalField
 from wtforms.fields.html5 import DateField
 from wtforms.validators import DataRequired, EqualTo, ValidationError, \
-								NumberRange, Email, Length, InputRequired, Optional
+								NumberRange, Email, Optional
 from wtforms_components import NumberInput
 from flask_login import current_user
 from app.views.utils import is_admin_user
@@ -196,12 +197,15 @@ class BookingForm(FlaskForm):
 		self.capacity = event.capacity
 
 
-'''
-For now, Payment forms have double-sided validation on html and python.
-Address, postal code and contact is set as optional becuz i duno if its required.
-the card_number validation is a simple length 14 - 16 check unless we want to implement Luhn's algorithm
-name on card uses a regex to match if string contains any special characters (with exception of hyphens)
-'''
+class PromotionForm(FlaskForm):
+	promo_code = StringField('Promotion Code', validators=[Optional()])
+	apply_promo = SubmitField('Apply')
+
+	def validate_promo_code(self, promo_code):
+		is_valid = Promotion.query.filter_by(promo_code=promo_code.data).first()
+		if is_valid is None:
+			raise ValidationError('Invalid Promo Code')
+
 
 class PaymentForm(FlaskForm):
 	card_number = IntegerField('Card Number', validators=[DataRequired()])
@@ -213,6 +217,7 @@ class PaymentForm(FlaskForm):
 	postal_code = IntegerField('Postal Code', validators=[Optional()], render_kw={'placeholder':'i.e. 599491'})
 	contact = IntegerField('Contact Number', validators=[Optional()])
 	submit = SubmitField('Pay')
+	promo = FormField(PromotionForm)
 
 	def validate_card_number(self, card_number):
 		if len(str(card_number.data)) < 14 or len(str(card_number.data)) > 16:

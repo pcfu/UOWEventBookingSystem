@@ -3,123 +3,163 @@
 {% block content %}
 
 <div class="container payment-container ml-2">
-	<div class="row payment-row mb-2">
-		<div class="col">
-			<h2>Payment:</h2>
-		</div>
+  <div class="row payment-row mb-2">
+	<div class="col">
+	  <h2>Payment:</h2>
 	</div>
-	<div class="row payment-row mb-2">
-		<div class="col">
-			You have selected <b>{{booking_details['quantity']}}</b> ticket(s) for <b>{{booking_details['title']}}</b>
-			on <b>{{booking_details['time']}}</b><br/>
-			The amount payable is <b>${{ booking_details['price'] * booking_details['quantity'] }}</b>
-		</div>
+  </div>
+
+  <!-- Payment notice -->
+  <div class="row payment-row mb-2">
+	<div class="col">
+	  You have selected <b>{{booking_details['quantity']}}</b> ticket(s)
+	  for <b>{{booking_details['title']}}</b>
+	  on <b>{{booking_details['time']}}</b><br/>
+
+	  The amount payable is
+	  <b id='price'>${{ booking_details['price'] * booking_details['quantity'] }}</b>
 	</div>
+  </div>
 
-	<div class="row payment-row mb-2">
-		<div class="col">
-			<div class="container form-container px-0">
-				<form action="" method="post" novalidate>
-					{{ form.hidden_tag() }}
-					<div class="row no-gutters">
-						<div class="col-2">
-							<p>
-							  {{ form.card_number.label }}
-							</p>
-						</div>
-						<div class="col">
-							<p>
-								{{ form.card_number(maxlength=16) }}
+  <!-- Card details entry fields -->
+  <div class="row payment-row mb-2">
+	<div class="col">
+	  <div class="container form-container px-0">
+		<form action="" method="post" novalidate>
+		  {{ form.hidden_tag() }}
 
-							</p>
-						</div>
-					</div>
-					<div class="row no-gutters">
-						<div class="col-2">
-							<p>
-								{{ form.expire_month.label }}
-							</p>
-						</div>
-						<div class="col-2">
-							<p>
-								{{ form.expire_month(style="width:50px", maxlength=2) }}
-								{{ form.expire_year(style="width:50px", maxlength=2) }}
-							</p>
-						</div>
-						<div class="test" style="width:50px;">
-							<p>
-								{{ form.cvv.label }}
-							</p>
-						</div>
-						<div class="col">
-							<p>
-								{{ form.cvv(minlength=3, maxlength=3, style="width:75px") }}
-
-							</p>
-						</div>
-					</div>
-					<div class="row no-gutters">
-						<div class="col-2">
-							<p>
-								{{ form.name_on_card.label }}
-							</p>
-						</div>
-						<div class="col">
-							<p>
-								{{ form.name_on_card(pattern="[a-zA-Z-]*") }}
-							</p>
-						</div>
-					</div>
-					<div class="row no-gutters">
-						<div class="col-2">
-							<p>
-								{{ form.address.label }}
-							</p>
-						</div>
-						<div class="col">
-							<p>
-								{{ form.address(style="width:500px;text-align:left") }}
-							</p>
-						</div>
-					</div>
-					<div class="row no-gutters">
-						<div class="col-2">
-							<p>
-								{{ form.postal_code.label }}
-							</p>
-						</div>
-						<div class="col">
-							<p>
-								{{ form.postal_code(maxlength=6, style="width:125px") }}
-							</p>
-						</div>
-					</div>
-					<div class="row no-gutters">
-						<div class="col-2">
-							<p>
-								{{ form.contact.label }}
-							</p>
-						</div>
-						<div class="col">
-							<p>
-								{{ form.contact(maxlength=8, style="width:150px") }}
-							</p>
-						</div>
-					</div>
-					<div class="row no-gutters">
-						<div class="col">
-							<p>{{ form.submit() }}</p>
-						</div>
-					</div>
-
-					{% if form.errors %}
-					{% for error in form.errors %}
-					{{error}} is required <br/>
-					{% endfor %}
-					{% endif %}
-				</form>
+		  <!-- Credit card number -->
+		  <div class="row no-gutters">
+			<div class="col-2">
+			  <p>
+				{{ form.card_number.label }}
+			  </p>
 			</div>
-		</div>
+			<div class="col">
+			  <p>
+				{{ form.card_number(maxlength=16) }}
+			  </p>
+			</div>
+		  </div>
+
+		  <!-- Card expiry date and CVV -->
+		  <div class="row no-gutters">
+			<div class="col-2">
+			  <p>
+				{{ form.expire_month.label }}
+			  </p>
+			</div>
+			<div class="col-2">
+			  <p>
+				{{ form.expire_month(style="width:50px", maxlength=2) }}
+				{{ form.expire_year(style="width:50px", maxlength=2) }}
+			  </p>
+			</div>
+			<div class="test" style="width:50px;">
+			  <p>
+				{{ form.cvv.label }}
+			  </p>
+			</div>
+			<div class="col">
+			  <p>
+				{{ form.cvv(minlength=3, maxlength=3, style="width:75px") }}
+			  </p>
+			</div>
+		  </div>
+
+		  <!-- Card owner name -->
+		  <div class="row no-gutters">
+			<div class="col-2">
+			  <p>
+				{{ form.name_on_card.label }}
+			  </p>
+			</div>
+			<div class="col">
+			  <p>
+				{{ form.name_on_card(pattern="[a-zA-Z-]*") }}
+			  </p>
+			</div>
+		  </div>
+
+		  <!-- Address -->
+		  <div class="row no-gutters">
+			<div class="col-2">
+			  <p>
+				{{ form.address.label }}
+			  </p>
+			</div>
+			<div class="col">
+			  <p>
+				{{ form.address(style="width:500px;text-align:left") }}
+			  </p>
+			</div>
+		  </div>
+
+		  <!-- Postal code -->
+		  <div class="row no-gutters">
+			<div class="col-2">
+			  <p>
+				{{ form.postal_code.label }}
+			  </p>
+			</div>
+			<div class="col">
+			  <p>
+				{{ form.postal_code(maxlength=6, style="width:125px") }}
+			  </p>
+			</div>
+		  </div>
+
+		  <!-- Contact number -->
+		  <div class="row no-gutters">
+			<div class="col-2">
+			  <p>
+				{{ form.contact.label }}
+			  </p>
+			</div>
+			<div class="col">
+			  <p>
+				{{ form.contact(maxlength=8, style="width:150px") }}
+			  </p>
+			</div>
+		  </div>
+
+		  <!-- Promotion code -->
+		  <div class="row no-gutters">
+			<div class="col-2">
+			  <p>
+				{{ form.promo.promo_code.label }}
+			  </p>
+			</div>
+			<div class="col">
+			  <p>
+				<!-- Promotion code entry field -->
+				{{ form.promo.promo_code(style="width:120px") }}
+				<!-- Promotion apply button -->
+				{{ form.promo.apply_promo(style="width:60px") }}
+				<!-- Print promo error messages -->
+                {% for error in form.promo.promo_code.errors %}
+                {{error}}
+                {% endfor %}
+			  </p>
+			</div>
+		  </div>
+
+		  <!-- Form submit button -->
+		  <div class="row no-gutters">
+			<div class="col">
+			  <p>{{ form.submit() }}</p>
+			</div>
+		  </div>
+
+		  <!-- Print form error messages -->
+		  {% if form.errors %}
+		  {% for error in form.errors %}
+		  {{error}} is required <br/>
+		  {% endfor %}
+		  {% endif %}
+		</form>
+	  </div>
 	</div>
+  </div>
 </div>
 {% endblock %}
