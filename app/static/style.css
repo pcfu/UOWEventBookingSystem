@@ -132,5 +132,18 @@ input:focus {
 }
 
 table, th, td {
-  border: 1px solid black;
+	border: 1px solid black;
+}
+
+.table-striped {
+	border: none;
+}
+
+.table-striped>tbody>tr:nth-child(even)>td, 
+.table-striped>tbody>tr:nth-child(even)>th {
+	background-color: white;
+}
+
+.table-striped>thead>tr>th {
+	background-color: white;
 }
