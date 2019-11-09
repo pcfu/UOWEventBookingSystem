@@ -156,6 +156,7 @@ def my_account():
 			db.session.commit()
 			flash('Password updated successfully')
 
+	# Reset form fields
 	update_form.update_username.username.data = None
 	update_form.update_email.email.data = None
 	update_form.update_password.old_password.data = None

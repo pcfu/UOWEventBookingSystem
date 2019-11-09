@@ -77,6 +77,8 @@ class UpdateUsernameForm(FlaskForm):
 	update_name = SubmitField('Update')
 
 	def validate_username(self, username):
+		if re.search(r'\s', username.data):
+			raise ValidationError('Username must not contain any whitespaces')
 		if username.data == current_user.username:
 			raise ValidationError('You are already using this username')
 
@@ -111,15 +113,24 @@ class UpdatePasswordForm(FlaskForm):
 	update_password = SubmitField('Update')
 
 	def validate(self):
+		# Check old password
 		if not current_user.check_password(self.old_password.data):
 			RaiseError(self.old_password, message='Incorrect password')
 			return False
-		if not self.new_password.data == self.confirm_password.data:
-			RaiseError(self.confirm_password, message='Passwords must match')
+
+		# Check new password
+		if re.search(r'\s', self.new_password.data):
+			RaiseError(self.new_password,
+					   message='Password must not contain any whitespaces')
 			return False
 		if self.new_password.data == self.old_password.data:
 			RaiseError(self.new_password,
 					   message='New password must be different from old password')
+			return False
+
+		# Check confirm password
+		if self.new_password.data != self.confirm_password.data:
+			RaiseError(self.confirm_password, message='Passwords must match')
 			return False
 		return True
 
