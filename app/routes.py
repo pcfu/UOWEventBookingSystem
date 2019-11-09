@@ -5,8 +5,7 @@ from app.models.events import Event, EventSlot
 from app.models.booking import Booking
 from app.models.logs import add_login_record, add_logout_record
 from app.forms.forms import MemberLoginForm, StaffLoginForm, RegistrationForm, \
-							SearchForm, BookingForm, PaymentForm, \
-							UpdateUsernameForm, UpdateEmailForm
+							SearchForm, BookingForm, PaymentForm, AccountUpdateForm
 from flask import render_template, redirect, url_for, request, session, jsonify
 from flask_login import current_user, login_user, logout_user
 from app.views.utils import is_admin_user, is_staff_user
@@ -137,31 +136,32 @@ def my_account():
 	if not current_user.is_authenticated:
 		return redirect(url_for('index'))
 
-	name_form = UpdateUsernameForm()
-	email_form = UpdateEmailForm()
+	update_form = AccountUpdateForm()
+	# Update username if validation checks passed
+	if 'update_username-update_name' in request.form \
+		and update_form.update_username.validate_on_submit():
+			current_user.username = update_form.update_username.username.data
+			db.session.commit()
+			flash('Username updated successfully')
+	# Update email if validation checks passed
+	elif 'update_email-update_email' in request.form \
+		and update_form.update_email.validate_on_submit():
+			current_user.email = update_form.update_email.email.data
+			db.session.commit()
+			flash('Email updated successfully')
+	# Update password if validation checks passed
+	elif 'update_password-update_password' in request.form \
+		 and update_form.update_password.validate_on_submit():
+			current_user.set_password(update_form.update_password.new_password.data)
+			db.session.commit()
+			flash('Password updated successfully')
 
-	if name_form.validate_on_submit():
-		if is_admin_user():
-			user = Admin.query.get(current_user.admin_id)
-		else:
-			user = User.query.get(current_user.user_id)
-		user.username = name_form.username.data
-		db.session.commit()
-		flash('Username updated successfully')
-		return render_template('my_account.html', name_form=name_form,
-						   email_form=email_form,
-						   is_admin=is_admin_user(), is_staff=is_staff_user())
-
-	if email_form.validate_on_submit():
-		flash('Email updated successfully')
-		return render_template('my_account.html', name_form=name_form,
-						   email_form=email_form,
-						   is_admin=is_admin_user(), is_staff=is_staff_user())
-
-	name_form.username.data = None
-	email_form.email.data = None
-	return render_template('my_account.html', name_form=name_form,
-						   email_form=email_form,
+	update_form.update_username.username.data = None
+	update_form.update_email.email.data = None
+	update_form.update_password.old_password.data = None
+	update_form.update_password.new_password.data = None
+	update_form.update_password.confirm_password.data = None
+	return render_template('my_account.html', update_form=update_form,
 						   is_admin=is_admin_user(), is_staff=is_staff_user())
 
 

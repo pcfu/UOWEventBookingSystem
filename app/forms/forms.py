@@ -2,7 +2,7 @@ from flask_wtf import FlaskForm
 from app import db, query
 from app.models.users import User, Admin
 from app.models.events import EventSlot
-from wtforms import StringField, PasswordField, BooleanField, \
+from wtforms import FormField, StringField, PasswordField, BooleanField, \
 					SubmitField, IntegerField, SelectField, DecimalField
 from wtforms.fields.html5 import DateField
 from wtforms.validators import DataRequired, EqualTo, ValidationError, \
@@ -20,38 +20,6 @@ def RaiseError(field, message='Invalid data'):
 	error_list = list(field.errors)
 	error_list.append(message)
 	field.errors = tuple(error_list)
-
-
-class UpdateEmailForm(FlaskForm):
-	email = StringField('Email', validators=[Email()])
-	update_email = SubmitField('Update')
-
-	def validate_email(self, email):
-		if email == current_user.email:
-			raise ValidationError('You are already using this email')
-
-		if is_admin_user():
-			user = Admin.query.filter(Admin.email == email.data).first()
-		else:
-			user = User.query.filter(User.email == email.data).first()
-		if user is not None:
-			raise ValidationError('Email already taken')
-
-
-class UpdateUsernameForm(FlaskForm):
-	username = StringField('New Username', validators=[])
-	update_name = SubmitField('Update')
-
-	def validate_username(self, username):
-		if username.data == current_user.username:
-			raise ValidationError('You are already using this username')
-
-		if is_admin_user():
-			user = Admin.query.filter(Admin.username == username.data).first()
-		else:
-			user = User.query.filter(User.username == username.data).first()
-		if user is not None:
-			raise ValidationError('Username already taken')
 
 
 class BaseLogin(FlaskForm):
@@ -102,6 +70,64 @@ class RegistrationForm(FlaskForm):
 		user = User.query.filter_by(email=email.data).first()
 		if user is not None:
 			raise ValidationError('Email already taken')
+
+
+class UpdateUsernameForm(FlaskForm):
+	username = StringField('New Username', validators=[])
+	update_name = SubmitField('Update')
+
+	def validate_username(self, username):
+		if username.data == current_user.username:
+			raise ValidationError('You are already using this username')
+
+		if is_admin_user():
+			user = Admin.query.filter(Admin.username == username.data).first()
+		else:
+			user = User.query.filter(User.username == username.data).first()
+		if user is not None:
+			raise ValidationError('Username already taken')
+
+
+class UpdateEmailForm(FlaskForm):
+	email = StringField('New Email', validators=[Email()])
+	update_email = SubmitField('Update')
+
+	def validate_email(self, email):
+		if email.data == current_user.email:
+			raise ValidationError('You are already using this email')
+
+		if is_admin_user():
+			user = Admin.query.filter(Admin.email == email.data).first()
+		else:
+			user = User.query.filter(User.email == email.data).first()
+		if user is not None:
+			raise ValidationError('Email already taken')
+
+
+class UpdatePasswordForm(FlaskForm):
+	old_password = PasswordField('Old Password')
+	new_password = PasswordField('New Password')
+	confirm_password = PasswordField('Confirm Password')
+	update_password = SubmitField('Update')
+
+	def validate(self):
+		if not current_user.check_password(self.old_password.data):
+			RaiseError(self.old_password, message='Incorrect password')
+			return False
+		if not self.new_password.data == self.confirm_password.data:
+			RaiseError(self.confirm_password, message='Passwords must match')
+			return False
+		if self.new_password.data == self.old_password.data:
+			RaiseError(self.new_password,
+					   message='New password must be different from old password')
+			return False
+		return True
+
+
+class AccountUpdateForm(FlaskForm):
+	update_username = FormField(UpdateUsernameForm)
+	update_email = FormField(UpdateEmailForm)
+	update_password = FormField(UpdatePasswordForm)
 
 
 class SearchForm(FlaskForm):
