@@ -8,6 +8,8 @@ from wtforms.fields.html5 import DateField
 from wtforms.validators import DataRequired, EqualTo, ValidationError, \
 								NumberRange, Email, Length, InputRequired, Optional
 from wtforms_components import NumberInput
+from flask_login import current_user
+from app.views.utils import is_admin_user
 from sqlalchemy.sql import func
 from app.query import staff_user_query
 from datetime import date, datetime
@@ -18,6 +20,38 @@ def RaiseError(field, message='Invalid data'):
 	error_list = list(field.errors)
 	error_list.append(message)
 	field.errors = tuple(error_list)
+
+
+class UpdateEmailForm(FlaskForm):
+	email = StringField('Email', validators=[Email()])
+	update_email = SubmitField('Update')
+
+	def validate_email(self, email):
+		if email == current_user.email:
+			raise ValidationError('You are already using this email')
+
+		if is_admin_user():
+			user = Admin.query.filter(Admin.email == email.data).first()
+		else:
+			user = User.query.filter(User.email == email.data).first()
+		if user is not None:
+			raise ValidationError('Email already taken')
+
+
+class UpdateUsernameForm(FlaskForm):
+	username = StringField('New Username', validators=[])
+	update_name = SubmitField('Update')
+
+	def validate_username(self, username):
+		if username.data == current_user.username:
+			raise ValidationError('You are already using this username')
+
+		if is_admin_user():
+			user = Admin.query.filter(Admin.username == username.data).first()
+		else:
+			user = User.query.filter(User.username == username.data).first()
+		if user is not None:
+			raise ValidationError('Username already taken')
 
 
 class BaseLogin(FlaskForm):

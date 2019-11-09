@@ -5,10 +5,12 @@ from app.models.events import Event, EventSlot
 from app.models.booking import Booking
 from app.models.logs import add_login_record, add_logout_record
 from app.forms.forms import MemberLoginForm, StaffLoginForm, RegistrationForm, \
-							SearchForm, BookingForm, PaymentForm
+							SearchForm, BookingForm, PaymentForm, \
+							UpdateUsernameForm, UpdateEmailForm
 from flask import render_template, redirect, url_for, request, session, jsonify
 from flask_login import current_user, login_user, logout_user
 from app.views.utils import is_admin_user, is_staff_user
+from flask import flash
 
 
 @app.login_manager.user_loader
@@ -127,6 +129,40 @@ def register():
 	return render_template('register.html',
 						   title='EBS: Account Registration',
 						   form=form)
+
+
+@app.route('/my_account', methods=['GET', 'POST'])
+def my_account():
+	# Redirect to other endpoint if pre-reqs not met
+	if not current_user.is_authenticated:
+		return redirect(url_for('index'))
+
+	name_form = UpdateUsernameForm()
+	email_form = UpdateEmailForm()
+
+	if name_form.validate_on_submit():
+		if is_admin_user():
+			user = Admin.query.get(current_user.admin_id)
+		else:
+			user = User.query.get(current_user.user_id)
+		user.username = name_form.username.data
+		db.session.commit()
+		flash('Username updated successfully')
+		return render_template('my_account.html', name_form=name_form,
+						   email_form=email_form,
+						   is_admin=is_admin_user(), is_staff=is_staff_user())
+
+	if email_form.validate_on_submit():
+		flash('Email updated successfully')
+		return render_template('my_account.html', name_form=name_form,
+						   email_form=email_form,
+						   is_admin=is_admin_user(), is_staff=is_staff_user())
+
+	name_form.username.data = None
+	email_form.email.data = None
+	return render_template('my_account.html', name_form=name_form,
+						   email_form=email_form,
+						   is_admin=is_admin_user(), is_staff=is_staff_user())
 
 
 @app.route('/my_bookings')
