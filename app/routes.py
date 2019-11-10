@@ -206,7 +206,10 @@ def cancel_booking(bid, delta):
 	# Throw error if requested refund quantity exceeds total booking quantity
 	request_balance = int(delta)
 	if request_balance > booking.quantity:
-		return 'Error in refund quantity. Unable to proceed.'
+		return render_template('error.html', e_msg='Error in refund quantity.',
+							   page='your bookings page',
+							   redirect_url=url_for('my_bookings'),
+							   is_admin=is_admin_user(), is_staff=is_staff_user())
 
 	# Loop through payments to refund as much request_balance as possible
 	refund_amount = 0.0
@@ -228,7 +231,10 @@ def cancel_booking(bid, delta):
 	# Rollback db and throw error if created refunds exceed total booking quantity
 	if request_balance < 0:
 		db.session.rollback()
-		return 'Error occurred during processing. Unable to proceed.'
+		return render_template('error.html', e_msg='Refund processing error.',
+							   page='your bookings page',
+							   redirect_url=url_for('my_bookings'),
+							   is_admin=is_admin_user(), is_staff=is_staff_user())
 
 	# Commit changes and redirect to confirmation page
 	db.session.commit()
@@ -325,10 +331,13 @@ def payment():
 		current_vacancy = EventSlot.query.get(payment['slot_id']).vacancy
 		if payment['quantity'] > current_vacancy:
 			session['[payment_due'] = None
-			return render_template('payment_error.html',
-								   event_id=payment['event_id'],
-								   is_admin=is_admin_user(),
-								   is_staff=is_staff_user())
+			return render_template(
+				'error.html',
+				e_msg='{}{}'.format('Number of tickets exceed available seats. ',
+									'Please edit your booking.'),
+				page='booking page',
+				redirect_url=url_for('booking', eid=payment['event_id']),
+				is_admin=is_admin_user(), is_staff=is_staff_user())
 
 		# Update db with new booking or edit existing booking
 		if payment['booking_type'] == 'new':
@@ -360,3 +369,12 @@ def payment():
 
 	return render_template('payment.html', form=form, booking_details=payment,
 						   is_admin=is_admin_user(), is_staff=is_staff_user())
+
+@app.route('/test')
+def error():
+	e_msg = 'test error page'
+	page = 'index page'
+	redirect_url = url_for('index')
+	return render_template('error.html', e_msg=e_msg, page=page,
+						   redirect_url=redirect_url, is_admin=is_admin_user(),
+						   is_staff=is_staff_user())
