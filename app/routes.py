@@ -1,5 +1,5 @@
 from app import app, db, query, session
-from app.models.payments import Payment, Refund
+from app.models.payments import Payment, EventPromotion, Promotion, Refund
 from app.models.users import User, Admin
 from app.models.events import Event, EventSlot
 from app.models.booking import Booking
@@ -308,9 +308,19 @@ def payment():
 	payment = session['payment_due']
 	payment['title'] = Event.query.get(payment['event_id']).title
 	payment['time'] = EventSlot.query.get(payment['slot_id']).event_date
+	payment['promo_id'] = None
 
 	form = PaymentForm()
-	if form.validate_on_submit():
+	form.promo.event_id.data = payment['event_id']
+	if 'promo-apply_promo' in request.form and form.promo.validate(form):
+		promo_record = Promotion.query.filter(Promotion.promo_code == form.promo.promo_code.data).first()
+		base_price = Event.query.get(payment['event_id']).price
+		discount = promo_record.promo_percentage
+		payment['price'] =  base_price * (1-discount/100)
+		payment['promo_id'] = promo_record.promotion_id
+		flash('promo code applied')
+
+	if 'submit' in request.form and form.validate_on_submit():
 		# Throw error if booking quantity more than current slot vacancy
 		current_vacancy = EventSlot.query.get(payment['slot_id']).vacancy
 		if payment['quantity'] > current_vacancy:
@@ -335,7 +345,8 @@ def payment():
 		new_payment = Payment(quantity=payment['quantity'],
 							  amount=(payment['price'] * payment['quantity']),
 							  card_number=form.card_number.data,
-							  booking_id=booking.booking_id)
+							  booking_id=booking.booking_id,
+							  promotion_id=payment['promo_id'])
 		db.session.add(new_payment)
 		db.session.commit()
 

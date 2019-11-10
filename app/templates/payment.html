@@ -25,8 +25,9 @@
   <div class="row payment-row mb-2">
 	<div class="col">
 	  <div class="container form-container px-0">
-		<form action="" method="post" novalidate>
+		<form onkeypress="return event.keyCode != 13;" method="post">
 		  {{ form.hidden_tag() }}
+		  {{ form.promo.hidden_tag() }}
 
 		  <!-- Credit card number -->
 		  <div class="row no-gutters">
@@ -133,21 +134,22 @@
 			<div class="col">
 			  <p>
 				<!-- Promotion code entry field -->
-				{{ form.promo.promo_code(style="width:120px") }}
+				{{ form.promo.promo_code(onchange="len_check(this)", style="width:120px") }}
 				<!-- Promotion apply button -->
-				{{ form.promo.apply_promo(style="width:60px") }}
+				{{ form.promo.apply_promo(disabled="", onclick="set_noskip()", style="width:60px") }}
 				<!-- Print promo error messages -->
                 {% for error in form.promo.promo_code.errors %}
                 {{error}}
                 {% endfor %}
 			  </p>
 			</div>
+			{{ form.promo.hidden_field }}
 		  </div>
 
 		  <!-- Form submit button -->
 		  <div class="row no-gutters">
 			<div class="col">
-			  <p>{{ form.submit() }}</p>
+			  <p>{{ form.submit(onclick="set_skip()") }}</p>
 			</div>
 		  </div>
 
@@ -162,4 +164,25 @@
 	</div>
   </div>
 </div>
+
+<script>
+  function set_skip() {
+	  document.getElementById('promo-hidden_field').value = "SKIP";
+  }
+
+  function set_noskip() {
+	  document.getElementById('promo-hidden_field').value = "NOSKIP";
+  }
+</script>
+
+<script>
+  function len_check(applied_code) {
+	  let promo_btn = document.getElementById("promo-apply_promo");
+	  if (applied_code.value.length > 0) {
+		  $(promo_btn).prop("disabled", false);
+	  } else {
+		  $(promo_btn).prop("disabled", true);
+	  }
+  }
+</script>
 {% endblock %}
