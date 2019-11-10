@@ -1,5 +1,8 @@
+from app import db
 from app.models.users import User, Admin
 from app.models.events import Event
+from flask_admin.contrib.sqla.filters import BaseSQLAFilter, FilterEmpty
+from flask_admin.babel import lazy_gettext
 from flask_login import current_user
 from sqlalchemy.sql import literal_column
 from werkzeug.utils import secure_filename
@@ -7,6 +10,44 @@ from wtforms.validators import ValidationError
 from flask_admin.model import typefmt
 from datetime import date, timedelta
 from os import path
+
+
+class FilterNull(FilterEmpty):
+	def operation(self):
+		return lazy_gettext('is NULL')
+
+
+class FilterRegularUsers(BaseSQLAFilter):
+	def apply(self, query, value, alias=None):
+		if value == '1':
+			return query.filter(self.column == True)
+		else:
+			return query.filter(self.column == False)
+
+	def operation(self):
+		return 'regular'
+
+
+class FilterStaffUsers(BaseSQLAFilter):
+	def apply(self, query, value, alias=None):
+		if value == '1':
+			return query.filter(self.column == True)
+		else:
+			return query.filter(self.column == False)
+
+	def operation(self):
+		return 'staff'
+
+
+class FilterAdminUsers(BaseSQLAFilter):
+	def apply(self, query, value, alias=None):
+		if value == '1':
+			return query.filter(self.column == True)
+		else:
+			return query.filter(self.column == False)
+
+	def operation(self):
+		return 'admin'
 
 
 def is_staff_user():
@@ -37,8 +78,9 @@ event_view_formatter.update({ type(None): typefmt.null_formatter,
 def img_filename_gen(obj, file_data):
 	idx = ''
 	if obj.event_id is None:
-		last_event = Event.query.order_by(Event.event_id.desc()).first()
-		idx = f'{(last_event.event_id):04}'
+		with db.session.no_autoflush:
+			last_event = Event.query.order_by(Event.event_id.desc()).first()
+		idx = f'{(last_event.event_id + 1):04}'
 	else:
 		idx = f'{obj.event_id:04}'
 
@@ -74,3 +116,17 @@ def check_slot_clash(schedule, timing, id_):
 			# Raise error if new end time lies in another event slot
 			if timing[1] > slot_start_time and timing[1] <= slot_end_time:
 					raise ValidationError(error_msg)
+
+
+def check_event_active_slots(eid, sid=None, mode='edit'):
+	active_slots = []
+	event = Event.query.get(eid)
+	for slot in event.slots:
+		if mode == 'delete' and slot.slot_id != sid and slot.is_active:
+			active_slots.append(slot)
+		elif mode == 'edit' and slot.is_active:
+			active_slots.append(slot)
+
+	if not active_slots:
+		event.is_launched = False
+		db.session.commit()

@@ -11,10 +11,12 @@ class User(UserMixin, db.Model):
 	password_hash = db.Column(db.String(255), nullable=False)
 	is_staff = db.Column(db.Boolean, nullable=False)
 
+	logins = db.relationship('LoginHistory', back_populates='user')
+	logouts = db.relationship('LogoutHistory', back_populates='user')
 	bookings = db.relationship('Booking', back_populates='user')
 
 	def __repr__(self):
-		return self.username
+		return '[ UID:{:0>4} ] {}'.format(self.user_id, self.username)
 
 	def get_id(self):
 		return ('User', self.user_id)
@@ -32,8 +34,11 @@ class Admin(UserMixin, db.Model):
 	email = db.Column(db.String(30), index=True, unique=True, nullable=False)
 	password_hash = db.Column(db.String(255), nullable=False)
 
+	logins = db.relationship('LoginHistory', back_populates='admin')
+	logouts = db.relationship('LogoutHistory', back_populates='admin')
+
 	def __repr__(self):
-		return self.username
+		return '[ AID:{:0>4} ] {}'.format(self.admin_id, self.username)
 
 	def get_id(self):
 		return ('Admin', self.admin_id)

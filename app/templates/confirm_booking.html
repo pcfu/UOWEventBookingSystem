@@ -2,19 +2,38 @@
 
 {% block content %}
 <div>
-<p>Booking completed. You will be redirected in 3 seconds</p>
+  <p>
+	Booking completed. You will be redirected to
+	{% if redirect_homepage %}
+	the homepage
+	{% else %}
+	your bookings page
+	{% endif %}
+	in 3 seconds
+  </p>
 
-<a href="{{ url_for('index') }}"
-   class="btn btn-secondary">
-  Click here to return immediately
-</a>
+  <a id="link"
+	 href="{{ url_for('index') }}"
+	 class="btn btn-secondary">
+	Click here to return immediately
+  </a>
+</div>
 
 <script>
+  if ({{ redirect_homepage|tojson }}) {
+	  document.getElementById("link").setAttribute("href", "{{ url_for('index') }}");
+  } else {
+	  document.getElementById("link").setAttribute("href", "{{ url_for('my_bookings') }}");
+  }
+
   var timer = setTimeout(
 	  function() {
-		  window.location='{{ '/index' }}'
+		  if ({{ redirect_homepage|tojson }}) {
+			  window.location='{{ '/index' }}';
+		  } else {
+			  window.location='{{ '/my_bookings' }}';
+		  }
 	  },
 	  3000);
 </script>
-</div>
 {% endblock %}

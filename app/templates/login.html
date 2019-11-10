@@ -1,31 +1,70 @@
 {% extends "base.html" %}
 
 {% block content %}
-<!-- main header -->
-<h1 class="center">Sign In</h1><br>
+<div class="container main-container">
+	<div class="row header-row">
+		<div class="col header-col mb-3">
+			<!-- main header -->
+			<h1 class="center">Sign In</h1><br>
+		</div>
+	</div>
 
-<form action="" method="post" novalidate>
+	<form action="" method="post" novalidate>
     {{ form.hidden_tag() }}
+	
+	<div class="row label-row justify-content-center">
+		<div class="col-2 label-col text-center">
+			<!-- username field -->
+			{{ form.username.label }}
+		</div>
+	</div>
+	<div class="row field-row justify-content-center mb-2">
+		<div class="col-3 field-col text-center">
+			{{ form.username(size=32) }}
+			{% for error in form.username.errors %}
+			<span class="center" style="color: red;">[{{ error }}]</span><br>
+			{% endfor %}
+		</div>
+	</div>
+	
+	<div class="row label-row justify-content-center mb-2">
+		<div class="col-2 label-col text-center">
+			<!-- password field -->
+			{{ form.password.label }}
+		</div>
+	</div>
+	<div class="row field-row justify-content-center mb-2">
+		<div class="col-3 field-col text-center">
+			{{ form.password(size=32) }}
+			{% for error in form.password.errors %}
+			<span class ="center" style="color: red;">[{{ error }}]</span><br>
+			{% endfor %}
+		</div>
+	</div>
+	
+	<div class="row remember-me-row justify-content-center no-gutters">
+		<div class="col-lg-2 label-col text-center">
+			{{ form.remember_me.label() }}
+		</div>
+		<div>
+			{{ form.remember_me(style="width:12px;") }}
+		</div>
+	</div>
+	
+	<div class="row submit-row mt-2 justify-content-center">
+		<div class="col-3 submit-col">
+			<!-- sign-in -->
+			{{ form.submit(class_='signin-btn btn') }}
+		</div>
+	</div>
+	</form>
+	
+	<div class="row register-row justify-content-center mt-4">
+		<div class="col-3 register-col">
+			<!-- register button -->
+			<a href="{{ url_for('register') }}" class="signin-btn btn" role="button">Register</a>
+		</div>
+	</div>
+</div>
 
-	<!-- username field -->
-    {{ form.username.label(class_='center') }}<br>
-    <div class="center">{{ form.username(size=32) }}</div><br>
-    {% for error in form.username.errors %}
-    <span class="center" style="color: red;">[{{ error }}]</span><br>
-    {% endfor %}
-
-	<!-- password field -->
-    {{ form.password.label(class_='center') }}<br>
-    <div class="center">{{ form.password(size=32) }}</div><br>
-    {% for error in form.password.errors %}
-    <span class ="center" style="color: red;">[{{ error }}]</span><br>
-    {% endfor %}
-
-	<!-- sign-in -->
-    <div style="padding-left: 6.5%;" class="center">{{ form.remember_me.label() }}{{ form.remember_me() }}</div><br>
-    {{ form.submit(class_='signin-btn btn') }}
-</form><br>
-
-<!-- register button -->
-<a href="{{ url_for('register') }}" class="signin-btn btn" role="button">Register</a>
 {% endblock %}

@@ -1,53 +1,64 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="container form-main-container ml-2" style="margin-top: 70px;">
+<div class="container main-container ml-2" style="margin-top: 70px;">
 	<form action="" method="post">
 		{{ form.hidden_tag() }}
 
 		<!-- Event title -->
 		<div class="row mb-2">
-			<div class="col-2">
+			<div class="col-md-1">
 				{{ form.title.label }}
 			</div>
-			<div class="col-8">
+			<div class="col-md-8">
 				{{ form.title() }}
 			</div>
 		</div>
 
 		<!-- Username -->
 		<div class="row mb-2">
-			<div class="col-2">
+			<div class="col-md-1">
 				{{ form.username.label }}
 			</div>
-			<div class="col-8">
+			<div class="col-md-8">
 				{{ form.username() }}
 			</div>
 		</div>
 
 		<!-- Date and Time -->
 		<div class="row mb-2">
-			<div class="col-2">
+			<div class="col-md-1">
 				{{ form.dates.label }}
 			</div>
-			<div class="col-2">
+			<div class="col-md-2">
 				{{ form.dates(size=1) }}
 			</div>
-			<div class="col-2">
+			<div class="col-md-1">
 				{{ form.times.label }}
 			</div>
-			<div class="col-1">
+			<div class="col-md-1">
 				{{ form.times(size=1) }}
+			</div>
+		</div>
+
+		<!-- Vacancy -->
+		<div class="row mb-2">
+			<div class="col-md-1">
+				Available Seats:
+			</div>
+			<div class="col-md-8">
+				{{ form.vacancy() }}
 			</div>
 		</div>
 
 		<!-- No. of Tickets -->
 		<div class="row mb-2">
-			<div class="col-2">
+			<div class="col-md-1">
 				Tickets
 			</div>
-			<div class="col-8">
-				{{ form.count(onchange="refreshPrice()", max=capacity, onkeydown="return false") }}
+			<div class="col-md-8">
+			  	{{ form.count(onchange="refreshPrice()", max=form.vacancy.data) }}
+				<!-- {{ form.count(onchange="refreshPrice()", max=capacity, onkeydown="return false") }} -->
 				{% for error in form.count.errors %}
 				<span style="color: red;">[{{ error }}]</span>
 				{% endfor %}
@@ -56,10 +67,10 @@
 
 		<!-- Total Cost -->
 		<div class="row mb-2">
-			 <div class="col-2">
+			 <div class="col-md-1">
 			   Total ($)
 			 </div>
-			 <div class="col-8">
+			 <div class="col-md-8">
 			   {{ form.price() }}
 			   <script>var basePrice = document.getElementById('price').value</script>
 			 </div>
@@ -67,15 +78,15 @@
 
 		<!-- Book Button -->
 		<div class="row">
-			<div class="col">
-			  {{ form.submit(class="btn btn-secondary offset-2",
+			<div class="col offset-1">
+			  {{ form.submit(class="btn btn-secondary",
 			 				 style="width: 100px;") }}
 			</div>
 		</div>
 	</form>
 </div>
 
-<!-- Dynamically update total cost -->
+<!-- Dynamic updates -->
 <script>
 function refreshPrice(){
     document.getElementById('price').value =
@@ -88,17 +99,37 @@ function refreshPrice(){
   let date_select = document.getElementById('dates');
   let time_select = document.getElementById('times');
 
+  // Update available times and vacancy based on date selected
   date_select.onchange = function() {
 	  date = date_select.value;
 
 	  fetch('/booking/' + {{ eid }} + '/' + date).then(function(response) {
 		  response.json().then(function(data) {
 			  let time_choices_HTML = '';
+			  let count = 0;
+
 			  for (let timing of data.timings) {
 				  time_choices_HTML += '<option value="' + timing.slot_id
-					  					+ '">' + timing.time + '</option>';
+										+ '">' + timing.time + '</option>';
+				  if (count == 0) {
+					  document.getElementById('vacancy').value = timing.vacancy;
+					  document.getElementById('count').max = timing.vacancy;
+				  }
+				  ++count;
 			  }
+
 			  time_select.innerHTML = time_choices_HTML;
+		  });
+	  });
+  }
+
+  // Update vacancy based on time selected
+  time_select.onchange = function() {
+	  sid = time_select.value;
+	  fetch('/booking/vacancy/' + sid).then(function(response) {
+		  response.json().then(function(data) {
+			  document.getElementById('vacancy').value = data.vacancy;
+			  document.getElementById('count').max = data.vacancy;
 		  });
 	  });
   }
