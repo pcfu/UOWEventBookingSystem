@@ -3,6 +3,7 @@ Click==7.0
 decorator==4.4.0
 Flask==1.1.1
 Flask-Admin==1.5.4
+Flask-APScheduler==1.11.0
 Flask-CKEditor==0.4.3
 Flask-Ext==0.1
 Flask-Login==0.4.1
