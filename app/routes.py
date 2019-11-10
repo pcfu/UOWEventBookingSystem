@@ -137,14 +137,8 @@ def my_account():
 		return redirect(url_for('index'))
 
 	update_form = AccountUpdateForm()
-	# Update username if validation checks passed
-	if 'update_username-update_name' in request.form \
-		and update_form.update_username.validate_on_submit():
-			current_user.username = update_form.update_username.username.data
-			db.session.commit()
-			flash('Username updated successfully')
 	# Update email if validation checks passed
-	elif 'update_email-update_email' in request.form \
+	if 'update_email-update_email' in request.form \
 		and update_form.update_email.validate_on_submit():
 			current_user.email = update_form.update_email.email.data
 			db.session.commit()
@@ -157,7 +151,6 @@ def my_account():
 			flash('Password updated successfully')
 
 	# Reset form fields
-	update_form.update_username.username.data = None
 	update_form.update_email.email.data = None
 	update_form.update_password.old_password.data = None
 	update_form.update_password.new_password.data = None
@@ -311,20 +304,23 @@ def payment():
 	payment['promo_id'] = None
 
 	form = PaymentForm()
-	form.promo.event_id.data = payment['event_id']
+	form.promo.promo_event_id.data = payment['event_id']
+
 	# Promotion code applied
 	if 'promo-apply_promo' in request.form and form.promo.validate_on_submit():
-		promo_record = Promotion.query.filter(Promotion.promo_code == form.promo.promo_code.data).first()
+		promo_record = Promotion.query.filter(Promotion.promo_code ==
+											  form.promo.promo_code.data).first()
 		base_price = Event.query.get(payment['event_id']).price
 		discount = promo_record.promo_percentage
 		payment['price'] =  base_price * (1-discount/100)
+		''' Note: calculate from base price so users cannot repeatedly refresh the page
+			 and re-apply code to reduce price to 0 '''
+
 		payment['promo_id'] = promo_record.promotion_id
 		form.promo.current_code_applied.data = form.promo.promo_code.data
 		form.promo.promo_code.data = None
 	# Payment submitted
 	elif 'submit' in request.form and form.validate_on_submit():
-		return 'Test'
-
 		# Throw error if booking quantity more than current slot vacancy
 		current_vacancy = EventSlot.query.get(payment['slot_id']).vacancy
 		if payment['quantity'] > current_vacancy:

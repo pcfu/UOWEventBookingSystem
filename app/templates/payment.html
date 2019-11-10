@@ -21,20 +21,20 @@
 	</div>
   </div>
 
-  <!-- Card details entry fields -->
+  <!-- Entry fields -->
   <div class="row payment-row mb-2">
 	<div class="col">
 	  <div class="container form-container px-0">
 		<form onkeypress="return event.keyCode != 13;" method="post">
 		  {{ form.hidden_tag() }}
 		  {{ form.promo.hidden_tag() }}
+		  {{ form.promo.skip_promo_check }}
 
 		  <!-- Promotion code -->
 		  <div class="row no-gutters">
 			<div class="col-2">
 			  <p>
 				{{ form.promo.promo_code.label }}
-				{{ form.promo.skip_promo_check }}
 			  </p>
 			</div>
 			<div class="col">
@@ -42,13 +42,14 @@
 				<!-- Promotion code entry field -->
 				{{ form.promo.promo_code(onchange="promo_data_check(this)", style="width:120px") }}
 				<!-- Promotion apply button -->
-				{{ form.promo.apply_promo(disabled="", class="btn btn-primary", onclick="promo_clicked()", style="width:80px") }}
+				{{ form.promo.apply_promo(disabled="", class="btn btn-primary", onclick="promo_clicked()", formnovalidate="formnovalidate", style="width:80px") }}
 				<!-- Print promo error messages -->
                 {% for error in form.promo.promo_code.errors %}
                 <span style="color: red;">{{error}}</span>
                 {% endfor %}
 			  </p>
 
+			  <!-- Show current code applied -->
 			  <p>[Code Applied:
 				<span id="applied_code", style="color: blue;">
 				  {{ form.promo.current_code_applied.data }}
@@ -68,12 +69,13 @@
 			  <p>
 				{{ form.card_number(onchange="payment_data_check()", maxlength=16) }}
 			  </p>
-			</div><br>
-			<!-- Print errors in credit card number -->
-            {% for error in form.card_number.errors %}
-            <span style="color: red;">{{error}}</span>
-            {% endfor %}
+			</div>
 		  </div>
+
+		  <!-- Print errors in credit card number -->
+          {% for error in form.card_number.errors %}
+          <span style="color: red;">{{error}}</span><br>
+          {% endfor %}
 
 		  <!-- Card expiry date and CVV -->
 		  <div class="row no-gutters">
@@ -97,19 +99,16 @@
 			  <p>
 				{{ form.cvv(onchange="payment_data_check()", style="width:75px", minlength=3, maxlength=3) }}
 			  </p>
-			</div><br>
-
-			<!-- Print errors in date and CVV -->
-            {% for error in form.expire_month.errors %}
-            <span style="color: red;">{{error}}</span>
-            {% endfor %}
-            {% for error in form.expire_year.errors %}
-            <span style="color: red;">{{error}}</span>
-            {% endfor %}
-            {% for error in form.cvv.errors %}
-            <span style="color: red;">{{error}}</span>
-            {% endfor %}
+			</div>
 		  </div>
+
+		  <!-- Print errors in date -->
+          {% for error in form.expire_month.errors %}
+          <span style="color: red;">{{error}}</span><br>
+          {% endfor %}
+          {% for error in form.expire_year.errors %}
+          <span style="color: red;">{{error}}</span><br>
+          {% endfor %}
 
 		  <!-- Card owner name -->
 		  <div class="row no-gutters">
@@ -129,6 +128,7 @@
             {% endfor %}
 		  </div>
 
+		  <br><b>[ OPTIONAL ]</b><br><br><!-- Optional fields -->
 		  <!-- Address -->
 		  <div class="row no-gutters">
 			<div class="col-2">
@@ -198,7 +198,6 @@
 
   function promo_clicked() {
 	  document.getElementById('promo-skip_promo_check').value = "NOSKIP";
-	  document.getElementById('skip_payment_check').value = "SKIP";
   }
 </script>
 
@@ -225,7 +224,6 @@
   }
 
   function payment_clicked() {
-	  document.getElementById('skip_payment_check').value = "NOSKIP";
 	  document.getElementById('promo-skip_promo_check').value = "SKIP";
   }
 </script>

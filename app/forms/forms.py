@@ -73,24 +73,6 @@ class RegistrationForm(FlaskForm):
 			raise ValidationError('Email already taken')
 
 
-class UpdateUsernameForm(FlaskForm):
-	username = StringField('New Username', validators=[])
-	update_name = SubmitField('Update')
-
-	def validate_username(self, username):
-		if re.search(r'\s', username.data):
-			raise ValidationError('Username must not contain any whitespaces')
-		if username.data == current_user.username:
-			raise ValidationError('You are already using this username')
-
-		if is_admin_user():
-			user = Admin.query.filter(Admin.username == username.data).first()
-		else:
-			user = User.query.filter(User.username == username.data).first()
-		if user is not None:
-			raise ValidationError('Username already taken')
-
-
 class UpdateEmailForm(FlaskForm):
 	email = StringField('New Email', validators=[Email()])
 	update_email = SubmitField('Update')
@@ -137,7 +119,6 @@ class UpdatePasswordForm(FlaskForm):
 
 
 class AccountUpdateForm(FlaskForm):
-	update_username = FormField(UpdateUsernameForm)
 	update_email = FormField(UpdateEmailForm)
 	update_password = FormField(UpdatePasswordForm)
 
@@ -199,7 +180,7 @@ class BookingForm(FlaskForm):
 
 class PromotionForm(FlaskForm):
 	promo_code = StringField('Promotion Code')
-	event_id = IntegerField()
+	promo_event_id = IntegerField()
 	skip_promo_check = HiddenField(default='NOSKIP')
 	current_code_applied = HiddenField(default='NONE')
 	apply_promo = SubmitField('Apply')
@@ -213,10 +194,9 @@ class PromotionForm(FlaskForm):
 			if promotion is None:
 				raise ValidationError('Invalid promo code')
 
-			eid = self.event_id.data
-			ep = EventPromotion.query.filter_by(event_id=eid,
-												promotion_id=promotion.promotion_id,
-												is_active=True).first()
+			eid = self.promo_event_id.data
+			ep = EventPromotion.query.filter_by(is_active=True, event_id=eid,
+												promotion_id=promotion.promotion_id).first()
 			if not ep:
 				raise ValidationError('Promo code not applicable for this event')
 			elif ep.promotion.dt_start > datetime.now():
@@ -226,28 +206,20 @@ class PromotionForm(FlaskForm):
 
 
 class PaymentForm(FlaskForm):
-	card_number = IntegerField('Card Number')
-	name_on_card = StringField('Name on card')
-	expire_month = IntegerField('Expiry Date', render_kw={'placeholder':'MM'})
-	expire_year = IntegerField(render_kw={'placeholder':'YY'})
-	cvv = IntegerField('CVV')
+	card_number = IntegerField('Card Number', validators=[DataRequired()])
+	name_on_card = StringField('Name on card', validators=[DataRequired()])
+	expire_month = IntegerField('Expiry Date', validators=[DataRequired()],
+								render_kw={'placeholder':'MM'})
+	expire_year = IntegerField(validators=[DataRequired()],
+							   render_kw={'placeholder':'YY'})
+	cvv = IntegerField('CVV', validators=[DataRequired()])
 	address = StringField('Billing Address', validators=[Optional()])
 	postal_code = IntegerField('Postal Code', validators=[Optional()],
 							   render_kw={'placeholder':'i.e. 599491'})
 	contact = IntegerField('Contact Number', validators=[Optional()])
 	promo = FormField(PromotionForm)
-	skip_payment_check = HiddenField(default='NOSKIP')
 	submit = SubmitField('Pay')
 
-	def validate(self):
-		if self.skip_payment_check.data == 'SKIP':
-			print('VALIDATE SKIPPED')
-			return True
-		else:
-			print('VALIDATE NOSKIP')
-			return self.card_number.data is not None
-
-	'''
 	def validate_card_number(self, card_number):
 		if len(str(card_number.data)) < 14 or len(str(card_number.data)) > 16:
 			raise ValidationError('Invalid card number!')
@@ -265,6 +237,9 @@ class PaymentForm(FlaskForm):
 		if (expire_year.data > int(datetime.now().strftime("%y")) + 5) or \
 		(expire_year.data < int(datetime.now().strftime("%y"))) or (expire_year.data < 1):
 			raise ValidationError('Invalid year!')
+
+
+	''' temporarily disabled because postal codes and numbers may not be local
 
 	def validate_postal_code(self, postal_code):
 		if postal_code is not None:
