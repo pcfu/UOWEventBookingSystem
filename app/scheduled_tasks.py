@@ -2,15 +2,6 @@ from app import db
 from app.models.events import Event, EventSlot
 from datetime import datetime, timedelta
 
-def test():
-	records = EventSlot.query.filter(EventSlot.is_active == True).all()
-	print('---------CURRENT ACTIVE SLOTS AS OF {}---------'.format(datetime.now()))
-	for slot in records:
-		print('{}  |  {}  |  {}  |  ACTIVE={}'.format(slot.slot_id,
-													  slot.event.title,
-													  slot.event_date,
-													  slot.is_active))
-	print('----------------------------------------------------------------')
 
 def deactivate_expired_slots():
 	active_events = Event.query.filter(Event.has_active_slots == True).all()

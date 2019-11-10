@@ -1,8 +1,8 @@
 from app import app, db, query, session
-from app.models.payments import Payment, EventPromotion, Promotion, Refund
 from app.models.users import User, Admin
 from app.models.events import Event, EventSlot
 from app.models.booking import Booking
+from app.models.payments import Payment, EventPromotion, Promotion, Refund
 from app.models.logs import add_login_record, add_logout_record
 from app.forms.forms import MemberLoginForm, StaffLoginForm, RegistrationForm, \
 							SearchForm, BookingForm, PaymentForm, AccountUpdateForm
