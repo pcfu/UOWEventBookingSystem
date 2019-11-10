@@ -319,9 +319,8 @@ def payment():
 		base_price = Event.query.get(payment['event_id']).price
 		discount = promo_record.promo_percentage
 		payment['price'] =  base_price * (1-discount/100)
-		''' Note: calculate from base price so users cannot repeatedly refresh the page
-			 and re-apply code to reduce price to 0 '''
-
+		''' Note: calculate from base price so users cannot repeatedly refresh
+			the page and re-apply code to reduce price to 0 '''
 		payment['promo_id'] = promo_record.promotion_id
 		form.promo.current_code_applied.data = form.promo.promo_code.data
 		form.promo.promo_code.data = None
@@ -339,25 +338,8 @@ def payment():
 				redirect_url=url_for('booking', eid=payment['event_id']),
 				is_admin=is_admin_user(), is_staff=is_staff_user())
 
-		# Update db with new booking or edit existing booking
-		if payment['booking_type'] == 'new':
-			booking = Booking(user_id=payment['user_id'],
-							  event_slot_id=payment['slot_id'],
-							  quantity=payment['quantity'])
-			db.session.add(booking)
-		elif payment['booking_type'] == 'update':
-			booking = Booking.query.get(payment['booking_id'])
-			booking.quantity += payment['quantity']
-		db.session.commit()
-
-		# Update db with new payment record
-		new_payment = Payment(quantity=payment['quantity'],
-							  amount=(payment['price'] * payment['quantity']),
-							  card_number=form.card_number.data,
-							  booking_id=booking.booking_id,
-							  promotion_id=payment['promo_id'])
-		db.session.add(new_payment)
-		db.session.commit()
+		# Update db
+		db_update_booking_payment(form=form, payment=payment)
 
 		# Clear session object and confirm booking
 		session['payment_due'] = None
@@ -370,11 +352,28 @@ def payment():
 	return render_template('payment.html', form=form, booking_details=payment,
 						   is_admin=is_admin_user(), is_staff=is_staff_user())
 
-@app.route('/test')
-def error():
-	e_msg = 'test error page'
-	page = 'index page'
-	redirect_url = url_for('index')
-	return render_template('error.html', e_msg=e_msg, page=page,
-						   redirect_url=redirect_url, is_admin=is_admin_user(),
-						   is_staff=is_staff_user())
+
+#####################################
+# Supporting function for payment() #
+#####################################
+
+def db_update_booking_payment(form, payment):
+	# Update db with new booking or edit existing booking
+	if payment['booking_type'] == 'new':
+		booking = Booking(user_id=payment['user_id'],
+						  event_slot_id=payment['slot_id'],
+						  quantity=payment['quantity'])
+		db.session.add(booking)
+	elif payment['booking_type'] == 'update':
+		booking = Booking.query.get(payment['booking_id'])
+		booking.quantity += payment['quantity']
+	db.session.commit()
+
+	# Update db with new payment record
+	new_payment = Payment(quantity=payment['quantity'],
+						  amount=(payment['price'] * payment['quantity']),
+						  card_number=form.card_number.data,
+						  booking_id=booking.booking_id,
+						  promotion_id=payment['promo_id'])
+	db.session.add(new_payment)
+	db.session.commit()
