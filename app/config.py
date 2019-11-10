@@ -11,7 +11,7 @@ class Config(object):
 	JOBS = [ { 'id' : 'job1',
 			   'func' : 'app.scheduled_tasks:deactivate_expired_slots',
 			   'trigger' : 'interval',
-			   'seconds' : 10 }
+			   'hours' : 1 }
 			]
 	SCHEDULER_API_ENABLED = True
 	FLASK_ADMIN_SWATCH = 'sandstone'
