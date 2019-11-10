@@ -29,6 +29,34 @@
 		  {{ form.hidden_tag() }}
 		  {{ form.promo.hidden_tag() }}
 
+		  <!-- Promotion code -->
+		  <div class="row no-gutters">
+			<div class="col-2">
+			  <p>
+				{{ form.promo.promo_code.label }}
+				{{ form.promo.skip_promo_check }}
+			  </p>
+			</div>
+			<div class="col">
+			  <p>
+				<!-- Promotion code entry field -->
+				{{ form.promo.promo_code(onchange="promo_data_check(this)", style="width:120px") }}
+				<!-- Promotion apply button -->
+				{{ form.promo.apply_promo(disabled="", class="btn btn-primary", onclick="promo_clicked()", style="width:80px") }}
+				<!-- Print promo error messages -->
+                {% for error in form.promo.promo_code.errors %}
+                <span style="color: red;">{{error}}</span>
+                {% endfor %}
+			  </p>
+
+			  <p>[Code Applied:
+				<span id="applied_code", style="color: blue;">
+				  {{ form.promo.current_code_applied.data }}
+				</span>]
+			  </p>
+			</div>
+		  </div><br>
+
 		  <!-- Credit card number -->
 		  <div class="row no-gutters">
 			<div class="col-2">
@@ -38,9 +66,13 @@
 			</div>
 			<div class="col">
 			  <p>
-				{{ form.card_number(maxlength=16) }}
+				{{ form.card_number(onchange="payment_data_check()", maxlength=16) }}
 			  </p>
-			</div>
+			</div><br>
+			<!-- Print errors in credit card number -->
+            {% for error in form.card_number.errors %}
+            <span style="color: red;">{{error}}</span>
+            {% endfor %}
 		  </div>
 
 		  <!-- Card expiry date and CVV -->
@@ -52,8 +84,8 @@
 			</div>
 			<div class="col-2">
 			  <p>
-				{{ form.expire_month(style="width:50px", maxlength=2) }}
-				{{ form.expire_year(style="width:50px", maxlength=2) }}
+				{{ form.expire_month(onchange="payment_data_check()", style="width:50px", maxlength=2) }}
+				{{ form.expire_year(onchange="payment_data_check()", style="width:50px", maxlength=2) }}
 			  </p>
 			</div>
 			<div class="test" style="width:50px;">
@@ -63,9 +95,20 @@
 			</div>
 			<div class="col">
 			  <p>
-				{{ form.cvv(minlength=3, maxlength=3, style="width:75px") }}
+				{{ form.cvv(onchange="payment_data_check()", style="width:75px", minlength=3, maxlength=3) }}
 			  </p>
-			</div>
+			</div><br>
+
+			<!-- Print errors in date and CVV -->
+            {% for error in form.expire_month.errors %}
+            <span style="color: red;">{{error}}</span>
+            {% endfor %}
+            {% for error in form.expire_year.errors %}
+            <span style="color: red;">{{error}}</span>
+            {% endfor %}
+            {% for error in form.cvv.errors %}
+            <span style="color: red;">{{error}}</span>
+            {% endfor %}
 		  </div>
 
 		  <!-- Card owner name -->
@@ -77,9 +120,13 @@
 			</div>
 			<div class="col">
 			  <p>
-				{{ form.name_on_card(pattern="[a-zA-Z-]*") }}
+				{{ form.name_on_card(pattern="[a-zA-Z-]*", onchange="payment_data_check()") }}
 			  </p>
-			</div>
+			</div><br>
+			<!-- Print errors in name -->
+            {% for error in form.name_on_card.errors %}
+            <span style="color: red;">{{error}}</span>
+            {% endfor %}
 		  </div>
 
 		  <!-- Address -->
@@ -91,7 +138,7 @@
 			</div>
 			<div class="col">
 			  <p>
-				{{ form.address(style="width:500px;text-align:left") }}
+				{{ form.address(style="width:500px; text-align:left;") }}
 			  </p>
 			</div>
 		  </div>
@@ -124,65 +171,62 @@
 			</div>
 		  </div>
 
-		  <!-- Promotion code -->
-		  <div class="row no-gutters">
-			<div class="col-2">
-			  <p>
-				{{ form.promo.promo_code.label }}
-			  </p>
-			</div>
-			<div class="col">
-			  <p>
-				<!-- Promotion code entry field -->
-				{{ form.promo.promo_code(onchange="len_check(this)", style="width:120px") }}
-				<!-- Promotion apply button -->
-				{{ form.promo.apply_promo(disabled="", onclick="set_noskip()", style="width:60px") }}
-				<!-- Print promo error messages -->
-                {% for error in form.promo.promo_code.errors %}
-                {{error}}
-                {% endfor %}
-			  </p>
-			</div>
-			{{ form.promo.hidden_field }}
-		  </div>
-
 		  <!-- Form submit button -->
 		  <div class="row no-gutters">
 			<div class="col">
-			  <p>{{ form.submit(onclick="set_skip()") }}</p>
+			  <p>
+				{{ form.submit(disabled="", class="btn btn-primary", onclick="payment_clicked()") }}
+			  </p>
 			</div>
 		  </div>
-
-		  <!-- Print form error messages -->
-		  {% if form.errors %}
-		  {% for error in form.errors %}
-		  {{error}} is required <br/>
-		  {% endfor %}
-		  {% endif %}
 		</form>
 	  </div>
 	</div>
   </div>
 </div>
 
+<!-- Scripts handling promo form -->
 <script>
-  function set_skip() {
-	  document.getElementById('promo-hidden_field').value = "SKIP";
-  }
-
-  function set_noskip() {
-	  document.getElementById('promo-hidden_field').value = "NOSKIP";
-  }
-</script>
-
-<script>
-  function len_check(applied_code) {
+  function promo_data_check(applied_code) {
 	  let promo_btn = document.getElementById("promo-apply_promo");
 	  if (applied_code.value.length > 0) {
 		  $(promo_btn).prop("disabled", false);
 	  } else {
 		  $(promo_btn).prop("disabled", true);
 	  }
+  }
+
+  function promo_clicked() {
+	  document.getElementById('promo-skip_promo_check').value = "NOSKIP";
+	  document.getElementById('skip_payment_check').value = "SKIP";
+  }
+</script>
+
+<!-- Scripts handling main form -->
+<script>
+  function payment_data_check(applied_code) {
+	  let pay_btn = document.getElementById("submit");
+
+	  let card_number = document.getElementById('card_number').value;
+	  let expire_month = document.getElementById('expire_month').value;
+	  let expire_year  = document.getElementById('expire_year').value;
+	  let cvv  = document.getElementById('cvv').value;
+	  let name_on_card = document.getElementById('name_on_card').value;
+
+	  if (card_number.length > 0 &&
+		  expire_month.length > 0 &&
+		  expire_year.length > 0 &&
+		  cvv.length > 0 &&
+		  name_on_card.length > 0) {
+		  $(pay_btn).prop("disabled", false);
+	  } else {
+		  $(pay_btn).prop("disabled", true);
+	  }
+  }
+
+  function payment_clicked() {
+	  document.getElementById('skip_payment_check').value = "NOSKIP";
+	  document.getElementById('promo-skip_promo_check').value = "SKIP";
   }
 </script>
 {% endblock %}

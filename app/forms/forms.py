@@ -199,42 +199,55 @@ class BookingForm(FlaskForm):
 
 class PromotionForm(FlaskForm):
 	promo_code = StringField('Promotion Code')
-	apply_promo = SubmitField('Apply')
 	event_id = IntegerField()
-	hidden_field = HiddenField(default='NOSKIP')
+	skip_promo_check = HiddenField(default='NOSKIP')
+	current_code_applied = HiddenField(default='NONE')
+	apply_promo = SubmitField('Apply')
 
 	def validate_promo_code(self, promo_code):
-		if self.hidden_field.data == 'SKIP':
+		if self.skip_promo_check.data == 'SKIP':
 			return True
 		else:
-			promotion = Promotion.query.filter_by(promo_code=promo_code.data).first()
+			code = self.promo_code.data
+			promotion = Promotion.query.filter_by(promo_code=code).first()
 			if promotion is None:
-				raise ValidationError('Invalid Promo Code')
-			else:
-				promo_id = promotion.promotion_id
-				is_valid = EventPromotion.query\
-										 .filter_by(event_id=self.event_id.data,
-													promotion_id=promo_id)\
-										 .first()
-			if not is_valid:
-				raise ValidationError('Promo Code not applicable for this event')
+				raise ValidationError('Invalid promo code')
+
+			eid = self.event_id.data
+			ep = EventPromotion.query.filter_by(event_id=eid,
+												promotion_id=promotion.promotion_id,
+												is_active=True).first()
+			if not ep:
+				raise ValidationError('Promo code not applicable for this event')
+			elif ep.promotion.dt_start > datetime.now():
+				raise ValidationError('Promotion is not active yet')
+			elif ep.promotion.dt_end < datetime.now():
+				raise ValidationError('Promotion expired')
 
 
 class PaymentForm(FlaskForm):
-	card_number = IntegerField('Card Number', validators=[DataRequired()])
-	name_on_card = StringField('Name on card', validators=[DataRequired()])
-	expire_month = IntegerField('Expiry Date', validators=[DataRequired()],
-								render_kw={'placeholder':'MM'})
-	expire_year = IntegerField(validators=[DataRequired()],
-							   render_kw={'placeholder':'YY'})
-	cvv = IntegerField('CVV', validators=[DataRequired()])
+	card_number = IntegerField('Card Number')
+	name_on_card = StringField('Name on card')
+	expire_month = IntegerField('Expiry Date', render_kw={'placeholder':'MM'})
+	expire_year = IntegerField(render_kw={'placeholder':'YY'})
+	cvv = IntegerField('CVV')
 	address = StringField('Billing Address', validators=[Optional()])
 	postal_code = IntegerField('Postal Code', validators=[Optional()],
 							   render_kw={'placeholder':'i.e. 599491'})
 	contact = IntegerField('Contact Number', validators=[Optional()])
 	promo = FormField(PromotionForm)
+	skip_payment_check = HiddenField(default='NOSKIP')
 	submit = SubmitField('Pay')
 
+	def validate(self):
+		if self.skip_payment_check.data == 'SKIP':
+			print('VALIDATE SKIPPED')
+			return True
+		else:
+			print('VALIDATE NOSKIP')
+			return self.card_number.data is not None
+
+	'''
 	def validate_card_number(self, card_number):
 		if len(str(card_number.data)) < 14 or len(str(card_number.data)) > 16:
 			raise ValidationError('Invalid card number!')
@@ -254,13 +267,12 @@ class PaymentForm(FlaskForm):
 			raise ValidationError('Invalid year!')
 
 	def validate_postal_code(self, postal_code):
-		return True
 		if postal_code is not None:
 			if not len(str(postal_code.data)) == 6:
 				raise ValidationError('Invalid postal code!' + len(postal_code.data))
 
 	def validate_contact(self, contact):
-		return True
 		if contact is not None:
 			if not len(str(contact.data)) == 8:
 				raise ValidationError('Invalid contact number')
+	'''
