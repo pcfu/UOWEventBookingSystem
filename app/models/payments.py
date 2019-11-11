@@ -1,5 +1,5 @@
 from app import db
-from sqlalchemy import ForeignKey
+from sqlalchemy import ForeignKey, case, func
 from sqlalchemy.ext.hybrid import hybrid_property
 
 
@@ -48,6 +48,17 @@ class Promotion(db.Model):
 
 	def __repr__(self):
 		return '[ PROID:{:0>4} ] {}'.format(self.promotion_id, self.promo_code)
+
+	@hybrid_property
+	def is_used(self):
+		return len(self.payments) > 0
+
+	@is_used.expression
+	def is_used(cls):
+		return db.select([
+					db.case([(db.func.count(Payment.promotion_id) > 0, True)],
+							else_=False)
+				]).where(Payment.promotion_id == cls.promotion_id).correlate(cls)
 
 
 class EventPromotion(db.Model):
