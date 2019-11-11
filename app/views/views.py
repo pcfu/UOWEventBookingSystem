@@ -288,6 +288,16 @@ class StaffPaymentView(StaffBaseView):
 		return filters
 
 
+class StaffRefundView(StaffBaseView):
+	# List View Settings
+	can_create = False
+	can_edit = False
+	can_delete = False
+	column_display_pk = True
+	column_list = ['refund_id', 'payment_id', 'payment', 'quantity']
+	column_labels = {'refund_id' : 'ID'}
+
+
 class AdminUserView(AdminBaseView):
 	# List View Settings
 	column_display_pk = True
