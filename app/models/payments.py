@@ -38,16 +38,40 @@ class Payment(db.Model):
 
 class Promotion(db.Model):
 	promotion_id = db.Column(db.Integer, primary_key=True)
-	promo_percentage = db.Column(db.Integer)
-	dt_start = db.Column(db.DateTime)
-	dt_end = db.Column(db.DateTime)
-	promo_code = db.Column(db.String)
+	promo_percentage = db.Column(db.Integer, nullable=False)
+	dt_start = db.Column(db.DateTime, nullable=False)
+	dt_end = db.Column(db.DateTime, nullable=False)
+	promo_code = db.Column(db.String, nullable=False)
 
 	payments = db.relationship('Payment', back_populates='promotion')
 	event_pairings = db.relationship('EventPromotion', back_populates='promotion')
 
 	def __repr__(self):
 		return '[ PROID:{:0>4} ] {}'.format(self.promotion_id, self.promo_code)
+
+	@hybrid_property
+	def has_event(self):
+		return len(self.event_pairings) > 0
+
+	@has_event.expression
+	def has_event(cls):
+		return db.select([
+					db.case([(db.func.count(EventPromotion.promotion_id) > 0, True)],
+							else_=False)
+				]).where(EventPromotion.promotion_id == cls.promotion_id)\
+				 .correlate(cls).as_scalar()
+
+	@hybrid_property
+	def is_used(self):
+		return len(self.payments) > 0
+
+	@is_used.expression
+	def is_used(cls):
+		return db.select([
+					db.case([(db.func.count(Payment.promotion_id) > 0, True)],
+							else_=False)
+				]).where(Payment.promotion_id == cls.promotion_id)\
+				 .correlate(cls).as_scalar()
 
 
 class EventPromotion(db.Model):
@@ -57,6 +81,11 @@ class EventPromotion(db.Model):
 
 	event = db.relationship('Event', back_populates='promo_pairings')
 	promotion = db.relationship('Promotion', back_populates='event_pairings')
+
+	def __repr__(self):
+		return '[ EID:{:0>4} ] {} ----- [ PROID:{:0>4} ] {}'\
+			.format(self.event_id, self.event.title,
+					self.promotion_id, self.promotion.promo_code)
 
 
 class Refund(db.Model):

@@ -1,6 +1,6 @@
 from app import db
 from app.models.events import Event, EventSlot
-from app.models.payments import Payment
+from app.models.payments import Payment, Promotion, EventPromotion
 from app.models.booking import Booking
 from app.models.logs import LoginHistory, LogoutHistory
 from flask_admin import AdminIndexView
@@ -12,7 +12,7 @@ from app.forms.custom_validators import Interval, DateInRange
 from app.views import utils
 from flask import redirect, url_for
 from sqlalchemy.sql import func
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta
 from pathlib import Path
 from os import path
 import math
@@ -346,6 +346,112 @@ class StaffRefundView(StaffBaseView):
 			for f in filters:
 				f.name = self.column_filter_labels[name]
 		return filters
+
+
+class StaffPromotionView(StaffBaseView):
+	# List View Settings
+	can_view_details = True
+	column_display_pk = True
+	column_list = ['promotion_id', 'promo_code', 'promo_percentage',
+				   'dt_start', 'dt_end', 'has_event', 'is_used']
+	column_labels = { 'promotion_id' : 'ID',
+					  'promo_code' : 'Code',
+					  'promo_percentage' : 'Discount',
+					  'dt_start' : 'Start Date',
+					  'dt_end' : 'End Date',
+					  'has_event' : 'Has Event',
+					  'is_used' : 'Used'}
+	column_sortable_list = ['promotion_id', 'promo_code', 'promo_percentage',
+							'dt_start', 'dt_end', 'has_event', 'is_used']
+	column_formatters = {
+		'promo_percentage' : lambda v, c, m, p: '{}%'.format(m.promo_percentage),
+		'dt_start' : lambda v, c, m, p: m.dt_start.strftime('%d/%b/%Y - %H:%M %p'),
+		'dt_end' : lambda v, c, m, p: m.dt_end.strftime('%d/%b/%Y - %H:%M %p')
+	}
+
+	# Details View Settings
+	column_details_list = [ 'promotion_id', 'promo_code', 'payments', 'event_pairings']
+	column_details_labels = { 'event_pairings' : 'events' }
+
+	# Filters
+	column_filters = ['promo_percentage',
+					  utils.BooleanFilter(column=Promotion.has_event, name='Has Event'),
+					  utils.BooleanFilter(column=Promotion.is_used, name='Is Used')]
+	column_filter_labels = { 'promo_percentage' : 'discount',
+							 'is_used' : 'is used'}
+
+	def scaffold_filters(self, name):
+		filters = super().scaffold_filters(name)
+		if name in self.column_filter_labels:
+			for f in filters:
+				f.name = self.column_filter_labels[name]
+		return filters
+
+	# Create/Edit form settings
+	form_rules = ['promo_code', 'promo_percentage', 'dt_start', 'dt_end']
+	form_args = dict(promo_percentage=dict(validators=[NumberRange(min=1, max=100,
+										message='Discount must be between 1 - 100.')]))
+
+	# Perform data validation when creating/editing a promotion
+	def on_model_change(self, form, model, is_created):
+		if model.dt_start > model.dt_end:
+			raise ValidationError('Start date must be earlier than end date.')
+		elif model.dt_start < datetime.now() or model.dt_end < datetime.now():
+			raise ValidationError('Dates must be later than current time.')
+
+		if not is_created:
+			if model.is_used and form.promo_percentage.object_data != form.promo_percentage.data:
+				raise ValidationError('Cannot change discount value for promotions applied by users.')
+
+			# Check updated record's start date does not come after associate event's last day
+			if model.has_event:
+				start_date = model.dt_start.date()
+				for ep in model.event_pairings:
+					valid_before_event = False
+					slots = EventSlot.query.filter(EventSlot.event_id == ep.event_id)\
+										   .order_by(EventSlot.event_date).all()
+
+					for slot in slots:
+						last_date = slot.event_date.date()
+						if last_date > start_date:
+							valid_before_event = True
+
+					if not valid_before_event:
+						msg = 'Promotion applicable to [ {} ] '
+						msg += 'but effective start date [ {} ] '
+						msg += 'not before last day of event [ {} ].'
+						raise ValidationError(msg.format(ep.event.title, start_date, last_date))
+
+	# Perform data validation when deleting a promotion
+	def on_model_delete(self, model):
+		if model.is_used:
+			raise ValidationError('Cannot delete promotions applied by users.')
+		# Delete all EventPromotions linked to this promotion
+		elif model.has_event:
+			eps = EventPromotion.query.filter_by(promotion_id=model.promotion_id).all()
+			for ep in eps:
+				try:
+					db.session.delete(ep)
+				except Exception as e:
+					print(e) 	## Need better error logging (log to file)
+					db.session.rollback()
+					raise ValidationError('Error removing associated EventPromotion. Halt delete.')
+
+		try:
+			db.session.commit()
+		except Exception as e:
+			print(e)
+			db.session.rollback()
+			raise ValidationError('Error removing associated EventPromotion. Halt delete.')
+
+
+
+class StaffEPView(StaffBaseView):
+	column_list = ['event', 'promotion', 'is_active']
+	column_labels = {'is_active' : 'Active'}
+	column_sortable_list = [ ('event', 'event.event_id'),
+							 ('promotion', 'promotion.promotion_id'),
+							 'is_active' ]
 
 
 class AdminUserView(AdminBaseView):
