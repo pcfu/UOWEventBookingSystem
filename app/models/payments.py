@@ -47,6 +47,9 @@ class Promotion(db.Model):
 	payments = db.relationship('Payment', back_populates='promotion')
 	event_pairings = db.relationship('EventPromotion', back_populates='promotion')
 
+	def __repr__(self):
+		return '[ PROID:{:0>4} ] {}'.format(self.promotion_id, self.promo_code)
+
 
 class EventPromotion(db.Model):
 	event_id = db.Column(db.Integer, ForeignKey('event.event_id'), primary_key=True)

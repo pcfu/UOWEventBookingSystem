@@ -253,20 +253,21 @@ class StaffPaymentView(StaffBaseView):
 	can_edit = False
 	can_delete = False
 	column_display_pk = True
-	column_list = ['payment_id', 'booking_id', 'booking.user',
-				   'booking.slot', 'booking.quantity', 'quantity',
-				   'amount', 'total_refund_qty', 'is_cancelled', 'card_number']
-	column_sortable_list = ['payment_id', 'booking_id',
-							('booking.user', 'booking.user.username'),
+	column_list = ['payment_id', 'booking_id', 'booking.user', 'booking.slot',
+				   'booking.quantity', 'quantity', 'amount', 'promotion',
+				   'total_refund_qty', 'is_cancelled', 'card_number']
+	column_sortable_list = [('booking.user', 'booking.user.username'),
 							('booking.slot', 'booking.slot.slot_id'),
-							'booking.quantity', 'quantity', 'amount',
-							'total_refund_qty', 'is_cancelled']
+							('promotion', 'promotion.promotion_id'),
+							'payment_id', 'booking_id', 'booking.quantity',
+							'quantity', 'amount', 'total_refund_qty', 'is_cancelled']
 	column_labels = { 'payment_id' : 'ID',
 					  'booking_id' : 'Booking ID',
 					  'booking.user' : 'User',
 					  'booking.slot' : 'Slot',
 					  'booking.quantity' : 'Booking Qty',
 					  'amount' : 'Amount Paid',
+					  'promotion' : 'Applied Promo',
 					  'quantity' : 'Payment Qty',
 					  'total_refund_qty' : 'Refund Qty',
 					  'is_cancelled' : 'Cancelled' }
@@ -274,11 +275,14 @@ class StaffPaymentView(StaffBaseView):
 
 	# Filters
 	column_filters = ['booking_id', 'booking.user.username', 'booking.user.user_id',
-					  'booking.slot.slot_id', 'amount',
+					  'booking.slot.slot_id', 'amount', 'promotion.promo_code',
+					  'promotion.promotion_id',
 					  BooleanFilter(column=Payment.is_cancelled, name='Cancelled')]
 	column_filter_labels = { 'booking.user.username' : 'username',
 							 'booking.user.user_id' : 'user id',
-							 'booking.slot.slot_id' : 'slot id'}
+							 'booking.slot.slot_id' : 'slot id',
+							 'promotion.promo_code' : 'promo code',
+							 'promotion.promotion_id' : 'promotion id'}
 
 	def scaffold_filters(self, name):
 		filters = super().scaffold_filters(name)
