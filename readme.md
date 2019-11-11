@@ -1,6 +1,6 @@
 # CSIT214 - Event Booking System
 
-This repository contains the prototype for CSIT214's Event Booking System for my group. It uses Flask micro framework for web services and Flask-SQLAlchemy (for now)
+This repository contains the prototype for CSIT214's Event Booking System for my group. It uses Flask micro framework for web services and Flask-SQLAlchemy
 
 ## Installation
 
@@ -25,14 +25,13 @@ http://localhost:4000/ to access the website
 
 
 ## Tasks
-1. Implement Payment model to track payment records for successful bookings
-2. Page for user to view, amend or cancel bookings
-3. Adding payments when increasing booking quantity from user's booking page - updating entry in db
-4. Implement Refund model for refunds
-5. Issuing refund when decreasing quantity from user's booking page - updating entry in db
-6. Promotion codes for bookings (Promotion model)
-7. Account page for users to change email, password, etc etc.
-8. Fix CVV validation for month if current_year = year but entered month is < current_month
+1. Newly registered users (and thereafter logged in) are not tracked in LoginHistory - needs to add an entry on redirect
+2. Search for 'TYPE' in search bar should be HTML Select - have to query Venue table and populate select options with Venue
+3. Logged in account stays logged in - will have to initiate some sort of onunload to disconnect connected user after leaving the website/closing browser
+4. onchange for some HTML input button types to be changed to oninput, specifically for payments 'Apply' and 'Pay'
+5. Optional details in Payment page when not entered correctly does not prompt error - need to relook into validations that is currently disabled as well
+6. Setting rules for account names with regex, and special exceptions such as null or none or nil etc.
+7. Once the above (prioritized and chosen) tasks are done, a major cleanup will be required - HTML requires segregation with inline css styling as much as possible, JS to live separately in /js/. Flask end will have to deal with code block segmentation and categorizing for organization.
 
 
 ## Contributing
