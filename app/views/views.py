@@ -331,6 +331,7 @@ class StaffRefundView(StaffBaseView):
 							'quantity', 'refund_amount']
 	column_labels = {'refund_id' : 'ID',
 					 'quantity' : 'Refund Qty'}
+
 	column_formatters = {
 		'refund_amount' : lambda v, c, m, p: '${:.2f}'.format(m.refund_amount)
 	}
@@ -346,6 +347,24 @@ class StaffRefundView(StaffBaseView):
 			for f in filters:
 				f.name = self.column_filter_labels[name]
 		return filters
+
+
+class StaffPromotionView(StaffBaseView):
+	# List View Settings
+	column_display_pk = True
+	column_list = ['promotion_id', 'promo_code', 'promo_percentage',
+				   'dt_start', 'dt_end']
+	column_labels = { 'promotion_id' : 'ID',
+					  'promo_code' : 'Code',
+					  'promo_percentage' : 'Discount',
+					  'dt_start' : 'Start Date',
+					  'dt_end' : 'End Date'}
+
+	column_formatters = {
+		'promo_percentage' : lambda v, c, m, p: '{}%'.format(m.promo_percentage),
+		'dt_start' : lambda v, c, m, p: m.dt_start.strftime('%d/%b/%Y - %H:%M %p'),
+		'dt_end' : lambda v, c, m, p: m.dt_end.strftime('%d/%b/%Y - %H:%M %p')
+	}
 
 
 class AdminUserView(AdminBaseView):
