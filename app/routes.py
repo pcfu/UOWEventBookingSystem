@@ -307,7 +307,8 @@ def payment():
 	payment = session['payment_due']
 	payment['title'] = Event.query.get(payment['event_id']).title
 	payment['time'] = EventSlot.query.get(payment['slot_id']).event_date
-	payment['promo_id'] = None
+	if not 'promo_id' in payment:
+		payment['promo_id'] = None
 
 	form = PaymentForm()
 	form.promo.promo_event_id.data = payment['event_id']
@@ -319,8 +320,6 @@ def payment():
 		base_price = Event.query.get(payment['event_id']).price
 		discount = promo_record.promo_percentage
 		payment['price'] =  base_price * (1-discount/100)
-		''' Note: calculate from base price so users cannot repeatedly refresh
-			the page and re-apply code to reduce price to 0 '''
 		payment['promo_id'] = promo_record.promotion_id
 		form.promo.current_code_applied.data = form.promo.promo_code.data
 		form.promo.promo_code.data = None
