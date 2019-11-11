@@ -40,7 +40,7 @@
 			<div class="col">
 			  <p>
 				<!-- Promotion code entry field -->
-				{{ form.promo.promo_code(onchange="promo_data_check(this)", style="width:120px") }}
+				{{ form.promo.promo_code(oninput="promo_data_check(this)", style="width:120px") }}
 				<!-- Promotion apply button -->
 				{{ form.promo.apply_promo(disabled="", class="btn btn-primary", onclick="promo_clicked()", formnovalidate="formnovalidate", style="width:80px") }}
 				<!-- Print promo error messages -->
@@ -67,7 +67,7 @@
 			</div>
 			<div class="col">
 			  <p>
-				{{ form.card_number(onchange="payment_data_check()", maxlength=16) }}
+				{{ form.card_number(oninput="payment_data_check()", maxlength=16) }}
 			  </p>
 			</div>
 		  </div>
@@ -86,8 +86,8 @@
 			</div>
 			<div class="col-2">
 			  <p>
-				{{ form.expire_month(onchange="payment_data_check()", style="width:50px", maxlength=2) }}
-				{{ form.expire_year(onchange="payment_data_check()", style="width:50px", maxlength=2) }}
+				{{ form.expire_month(oninput="payment_data_check()", style="width:50px", maxlength=2) }}
+				{{ form.expire_year(oninput="payment_data_check()", style="width:50px", maxlength=2) }}
 			  </p>
 			</div>
 			<div class="test" style="width:50px;">
@@ -97,7 +97,7 @@
 			</div>
 			<div class="col">
 			  <p>
-				{{ form.cvv(onchange="payment_data_check()", style="width:75px", minlength=3, maxlength=3) }}
+				{{ form.cvv(oninput="payment_data_check()", style="width:75px", minlength=3, maxlength=3) }}
 			  </p>
 			</div>
 		  </div>
@@ -119,7 +119,7 @@
 			</div>
 			<div class="col">
 			  <p>
-				{{ form.name_on_card(pattern="[a-zA-Z-]*", onchange="payment_data_check()") }}
+				{{ form.name_on_card(pattern="[a-zA-Z-]*", oninput="payment_data_check()") }}
 			  </p>
 			</div><br>
 			<!-- Print errors in name -->
