@@ -38,10 +38,10 @@ class Payment(db.Model):
 
 class Promotion(db.Model):
 	promotion_id = db.Column(db.Integer, primary_key=True)
-	promo_percentage = db.Column(db.Integer)
-	dt_start = db.Column(db.DateTime)
-	dt_end = db.Column(db.DateTime)
-	promo_code = db.Column(db.String)
+	promo_percentage = db.Column(db.Integer, nullable=False)
+	dt_start = db.Column(db.DateTime, nullable=False)
+	dt_end = db.Column(db.DateTime, nullable=False)
+	promo_code = db.Column(db.String, nullable=False)
 
 	payments = db.relationship('Payment', back_populates='promotion')
 	event_pairings = db.relationship('EventPromotion', back_populates='promotion')
