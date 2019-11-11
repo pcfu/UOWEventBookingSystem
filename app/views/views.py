@@ -1,5 +1,6 @@
 from app import db
 from app.models.events import Event, EventSlot
+from app.models.payments import Payment
 from app.models.booking import Booking
 from app.models.logs import LoginHistory, LogoutHistory
 from flask import redirect, url_for
@@ -10,8 +11,9 @@ from flask_admin.form.upload import ImageUploadField
 from wtforms.validators import DataRequired, NumberRange, ValidationError, Email
 from app.forms.custom_validators import Interval, DateInRange
 from app.views.utils import is_staff_user, is_admin_user, event_view_formatter, \
-							check_slot_clash, check_event_active_slots, \
-							img_filename_gen, FilterNull, FilterRegularUsers, \
+							payment_view_formatter, check_slot_clash, \
+							check_event_active_slots, img_filename_gen, \
+							FilterNull, BooleanFilter, FilterRegularUsers, \
 							FilterStaffUsers, FilterAdminUsers
 from sqlalchemy.sql import func
 from datetime import date, timedelta
@@ -81,6 +83,8 @@ class StaffEventView(StaffBaseView):
 	column_sortable_list = ['event_id', 'has_active_slots', 'is_launched',
 							'title', ('event_type', 'event_type.name'),
 							('venue', 'venue.name'), 'capacity', 'duration', 'price']
+
+	# Filters
 	column_filters = ['is_launched', 'title', 'event_type', 'venue', 'capacity',
 					  'duration', 'price', FilterNull(column=Event.img_root,
 													  name='has image')]
@@ -163,8 +167,9 @@ class StaffEventSlotView(StaffBaseView):
 							('event.venue', 'event.venue.name'), 'event_date',
 							'start_time', 'end_time', 'vacancy', 'num_bookings']
 	column_type_formatters = event_view_formatter
-	column_filters = [FilterNull(column=EventSlot.is_active, name='Active'),
-					  'event', 'event_date', 'num_bookings']
+
+	# Filters
+	column_filters = ['is_active', 'event', 'event_date', 'num_bookings']
 	column_filter_labels = dict(event='Event', num_bookings='Total Bookings')
 
 	def scaffold_filters(self, name):
@@ -223,6 +228,8 @@ class StaffBookingView(StaffBaseView):
 							'quantity']
 	column_labels = { 'booking_id' : 'ID',
 					  'slot.event' : 'Event' }
+
+	# Filters
 	column_filters = ['user.username', 'user.user_id', 'slot.event_date',
 					  'slot.slot_id', 'slot.event.title', 'slot.event.event_id']
 	column_filter_labels = { 'user.username' : 'username',
@@ -244,25 +251,41 @@ class StaffPaymentView(StaffBaseView):
 	# List View Settings
 	can_create = False
 	can_edit = False
-	can_delete = True
+	can_delete = False
 	column_display_pk = True
 	column_list = ['payment_id', 'booking_id', 'booking.user',
 				   'booking.slot', 'booking.quantity', 'quantity',
-				   'amount', 'total_refund_qty', 'card_number']
-	column_sortable_list = ['payment_id',
-							'booking_id',
+				   'amount', 'total_refund_qty', 'is_cancelled', 'card_number']
+	column_sortable_list = ['payment_id', 'booking_id',
 							('booking.user', 'booking.user.username'),
 							('booking.slot', 'booking.slot.slot_id'),
-							'booking.quantity',
-							'quantity',
-							'total_refund_qty']
+							'booking.quantity', 'quantity', 'amount',
+							'total_refund_qty', 'is_cancelled']
 	column_labels = { 'payment_id' : 'ID',
-					  'booking_id' : 'Booking#',
+					  'booking_id' : 'Booking ID',
 					  'booking.user' : 'User',
 					  'booking.slot' : 'Slot',
-					  'booking.quantity' : 'Total BK Qty',
+					  'booking.quantity' : 'Booking Qty',
+					  'amount' : 'Amount Paid',
 					  'quantity' : 'Payment Qty',
-					  'total_refund_qty' : 'Refunded'}
+					  'total_refund_qty' : 'Refund Qty',
+					  'is_cancelled' : 'Cancelled' }
+	column_type_formatters = payment_view_formatter
+
+	# Filters
+	column_filters = ['booking_id', 'booking.user.username', 'booking.user.user_id',
+					  'booking.slot.slot_id', 'amount',
+					  BooleanFilter(column=Payment.is_cancelled, name='Cancelled')]
+	column_filter_labels = { 'booking.user.username' : 'username',
+							 'booking.user.user_id' : 'user id',
+							 'booking.slot.slot_id' : 'slot id'}
+
+	def scaffold_filters(self, name):
+		filters = super().scaffold_filters(name)
+		if name in self.column_filter_labels:
+			for f in filters:
+				f.name = self.column_filter_labels[name]
+		return filters
 
 
 class AdminUserView(AdminBaseView):
@@ -302,6 +325,8 @@ class AdminLoginHistoryView(AdminBaseView):
 	column_sortable_list = ['in_id', 'timestamp',
 							('user', 'user.username'),
 							('admin', 'admin.username')]
+
+	# Filters
 	column_filters = [ 'user.username', 'admin.username',
 					   FilterRegularUsers(LoginHistory.is_regular, 'user type',
 										options=(('1', 'Yes'), ('0', 'No'))),
@@ -331,6 +356,8 @@ class AdminLogoutHistoryView(AdminBaseView):
 	column_sortable_list = ['out_id', 'timestamp',
 							('user', 'user.username'),
 							('admin', 'admin.username')]
+
+	# Filters
 	column_filters = [ 'user.username', 'admin.username',
 					   FilterRegularUsers(LogoutHistory.is_regular, 'user type',
 										options=(('1', 'Yes'), ('0', 'No'))),

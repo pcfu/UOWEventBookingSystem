@@ -1,7 +1,7 @@
 from app import db
 from app.models.users import User, Admin
 from app.models.events import Event
-from flask_admin.contrib.sqla.filters import BaseSQLAFilter, FilterEmpty
+from flask_admin.contrib.sqla.filters import BaseSQLAFilter, BooleanEqualFilter, FilterEmpty
 from flask_admin.babel import lazy_gettext
 from flask_login import current_user
 from sqlalchemy.sql import literal_column
@@ -15,6 +15,17 @@ from os import path
 class FilterNull(FilterEmpty):
 	def operation(self):
 		return lazy_gettext('is NULL')
+
+
+class BooleanFilter(BooleanEqualFilter):
+	def apply(self, query, value, alias=None):
+		if value == '1':
+			return query.filter(self.column == True)
+		else:
+			return query.filter(self.column == False)
+
+	def operation(self):
+		return 'is true'
 
 
 class FilterRegularUsers(BaseSQLAFilter):
@@ -73,6 +84,12 @@ event_view_formatter = dict(typefmt.BASE_FORMATTERS)
 event_view_formatter.update({ type(None): typefmt.null_formatter,
 							  date: date_format })
 
+def price_format(view, value):
+	return '${:.2f}'.format(value)
+
+payment_view_formatter = dict(typefmt.BASE_FORMATTERS)
+payment_view_formatter.update({ type(None): typefmt.null_formatter,
+								float: price_format })
 
 # Helper Function for ImageUploadField in forms
 def img_filename_gen(obj, file_data):

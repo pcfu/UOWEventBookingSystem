@@ -32,6 +32,10 @@ class Payment(db.Model):
 				 .where(Refund.payment_id == cls.payment_id)\
 				 .correlate(cls)
 
+	@hybrid_property
+	def is_cancelled(self):
+		return self.quantity == self.total_refund_qty
+
 
 class Promotion(db.Model):
 	promotion_id = db.Column(db.Integer, primary_key=True)

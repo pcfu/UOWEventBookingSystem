@@ -104,8 +104,7 @@ class EventSlot(db.Model):
 	@is_launched.expression
 	def is_launched(cls):
 		return db.exists().where(db.and_(Event.event_id == cls.event_id,
-										 Event.is_launched == True))\
-						  .correlate(cls)
+										 Event.is_launched == True)).correlate(cls)
 
 	@hybrid_property
 	def vacancy(self):
