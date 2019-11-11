@@ -10,10 +10,11 @@ from wtforms import StringField
 from flask_admin.form.upload import ImageUploadField
 from wtforms.validators import DataRequired, NumberRange, ValidationError, Email
 from app.forms.custom_validators import Interval, DateInRange
+from app.views import utils
 from app.views.utils import is_staff_user, is_admin_user, event_view_formatter, \
 							payment_view_formatter, check_slot_clash, \
 							check_event_active_slots, img_filename_gen, \
-							FilterNull, BooleanFilter, FilterRegularUsers, \
+							BooleanFilter, FilterRegularUsers, \
 							FilterStaffUsers, FilterAdminUsers
 from sqlalchemy.sql import func
 from datetime import date, timedelta
@@ -85,9 +86,9 @@ class StaffEventView(StaffBaseView):
 							('venue', 'venue.name'), 'capacity', 'duration', 'price']
 
 	# Filters
-	column_filters = ['is_launched', 'title', 'event_type', 'venue', 'capacity',
-					  'duration', 'price', FilterNull(column=Event.img_root,
-													  name='has image')]
+	column_filters = ['is_launched', 'title', 'event_type',
+					  'venue', 'capacity', 'duration', 'price',
+					  utils.FilterNull(column=Event.img_root, name='has image')]
 	column_filter_labels = dict(event_type='Type', venue='Venue')
 
 	def scaffold_filters(self, name):
@@ -271,7 +272,17 @@ class StaffPaymentView(StaffBaseView):
 					  'quantity' : 'Payment Qty',
 					  'total_refund_qty' : 'Refund Qty',
 					  'is_cancelled' : 'Cancelled' }
-	column_type_formatters = payment_view_formatter
+
+	def format_applied_promo(view, context, model, name):
+		if not model.promotion:
+			return 'NONE'
+		else:
+			return model.promotion
+
+	column_formatters = {
+		'amount' : lambda v, c, m, p: '${:.2f}'.format(m.amount),
+		'promotion' : format_applied_promo
+	}
 
 	# Filters
 	column_filters = ['booking_id', 'booking.user.username', 'booking.user.user_id',
@@ -298,8 +309,26 @@ class StaffRefundView(StaffBaseView):
 	can_edit = False
 	can_delete = False
 	column_display_pk = True
-	column_list = ['refund_id', 'payment_id', 'payment', 'quantity']
-	column_labels = {'refund_id' : 'ID'}
+	column_list = ['refund_id', 'payment', 'quantity', 'refund_amount']
+	column_sortable_list = ['refund_id', ('payment', 'payment.payment_id'),
+							'quantity', 'refund_amount']
+	column_labels = {'refund_id' : 'ID',
+					 'quantity' : 'Refund Qty'}
+	column_formatters = {
+		'refund_amount' : lambda v, c, m, p: '${:.2f}'.format(m.refund_amount)
+	}
+
+	# Filters
+	column_filters = ['payment.payment_id', 'payment.booking_id', 'refund_amount']
+	column_filter_labels = { 'payment.payment_id' : 'payment id',
+							 'payment.booking_id' : 'booking id' }
+
+	def scaffold_filters(self, name):
+		filters = super().scaffold_filters(name)
+		if name in self.column_filter_labels:
+			for f in filters:
+				f.name = self.column_filter_labels[name]
+		return filters
 
 
 class AdminUserView(AdminBaseView):

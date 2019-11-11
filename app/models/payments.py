@@ -16,8 +16,7 @@ class Payment(db.Model):
 	refunds = db.relationship('Refund', back_populates='payment')
 
 	def __repr__(self):
-		return 'Payment No: {}\nBooking ID: {}'\
-			.format(self.payment_id, self.booking_id)
+		return '[ PAYID:{:0>4} ] ----- [ BID:{:0>4} ]'.format(self.payment_id, self.booking_id)
 
 	@hybrid_property
 	def total_refund_qty(self):
@@ -69,3 +68,12 @@ class Refund(db.Model):
 
 	def __repr__(self):
 		return '[ RID:{} ] ----- Quantity: {}'.format(self.refund_id, self.quantity)
+
+	@hybrid_property
+	def refund_amount(self):
+		return self.payment.amount / self.payment.quantity * self.quantity
+
+	@refund_amount.expression
+	def refund_amount(cls):
+		return db.select([Payment.amount / Payment.quantity * cls.quantity])\
+				 .where(Payment.payment_id == cls.payment_id).correlate(cls).as_scalar()
