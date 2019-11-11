@@ -1,5 +1,5 @@
 from app import db
-from sqlalchemy import ForeignKey, case, func
+from sqlalchemy import ForeignKey
 from sqlalchemy.ext.hybrid import hybrid_property
 
 
@@ -50,6 +50,18 @@ class Promotion(db.Model):
 		return '[ PROID:{:0>4} ] {}'.format(self.promotion_id, self.promo_code)
 
 	@hybrid_property
+	def has_event(self):
+		return len(self.event_pairings) > 0
+
+	@has_event.expression
+	def has_event(cls):
+		return db.select([
+					db.case([(db.func.count(EventPromotion.promotion_id) > 0, True)],
+							else_=False)
+				]).where(EventPromotion.promotion_id == cls.promotion_id)\
+				 .correlate(cls).as_scalar()
+
+	@hybrid_property
 	def is_used(self):
 		return len(self.payments) > 0
 
@@ -58,7 +70,8 @@ class Promotion(db.Model):
 		return db.select([
 					db.case([(db.func.count(Payment.promotion_id) > 0, True)],
 							else_=False)
-				]).where(Payment.promotion_id == cls.promotion_id).correlate(cls)
+				]).where(Payment.promotion_id == cls.promotion_id)\
+				 .correlate(cls).as_scalar()
 
 
 class EventPromotion(db.Model):
@@ -68,6 +81,11 @@ class EventPromotion(db.Model):
 
 	event = db.relationship('Event', back_populates='promo_pairings')
 	promotion = db.relationship('Promotion', back_populates='event_pairings')
+
+	def __repr__(self):
+		return '[ EID:{:0>4} ] {} ----- [ PROID:{:0>4} ] {}'\
+			.format(self.event_id, self.event.title,
+					self.promotion_id, self.promotion.promo_code)
 
 
 class Refund(db.Model):
