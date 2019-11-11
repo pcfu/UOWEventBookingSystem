@@ -61,11 +61,11 @@ with warnings.catch_warnings():
 	warnings.filterwarnings('ignore', 'Fields missing from ruleset', UserWarning)
 	admin.add_view(views.StaffEventView(events.Event, db.session, category='Events'))
 	admin.add_view(views.StaffEventSlotView(events.EventSlot, db.session, category='Events'))
+admin.add_view(views.StaffBaseView(payments.Promotion, db.session, category='Promotions'))
+admin.add_view(views.StaffBaseView(payments.EventPromotion, db.session, category='Promotions'))
 admin.add_view(views.StaffBookingView(booking.Booking, db.session))
 admin.add_view(views.StaffPaymentView(payments.Payment, db.session, category='Payments'))
 admin.add_view(views.StaffBaseView(payments.Refund, db.session, category='Payments'))
-admin.add_view(views.StaffBaseView(payments.Promotion, db.session, category='Payments'))
-admin.add_view(views.StaffBaseView(payments.EventPromotion, db.session, category='Payments'))
 
 # Add administrator views
 with warnings.catch_warnings():
