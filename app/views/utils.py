@@ -77,24 +77,6 @@ def is_admin_user():
 	return admin is not None
 
 
-def date_format(view, value):
-    return value.strftime('%d / %b / %Y')
-
-def price_format(view, value):
-	return '${:.2f}'.format(value)
-
-event_view_formatter = dict(typefmt.BASE_FORMATTERS)
-event_view_formatter.update({ type(None): typefmt.null_formatter,
-							  date: date_format })
-
-payment_view_formatter = dict(typefmt.BASE_FORMATTERS)
-payment_view_formatter.update({ type(None): typefmt.null_formatter,
-								float: price_format })
-
-refund_view_formatter = dict(typefmt.BASE_FORMATTERS)
-refund_view_formatter.update({ type(None): typefmt.null_formatter,
-							   float: price_format })
-
 # Helper Function for ImageUploadField in forms
 def img_filename_gen(obj, file_data):
 	idx = ''

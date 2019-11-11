@@ -3,7 +3,6 @@ from app.models.events import Event, EventSlot
 from app.models.payments import Payment
 from app.models.booking import Booking
 from app.models.logs import LoginHistory, LogoutHistory
-from flask import redirect, url_for
 from flask_admin import AdminIndexView
 from flask_admin.contrib.sqla import ModelView, filters
 from wtforms import StringField
@@ -11,20 +10,17 @@ from flask_admin.form.upload import ImageUploadField
 from wtforms.validators import DataRequired, NumberRange, ValidationError, Email
 from app.forms.custom_validators import Interval, DateInRange
 from app.views import utils
-from app.views.utils import is_staff_user, is_admin_user, event_view_formatter, \
-							payment_view_formatter, check_slot_clash, \
-							check_event_active_slots, img_filename_gen, \
-							BooleanFilter, FilterRegularUsers, \
-							FilterStaffUsers, FilterAdminUsers
+from flask import redirect, url_for
 from sqlalchemy.sql import func
 from datetime import date, timedelta
 from pathlib import Path
 from os import path
+import math
 
 
 class GlobalIndexView(AdminIndexView):
 	def is_accessible(self):
-		return is_admin_user() or is_staff_user()
+		return utils.is_admin_user() or utils.is_staff_user()
 
 	def inaccessible_callback(self, name, **kwargs):
 		return redirect(url_for('staff_login'))
@@ -32,20 +28,20 @@ class GlobalIndexView(AdminIndexView):
 
 class StaffBaseView(ModelView):
 	def is_accessible(self):
-		return is_staff_user()
+		return utils.is_staff_user()
 
 	def inaccessible_callback(self, name, **kwargs):
-		if is_admin_user():
+		if utils.is_admin_user():
 			return redirect(url_for('admin.index'))
 		return redirect(url_for('staff_login'))
 
 
 class AdminBaseView(ModelView):
 	def is_accessible(self):
-		return is_admin_user()
+		return utils.is_admin_user()
 
 	def inaccessible_callback(self, name, **kwargs):
-		if is_staff_user():
+		if utils.is_staff_user():
 			return redirect(url_for('admin.index'))
 		return redirect(url_for('staff_login'))
 
@@ -78,12 +74,28 @@ class StaffEventView(StaffBaseView):
 					'duration', 'price', 'img_root' ]
 	column_labels = dict(has_active_slots='Active Slots', is_launched='Launched',
 						 event_id='ID', event_type='Type',
-						 duration='Duration (H)', img_root='Image File')
+						 duration='Duration', img_root='Image File')
 	column_editable_list = ['is_launched', 'title', 'event_type', 'venue',
 							'capacity', 'duration', 'price']
 	column_sortable_list = ['event_id', 'has_active_slots', 'is_launched',
 							'title', ('event_type', 'event_type.name'),
 							('venue', 'venue.name'), 'capacity', 'duration', 'price']
+
+	def price_formatter(view, context, model, name):
+		if model.price == 0.0:
+			return 'FREE'
+		else:
+			return '${:.2f}'.format(model.price)
+
+	def duration_formatter(view, context, model, name):
+		hours = math.floor(model.duration)
+		minutes = (model.duration - hours) * 60
+		return '{:0>2}:{:0>2} hours'.format(hours, math.floor(minutes))
+
+	column_formatters = {
+		'price' : price_formatter,
+		'duration' : duration_formatter
+	}
 
 	# Filters
 	column_filters = ['is_launched', 'title', 'event_type',
@@ -106,7 +118,7 @@ class StaffEventView(StaffBaseView):
 						 	ImageUploadField('Upload image',
 							base_path=upload_path,
 							thumbnail_size=(200, 200, True),
-							namegen=img_filename_gen)
+							namegen=utils.img_filename_gen)
 						}
 	form_columns = [ 'title', 'event_type', 'description', 'venue', 'capacity',
 					 'duration', 'price', 'img_root', 'path', 'is_launched' ]
@@ -137,7 +149,7 @@ class StaffEventView(StaffBaseView):
 							.filter(func.Date(EventSlot.event_date) ==
 									func.Date(new_start)).all()
 
-				check_slot_clash(schedule, timing, slot.slot_id)
+				utils.check_slot_clash(schedule, timing, slot.slot_id)
 		elif model.is_launched:
 			raise ValidationError('Cannot launch event with no active slots.')
 
@@ -167,7 +179,11 @@ class StaffEventSlotView(StaffBaseView):
 							('event', 'event.title'),
 							('event.venue', 'event.venue.name'), 'event_date',
 							'start_time', 'end_time', 'vacancy', 'num_bookings']
-	column_type_formatters = event_view_formatter
+
+	def date_format(view, context, model, name):
+		return model.event_date.strftime('%d/%b/%Y')
+
+	column_formatters = { 'event_date' : date_format }
 
 	# Filters
 	column_filters = ['is_active', 'event', 'event_date', 'num_bookings']
@@ -205,14 +221,14 @@ class StaffEventSlotView(StaffBaseView):
 		schedule = db.session.query(Event, EventSlot)\
 					.join(EventSlot, Event.event_id == EventSlot.event_id)\
 					.filter(Event.venue == new_venue).all()
-		check_slot_clash(schedule, timing, model.slot_id)
-		check_event_active_slots(model.event_id)
+		utils.check_slot_clash(schedule, timing, model.slot_id)
+		utils.check_event_active_slots(model.event_id)
 
 	# Perform data validation when deleting a slot
 	def on_model_delete(self, model):
 		if model.bookings:
 			raise ValidationError('Cannot delete a slot that has bookings.')
-		check_event_active_slots(model.event_id, sid=model.slot_id, mode='delete')
+		utils.check_event_active_slots(model.event_id, sid=model.slot_id, mode='delete')
 
 
 class StaffBookingView(StaffBaseView):
@@ -231,12 +247,12 @@ class StaffBookingView(StaffBaseView):
 					  'slot.event' : 'Event' }
 
 	# Filters
-	column_filters = ['user.username', 'user.user_id', 'slot.event_date',
-					  'slot.slot_id', 'slot.event.title', 'slot.event.event_id']
+	column_filters = ['user.username', 'user.user_id', 'slot.slot_id',
+					  'slot.event_date', 'slot.event.title', 'slot.event.event_id']
 	column_filter_labels = { 'user.username' : 'username',
 							 'user.user_id' : 'user id',
-							 'slot.event_date' : 'event date',
 							 'slot.slot_id' : 'slot id',
+							 'slot.event_date' : 'event date',
 							 'slot.event.title' : 'event name',
 							 'slot.event.event_id' : 'event id'}
 
@@ -288,7 +304,8 @@ class StaffPaymentView(StaffBaseView):
 	column_filters = ['booking_id', 'booking.user.username', 'booking.user.user_id',
 					  'booking.slot.slot_id', 'amount', 'promotion.promo_code',
 					  'promotion.promotion_id',
-					  BooleanFilter(column=Payment.is_cancelled, name='Cancelled')]
+					  utils.BooleanFilter(column=Payment.is_cancelled,
+										  name='Cancelled')]
 	column_filter_labels = { 'booking.user.username' : 'username',
 							 'booking.user.user_id' : 'user id',
 							 'booking.slot.slot_id' : 'slot id',
@@ -371,12 +388,12 @@ class AdminLoginHistoryView(AdminBaseView):
 
 	# Filters
 	column_filters = [ 'user.username', 'admin.username',
-					   FilterRegularUsers(LoginHistory.is_regular, 'user type',
-										options=(('1', 'Yes'), ('0', 'No'))),
-   					   FilterStaffUsers(LoginHistory.is_staff, 'user type',
-										options=(('1', 'Yes'), ('0', 'No'))),
-   					   FilterAdminUsers(LoginHistory.is_admin, 'user type',
-										options=(('1', 'Yes'), ('0', 'No')))
+					   utils.FilterRegularUsers(LoginHistory.is_regular, 'user type',
+												options=(('1', 'Yes'), ('0', 'No'))),
+   					   utils.FilterStaffUsers(LoginHistory.is_staff, 'user type',
+											  options=(('1', 'Yes'), ('0', 'No'))),
+   					   utils.FilterAdminUsers(LoginHistory.is_admin, 'user type',
+											  options=(('1', 'Yes'), ('0', 'No')))
 					]
 	column_filter_labels = {'user.username' : 'user name',
 							'admin.username' : 'admin name'}
@@ -402,12 +419,12 @@ class AdminLogoutHistoryView(AdminBaseView):
 
 	# Filters
 	column_filters = [ 'user.username', 'admin.username',
-					   FilterRegularUsers(LogoutHistory.is_regular, 'user type',
-										options=(('1', 'Yes'), ('0', 'No'))),
-   					   FilterStaffUsers(LogoutHistory.is_staff, 'user type',
-										options=(('1', 'Yes'), ('0', 'No'))),
-   					   FilterAdminUsers(LogoutHistory.is_admin, 'user type',
-										options=(('1', 'Yes'), ('0', 'No')))
+					   utils.FilterRegularUsers(LogoutHistory.is_regular, 'user type',
+												options=(('1', 'Yes'), ('0', 'No'))),
+   					   utils.FilterStaffUsers(LogoutHistory.is_staff, 'user type',
+											  options=(('1', 'Yes'), ('0', 'No'))),
+   					   utils.FilterAdminUsers(LogoutHistory.is_admin, 'user type',
+											  options=(('1', 'Yes'), ('0', 'No')))
 					]
 	column_filter_labels = {'user.username' : 'user name',
 							'admin.username' : 'admin name'}
