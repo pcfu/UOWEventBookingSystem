@@ -6,7 +6,7 @@ from sqlalchemy.ext.hybrid import hybrid_property
 class Payment(db.Model):
 	payment_id = db.Column(db.Integer, primary_key=True)
 	quantity = db.Column(db.Integer, nullable=False)
-	amount = db.Column(db.Integer, nullable=False)
+	amount = db.Column(db.Float, nullable=False)
 	card_number = db.Column(db.Integer, nullable=False)
 	booking_id = db.Column(db.Integer, ForeignKey('booking.booking_id'), nullable=False)
 	promotion_id = db.Column(db.Integer, ForeignKey('promotion.promotion_id'))
