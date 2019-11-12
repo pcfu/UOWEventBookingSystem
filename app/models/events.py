@@ -59,6 +59,16 @@ class Event(db.Model):
 										 EventSlot.is_active == True))\
 						  .correlate(cls)
 
+	@property
+	def last_date(self):
+		last_date = None
+		count = 0
+		for slot in self.slots:
+			count += 1
+			if count == len(self.slots):
+				last_date = slot.event_date.date().strftime('%d/%b/%Y')
+		return last_date
+
 
 class EventSlot(db.Model):
 	slot_id = db.Column(db.Integer, primary_key=True)
