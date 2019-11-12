@@ -203,32 +203,52 @@ class StaffEventSlotView(StaffBaseView):
 	form_create_rules = ['event', 'event_date']
 	form_edit_rules = ['event', 'event_date', 'is_active']
 
+	def check_event_promo_dates(self, last_date, promo_pairings):
+		for ep in [ep for ep in promo_pairings if ep.is_active]:
+			if last_date is None or ep.promotion.date_start > last_date:
+				msg = 'Event last active day will change to [ {} ] '.format(last_date)
+				msg += 'but Promotion: {} for this event '.format(ep.promotion)
+				msg += 'only starts on [ {} ] '.format(ep.promotion.date_start)
+				raise ValidationError(msg)
+
 	# Perform data validation when creating/editing a slot
 	def on_model_change(self, form, model, is_created):
 		if is_created:
-			duration = form.event.data.duration
-			new_venue = form.event.data.venue
+			event = form.event.data
 			model.is_active = True
 		else:
 			event = Event.query.get(model.event_id)
-			duration = event.duration
-			new_venue = event.venue
 
-		new_start = model.event_date
-		new_end = new_start + timedelta(minutes=duration * 60)
-		timing = (new_start, new_end)
-
+		start = model.event_date
+		end = start + timedelta(minutes=event.duration * 60)
+		timing = (start, end)
 		schedule = db.session.query(Event, EventSlot)\
 					.join(EventSlot, Event.event_id == EventSlot.event_id)\
-					.filter(Event.venue == new_venue).all()
+					.filter(Event.venue == event.venue).all()
+
+		# Verify no slot clashes and deactivate event if no active slots left
 		utils.check_slot_clash(schedule, timing, model.slot_id)
-		utils.check_event_active_slots(model.event_id)
+		utils.check_event_active_slots(event.event_id)
+
+		# Validate promotions start dates against any changes to event last date
+		last_date = event.last_active_date
+		self.check_event_promo_dates(last_date, event.promo_pairings)
 
 	# Perform data validation when deleting a slot
 	def on_model_delete(self, model):
 		if model.bookings:
 			raise ValidationError('Cannot delete a slot that has bookings.')
 		utils.check_event_active_slots(model.event_id, sid=model.slot_id, mode='delete')
+
+		# Validate promotions start dates against any changes to event last date
+		event = Event.query.get(model.event_id)
+		last_date = None
+		for slot in event.slots:
+			if slot.slot_id != model.slot_id and slot.is_active:
+				date = slot.event_date.date()
+				if not last_date or date > last_date:
+					last_date = date
+		self.check_event_promo_dates(last_date, event.promo_pairings)
 
 
 class StaffBookingView(StaffBaseView):
@@ -352,22 +372,26 @@ class StaffPromotionView(StaffBaseView):
 	# List View Settings
 	can_view_details = True
 	column_display_pk = True
-	column_list = ['promotion_id', 'promo_code', 'promo_percentage',
-				   'date_start', 'date_end', 'has_event', 'is_used', 'events_last_date']
+	column_list = ['promotion_id', 'promo_code', 'promo_percentage', 'date_start',
+				   'date_end', 'has_active_event_promo', 'is_used', 'events_last_date']
 	column_labels = { 'promotion_id' : 'ID',
 					  'promo_code' : 'Code',
 					  'promo_percentage' : 'Discount',
 					  'date_start' : 'Start Date',
 					  'date_end' : 'End Date',
-					  'has_event' : 'Has Event',
+					  'has_active_event_promo' : 'Has Active EP',
 					  'is_used' : 'Used'}
 	column_sortable_list = ['promotion_id', 'promo_code', 'promo_percentage',
-							'date_start', 'date_end', 'has_event', 'is_used']
+							'date_start', 'date_end', 'has_active_event_promo', 'is_used']
 
 	def get_last_dates(view, context, model, name):
 		data = []
-		for ep in model.event_pairings:
-			data.append('{} [{}]'.format(ep.event.title, ep.event.last_date))
+		for ep in [ep for ep in model.event_pairings if ep.is_active]:
+			last_date = ep.event.last_active_date
+			if last_date is None:
+				data.append('{} [{}]'.format(ep.event.title, last_date))
+			else:
+				data.append('{} [{}]'.format(ep.event.title, last_date.strftime('%d/%b/%Y')))
 		return data
 
 	column_formatters = {
@@ -383,7 +407,8 @@ class StaffPromotionView(StaffBaseView):
 
 	# Filters
 	column_filters = ['promo_percentage',
-					  utils.BooleanFilter(column=Promotion.has_event, name='Has Event'),
+					  utils.BooleanFilter(column=Promotion.has_active_event_promo,
+										  name='Has Active EP'),
 					  utils.BooleanFilter(column=Promotion.is_used, name='Is Used')]
 	column_filter_labels = { 'promo_percentage' : 'discount',
 							 'is_used' : 'is used'}
@@ -411,31 +436,23 @@ class StaffPromotionView(StaffBaseView):
 			if model.is_used and form.promo_percentage.object_data != form.promo_percentage.data:
 				raise ValidationError('Cannot change discount value for promotions applied by users.')
 
-			# Check updated record's start date does not come after associate event's last day
-			if model.has_event:
-				start_date = model.date_start
-				for ep in model.event_pairings:
-					valid_before_event = False
-					slots = EventSlot.query.filter(EventSlot.event_id == ep.event_id)\
-										   .order_by(EventSlot.event_date).all()
-
-					for slot in slots:
-						last_date = slot.event_date.date()
-						if last_date >= start_date:
-							valid_before_event = True
-
-					if not valid_before_event:
-						msg = 'Promotion applicable to [ {} ] '
-						msg += 'but effective start date [ {} ] '
-						msg += 'not before last day of event [ {} ].'
-						raise ValidationError(msg.format(ep.event.title, start_date, last_date))
+			# Check updated record's start date not later than associated event's last active date
+			if model.has_active_event_promo:
+				promo_start_date = model.date_start
+				for ep in [ep for ep in model.event_pairings if ep.is_active]:
+					event_last_date = ep.event.last_active_date
+					if event_last_date is not None and promo_start_date > event_last_date:
+						msg = 'Promotion applicable to [ {} ] '.format(ep.event.title)
+						msg += 'but effective start date [ {} ] '.format(promo_start_date)
+						msg += 'not before last day of event [ {} ].'.format(event_last_date)
+						raise ValidationError(msg)
 
 	# Perform data validation when deleting a promotion
 	def on_model_delete(self, model):
 		if model.is_used:
 			raise ValidationError('Cannot delete promotions applied by users.')
 		# Delete all EventPromotions linked to this promotion
-		elif model.has_event:
+		elif model.event_pairings:
 			eps = EventPromotion.query.filter_by(promotion_id=model.promotion_id).all()
 			for ep in eps:
 				try:
@@ -445,12 +462,12 @@ class StaffPromotionView(StaffBaseView):
 					db.session.rollback()
 					raise ValidationError('Error removing associated EventPromotion. Halt delete.')
 
-		try:
-			db.session.commit()
-		except Exception as e:
-			print(e)
-			db.session.rollback()
-			raise ValidationError('Error removing associated EventPromotion. Halt delete.')
+			try:
+				db.session.commit()
+			except Exception as e:
+				print(e)
+				db.session.rollback()
+				raise ValidationError('Error removing associated EventPromotion. Halt delete.')
 
 
 
