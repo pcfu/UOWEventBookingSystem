@@ -25,12 +25,10 @@ http://localhost:4000/ to access the website
 
 
 ## Tasks
-1. Newly registered users (and thereafter logged in) are not tracked in LoginHistory - needs to add an entry on redirect
-2. Search for 'TYPE' in search bar should be HTML Select - have to query Venue table and populate select options with Venue
-3. Logged in account stays logged in - will have to initiate some sort of onunload to disconnect connected user after leaving the website/closing browser
-4. Optional details in Payment page when not entered correctly does not prompt error - need to relook into validations that is currently disabled as well
-5. Setting rules for account names with regex, and special exceptions such as null or none or nil etc.
-6. Once the above (prioritized and chosen) tasks are done, a major cleanup will be required - HTML requires segregation with inline css styling as much as possible, JS to live separately in /js/. Flask end will have to deal with code block segmentation and categorizing for organization.
+1. Search for 'TYPE' in search bar should be HTML Select - have to query Venue table and populate select options with Venue
+2. Logged in account stays logged in - will have to initiate some sort of onunload to disconnect connected user after leaving the website/closing browser
+3. Setting rules for account names with regex, and special exceptions such as null or none or nil etc.
+4. Once the above (prioritized and chosen) tasks are done, a major cleanup will be required - HTML requires segregation with inline css styling as much as possible, JS to live separately in /js/. Flask end will have to deal with code block segmentation and categorizing for organization.
 
 
 ## Contributing
