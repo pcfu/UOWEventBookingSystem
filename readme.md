@@ -25,10 +25,9 @@ http://localhost:4000/ to access the website
 
 
 ## Tasks
-1. Search for 'TYPE' in search bar should be HTML Select - have to query Venue table and populate select options with Venue
-2. Logged in account stays logged in - will have to initiate some sort of onunload to disconnect connected user after leaving the website/closing browser
-3. Setting rules for account names with regex, and special exceptions such as null or none or nil etc.
-4. Once the above (prioritized and chosen) tasks are done, a major cleanup will be required - HTML requires segregation with inline css styling as much as possible, JS to live separately in /js/. Flask end will have to deal with code block segmentation and categorizing for organization.
+1. Logged in account stays logged in - will have to initiate some sort of onunload to disconnect connected user after leaving the website/closing browser
+2. Setting rules for account names with regex, and special exceptions such as null or none or nil etc.
+3. Once the above (prioritized and chosen) tasks are done, a major cleanup will be required - HTML requires segregation with inline css styling as much as possible, JS to live separately in /js/. Flask end will have to deal with code block segmentation and categorizing for organization.
 
 
 ## Contributing
