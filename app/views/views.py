@@ -353,20 +353,20 @@ class StaffPromotionView(StaffBaseView):
 	can_view_details = True
 	column_display_pk = True
 	column_list = ['promotion_id', 'promo_code', 'promo_percentage',
-				   'dt_start', 'dt_end', 'has_event', 'is_used']
+				   'date_start', 'date_end', 'has_event', 'is_used']
 	column_labels = { 'promotion_id' : 'ID',
 					  'promo_code' : 'Code',
 					  'promo_percentage' : 'Discount',
-					  'dt_start' : 'Start Date',
-					  'dt_end' : 'End Date',
+					  'date_start' : 'Start Date',
+					  'date_end' : 'End Date',
 					  'has_event' : 'Has Event',
 					  'is_used' : 'Used'}
 	column_sortable_list = ['promotion_id', 'promo_code', 'promo_percentage',
-							'dt_start', 'dt_end', 'has_event', 'is_used']
+							'date_start', 'date_end', 'has_event', 'is_used']
 	column_formatters = {
 		'promo_percentage' : lambda v, c, m, p: '{}%'.format(m.promo_percentage),
-		'dt_start' : lambda v, c, m, p: m.dt_start.strftime('%d/%b/%Y - %H:%M %p'),
-		'dt_end' : lambda v, c, m, p: m.dt_end.strftime('%d/%b/%Y - %H:%M %p')
+		'date_start' : lambda v, c, m, p: m.date_start.strftime('%d/%b/%Y - %H:%M %p'),
+		'date_end' : lambda v, c, m, p: m.date_end.strftime('%d/%b/%Y - %H:%M %p')
 	}
 
 	# Details View Settings
@@ -388,15 +388,15 @@ class StaffPromotionView(StaffBaseView):
 		return filters
 
 	# Create/Edit form settings
-	form_rules = ['promo_code', 'promo_percentage', 'dt_start', 'dt_end']
+	form_rules = ['promo_code', 'promo_percentage', 'date_start', 'date_end']
 	form_args = dict(promo_percentage=dict(validators=[NumberRange(min=1, max=100,
 										message='Discount must be between 1 - 100.')]))
 
 	# Perform data validation when creating/editing a promotion
 	def on_model_change(self, form, model, is_created):
-		if model.dt_start > model.dt_end:
+		if model.date_start > model.date_end:
 			raise ValidationError('Start date must be earlier than end date.')
-		elif model.dt_start < datetime.now() or model.dt_end < datetime.now():
+		elif model.date_start < datetime.now() or model.date_end < datetime.now():
 			raise ValidationError('Dates must be later than current time.')
 
 		if not is_created:
@@ -405,7 +405,7 @@ class StaffPromotionView(StaffBaseView):
 
 			# Check updated record's start date does not come after associate event's last day
 			if model.has_event:
-				start_date = model.dt_start.date()
+				start_date = model.date_start.date()
 				for ep in model.event_pairings:
 					valid_before_event = False
 					slots = EventSlot.query.filter(EventSlot.event_id == ep.event_id)\
