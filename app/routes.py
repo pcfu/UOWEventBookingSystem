@@ -123,6 +123,7 @@ def register():
 		db.session.add(new_user)
 		db.session.commit()
 		login_user(new_user)
+		add_login_record()
 		return redirect(url_for('index'))
 
 	return render_template('register.html',
