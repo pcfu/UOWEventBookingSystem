@@ -60,9 +60,9 @@ class Event(db.Model):
 						  .correlate(cls)
 
 	@property
-	def last_date(self):
+	def last_active_date(self):
 		last_date = None
-		for slot in self.slots:
+		for slot in [slot for slot in self.slots if slot.is_active]:
 			if not last_date or slot.event_date.date() > last_date:
 				last_date = slot.event_date.date()
 		return last_date
