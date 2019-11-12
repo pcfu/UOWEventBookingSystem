@@ -200,9 +200,9 @@ class PromotionForm(FlaskForm):
 												promotion_id=promotion.promotion_id).first()
 			if not ep:
 				raise ValidationError('Promo code not applicable for this event')
-			elif ep.promotion.dt_start > datetime.now():
+			elif ep.promotion.date_start > date.today():
 				raise ValidationError('Promotion is not active yet')
-			elif ep.promotion.dt_end < datetime.now():
+			elif ep.promotion.date_end < date.today():
 				raise ValidationError('Promotion expired')
 
 

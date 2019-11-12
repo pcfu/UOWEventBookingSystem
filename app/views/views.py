@@ -365,8 +365,8 @@ class StaffPromotionView(StaffBaseView):
 							'date_start', 'date_end', 'has_event', 'is_used']
 	column_formatters = {
 		'promo_percentage' : lambda v, c, m, p: '{}%'.format(m.promo_percentage),
-		'date_start' : lambda v, c, m, p: m.date_start.strftime('%d/%b/%Y - %H:%M %p'),
-		'date_end' : lambda v, c, m, p: m.date_end.strftime('%d/%b/%Y - %H:%M %p')
+		'date_start' : lambda v, c, m, p: m.date_start.strftime('%d/%b/%Y'),
+		'date_end' : lambda v, c, m, p: m.date_end.strftime('%d/%b/%Y')
 	}
 
 	# Details View Settings
