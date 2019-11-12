@@ -1,3 +1,4 @@
+/* Default Widget Styles */
 * {
     box-sizing: border-box;
 }
@@ -12,6 +13,27 @@ body {
     padding: 50px;
 }
 
+
+input {
+    text-align: center;
+    background-color: #ECF0F1;
+    border: 2px solid transparent;
+    border-radius: 3px;
+    font-size: 16px;
+    font-weight: 200;
+    width: 250px;
+    transition: border .5s;
+    padding: 10px 0;
+}
+
+input:focus {
+    border: 2px solid #191919;
+    box-shadow: none;
+}
+
+/* End of Default Widget Styles */
+
+/* Page Fade Animations */
 .main-container {
   -webkit-animation: fadein 2s; /* Safari, Chrome and Opera > 12.1 */
  -moz-animation: fadein 2s; /* Firefox < 16 */
@@ -49,55 +71,9 @@ body {
     to   { opacity: 1; }
 }
 
-.login {
-    margin: 20px auto;
-    width: 300px;
-}
+/* End of Page Fade Animations */
 
-.login-screen {
-    background-color: #FFF;
-    padding: 20px;
-    border-radius: 5px
-}
-
-.title-banner {
-    text-align: center;
-    font-size: 50px;
-    font-family: Arial;
-    color: #FFF;
-    margin-bottom: 5%;
-}
-
-.app-title {
-    text-align: center;
-    color: #777;
-}
-
-.center {
-    text-align: center;
-    display: block;
-}
-
-.control-group {
-    margin-bottom: 10px;
-}
-
-input {
-    text-align: center;
-    background-color: #ECF0F1;
-    border: 2px solid transparent;
-    border-radius: 3px;
-    font-size: 16px;
-    font-weight: 200;
-    width: 250px;
-    transition: border .5s;
-    padding: 10px 0;
-}
-
-input:focus {
-    border: 2px solid #191919;
-    box-shadow: none;
-}
+/* Sign In Button */
 
 .signin-btn {
     border: 2px solid transparent;
@@ -119,31 +95,45 @@ input:focus {
     background-color: #2980B9;
 }
 
-.login-link {
-    font-size: 12px;
-    color: #444;
-    display: block;
-    margin-top: 12px;
-}
+/* End of Sign In Component */
 
-.flashes {
-    text-align: center;
-    color: #CF0;
-}
 
-table, th, td {
-	border: 1px solid black;
-}
+/* Table Styles for my-bookings */
 
 .table-striped {
 	border: none;
 }
 
-.table-striped>tbody>tr:nth-child(even)>td, 
+.table-striped>tbody>tr:nth-child(even)>td,
 .table-striped>tbody>tr:nth-child(even)>th {
-	background-color: white;
+	background-color: #f7f7f7;
 }
 
 .table-striped>thead>tr>th {
 	background-color: white;
+}
+
+/* End of Table Styles */
+
+
+.details-label {
+    font-weight: bold;
+}
+
+.center {
+    text-align: center;
+    display: block;
+}
+
+.flashes {
+    text-align: center;
+    color: red;
+}
+
+.nav-bar-username {
+  color: white;
+}
+
+.top-margin {
+  margin-top: 5%;
 }

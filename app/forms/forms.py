@@ -145,8 +145,8 @@ class SearchForm(FlaskForm):
 class BookingForm(FlaskForm):
 	title = StringField(render_kw={'readonly':'True'})
 	username = StringField(render_kw={'readonly':'True'})
-	dates = SelectField(choices=[])
-	times = SelectField(choices=[])
+	date = SelectField(choices=[])
+	time = SelectField(choices=[])
 	vacancy = StringField(render_kw={'readonly':'True'})
 	count = IntegerField('Count', default=1,
 						 validators=[DataRequired(), NumberRange(min=1)],
@@ -164,16 +164,16 @@ class BookingForm(FlaskForm):
 		for rec in date_records:
 			if rec.date not in date_list and rec.vacancy > 0:
 				date_list.append(rec.date)
-				self.dates.choices.append((rec.date, rec.date))
-		self.dates.data = date_list[0]	#set first item as pre-selected default
+				self.date.choices.append((rec.date, rec.date))
+		self.date.data = date_list[0]	#set first item as pre-selected default
 
 		# Get timings for pre-selected date
-		timings = query.event_times_query(event.event_id, self.dates.data)
+		timings = query.event_times_query(event.event_id, self.date.data)
 		for timing in timings:
 			if timing.vacancy > 0:
-				self.times.choices.append((timing.slot_id, timing.time))
+				self.time.choices.append((timing.slot_id, timing.time))
 
-		default_slot_id = self.times.choices[0][0]
+		default_slot_id = self.time.choices[0][0]
 		self.vacancy.data = EventSlot.query.get(default_slot_id).vacancy
 		self.price.data = event.price
 		self.capacity = event.capacity

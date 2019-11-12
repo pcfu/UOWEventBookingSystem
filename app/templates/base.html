@@ -8,7 +8,6 @@
 		  integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
 		  crossorigin="anonymous">
     <link rel="stylesheet" href="/static/style.css" type="text/css">
-	<link rel="stylesheet" href="/static/details-style.css" type="text/css">
 	<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
 			integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
 			crossorigin="anonymous">
@@ -65,7 +64,7 @@
 					<!-- if logged in, show the following -->
                     {% else %}
 					<!-- Username -->
-					<span style="color: white;">{{ current_user.username }}</span>
+					<span class='nav-bar-username'>{{ current_user.username }}&nbsp;</span>
 					<!-- Account page button -->
                     <a href="{{ url_for('my_account') }}"
 					   class="btn btn-outline-primary"
