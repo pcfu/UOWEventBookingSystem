@@ -12,7 +12,7 @@ from app.forms.custom_validators import Interval, DateInRange
 from app.views import utils
 from flask import redirect, url_for
 from sqlalchemy.sql import func
-from datetime import date, datetime, timedelta
+from datetime import date, timedelta
 from pathlib import Path
 from os import path
 import math
@@ -394,10 +394,10 @@ class StaffPromotionView(StaffBaseView):
 
 	# Perform data validation when creating/editing a promotion
 	def on_model_change(self, form, model, is_created):
-		if model.date_start > model.date_end:
-			raise ValidationError('Start date must be earlier than end date.')
-		elif model.date_start < datetime.now() or model.date_end < datetime.now():
+		if model.date_start < date.today() or model.date_end < date.today():
 			raise ValidationError('Dates must be later than current time.')
+		elif model.date_start > model.date_end:
+			raise ValidationError('Start date must be earlier than end date.')
 
 		if not is_created:
 			if model.is_used and form.promo_percentage.object_data != form.promo_percentage.data:
@@ -405,7 +405,7 @@ class StaffPromotionView(StaffBaseView):
 
 			# Check updated record's start date does not come after associate event's last day
 			if model.has_event:
-				start_date = model.date_start.date()
+				start_date = model.date_start
 				for ep in model.event_pairings:
 					valid_before_event = False
 					slots = EventSlot.query.filter(EventSlot.event_id == ep.event_id)\
@@ -413,7 +413,7 @@ class StaffPromotionView(StaffBaseView):
 
 					for slot in slots:
 						last_date = slot.event_date.date()
-						if last_date > start_date:
+						if last_date >= start_date:
 							valid_before_event = True
 
 					if not valid_before_event:
