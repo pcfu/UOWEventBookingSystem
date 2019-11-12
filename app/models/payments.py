@@ -50,15 +50,20 @@ class Promotion(db.Model):
 		return '[ PROID:{:0>4} ] {}'.format(self.promotion_id, self.promo_code)
 
 	@hybrid_property
-	def has_event(self):
-		return len(self.event_pairings) > 0
+	def has_active_event_promo(self):
+		active_pairs = 0
+		for ep in self.event_pairings:
+			if ep.is_active:
+				active_pairs += 1
+		return active_pairs > 0
 
-	@has_event.expression
-	def has_event(cls):
+	@has_active_event_promo.expression
+	def has_active_event_promo(cls):
 		return db.select([
 					db.case([(db.func.count(EventPromotion.promotion_id) > 0, True)],
 							else_=False)
-				]).where(EventPromotion.promotion_id == cls.promotion_id)\
+				]).where(db.and_(EventPromotion.is_active == True,
+								 EventPromotion.promotion_id == cls.promotion_id))\
 				 .correlate(cls).as_scalar()
 
 	@hybrid_property
