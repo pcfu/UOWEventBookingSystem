@@ -63,9 +63,9 @@ class Event(db.Model):
 	def last_date(self):
 		last_date = None
 		for slot in self.slots:
-			if not last_date or slot.event_date > last_date:
-				last_date = slot.event_date
-		return last_date.date().strftime('%d/%b/%Y')
+			if not last_date or slot.event_date.date() > last_date:
+				last_date = slot.event_date.date()
+		return last_date
 
 
 class EventSlot(db.Model):
