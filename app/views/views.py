@@ -353,7 +353,7 @@ class StaffPromotionView(StaffBaseView):
 	can_view_details = True
 	column_display_pk = True
 	column_list = ['promotion_id', 'promo_code', 'promo_percentage',
-				   'date_start', 'date_end', 'has_event', 'is_used']
+				   'date_start', 'date_end', 'has_event', 'is_used', 'events_last_date']
 	column_labels = { 'promotion_id' : 'ID',
 					  'promo_code' : 'Code',
 					  'promo_percentage' : 'Discount',
@@ -363,10 +363,18 @@ class StaffPromotionView(StaffBaseView):
 					  'is_used' : 'Used'}
 	column_sortable_list = ['promotion_id', 'promo_code', 'promo_percentage',
 							'date_start', 'date_end', 'has_event', 'is_used']
+
+	def get_last_dates(view, context, model, name):
+		data = []
+		for ep in model.event_pairings:
+			data.append('{} [{}]'.format(ep.event.title, ep.event.last_date))
+		return data
+
 	column_formatters = {
 		'promo_percentage' : lambda v, c, m, p: '{}%'.format(m.promo_percentage),
 		'date_start' : lambda v, c, m, p: m.date_start.strftime('%d/%b/%Y'),
-		'date_end' : lambda v, c, m, p: m.date_end.strftime('%d/%b/%Y')
+		'date_end' : lambda v, c, m, p: m.date_end.strftime('%d/%b/%Y'),
+		'events_last_date' : get_last_dates
 	}
 
 	# Details View Settings
@@ -394,8 +402,8 @@ class StaffPromotionView(StaffBaseView):
 
 	# Perform data validation when creating/editing a promotion
 	def on_model_change(self, form, model, is_created):
-		if model.date_start < date.today() or model.date_end < date.today():
-			raise ValidationError('Dates must be later than current time.')
+		if model.date_end <= date.today():
+			raise ValidationError('End date must be later than current date.')
 		elif model.date_start > model.date_end:
 			raise ValidationError('Start date must be earlier than end date.')
 
