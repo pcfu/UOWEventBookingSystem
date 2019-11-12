@@ -37,7 +37,7 @@ def type_query(keyword):
 	records = db.session.query(Event.event_id, Event.title, Event.img_root)\
 						.join(EventType, Event.type_id == EventType.type_id)\
 						.filter(Event.is_launched, Event.has_active_slots,
-								EventType.name.ilike(f'%{keyword}%'))\
+								EventType.name == keyword)\
 						.join(EventSlot, Event.event_id == EventSlot.event_id)\
 						.group_by(Event.event_id).order_by(Event.title).all()
 	return records

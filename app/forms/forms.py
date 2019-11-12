@@ -135,6 +135,7 @@ class SearchForm(FlaskForm):
 	STRING_FIELD = StringField()
 	DATE_FIELD = DateField(default=date.today())
 	PRICE_FIELD = SelectField(choices=RANGES)
+	TYPE_FIELD = SelectField(coerce=str)
 
 	search_field = STRING_FIELD
 	search_type = SelectField(choices=CHOICES)

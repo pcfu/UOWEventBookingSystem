@@ -1,6 +1,6 @@
 from app import app, db, query, session
 from app.models.users import User, Admin
-from app.models.events import Event, EventSlot
+from app.models.events import Event, EventSlot, EventType
 from app.models.booking import Booking
 from app.models.payments import Payment, EventPromotion, Promotion, Refund
 from app.models.logs import add_login_record, add_logout_record
@@ -35,6 +35,14 @@ def get_events(option):
 		form.search_field = form.DATE_FIELD
 	elif option == 'price':
 		form.search_field = form.PRICE_FIELD
+	elif option == 'type':
+		types_query = (EventType.query.all())
+		list_of_types = []
+		for type in types_query:
+			list_of_types.append((type, type))
+
+		form.TYPE_FIELD.choices = list_of_types
+		form.search_field = form.TYPE_FIELD
 
 	if form.is_submitted():
 		search_type = form.search_type.data
