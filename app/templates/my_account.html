@@ -25,7 +25,7 @@
   <div>
 	Email:
 	<!-- Email entry field -->
-	<span onchange="email_len_check()">
+	<span oninput="email_len_check()">
 	  {{ update_form.update_email.email(placeholder=current_user.email) }}
 	</span>
 	<!-- Email update button -->
@@ -55,7 +55,7 @@
   <div>
 	<!--  Old password field -->
 	Old password:
-	<span onchange="pw_len_check()">
+	<span oninput="pw_len_check()">
 	  {{ update_form.update_password.old_password }}
 	</span>
 	<!-- Flash error messages for old password -->
@@ -66,7 +66,7 @@
 
 	<!--  New password field -->
 	New password:
-	<span onchange="pw_len_check()">
+	<span oninput="pw_len_check()">
 	  {{ update_form.update_password.new_password }}
 	</span>
 	<!-- Flash error messages for new password -->
@@ -77,7 +77,7 @@
 
 	<!--  Confirm password field -->
 	Confirm password:
-	<span onchange="pw_len_check()">
+	<span oninput="pw_len_check()">
 	  {{ update_form.update_password.confirm_password }}
 	</span>
 	<!-- Flash error messages for confirm password -->
