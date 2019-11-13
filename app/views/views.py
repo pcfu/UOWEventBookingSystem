@@ -226,20 +226,17 @@ class StaffEventSlotView(StaffBaseView):
 					.join(EventSlot, Event.event_id == EventSlot.event_id)\
 					.filter(Event.venue == event.venue).all()
 
+		# Validate promotions start dates against any changes to event last date
+		# This MUST come BEFORE the next check
+		last_date = event.last_active_date
+		self.check_event_promo_dates(last_date, event.promo_pairings)
+
 		# Verify no slot clashes and deactivate event if no active slots left
 		utils.check_slot_clash(schedule, timing, model.slot_id)
 		utils.check_event_active_slots(event.event_id)
 
-		# Validate promotions start dates against any changes to event last date
-		last_date = event.last_active_date
-		self.check_event_promo_dates(last_date, event.promo_pairings)
-
 	# Perform data validation when deleting a slot
 	def on_model_delete(self, model):
-		if model.bookings:
-			raise ValidationError('Cannot delete a slot that has bookings.')
-		utils.check_event_active_slots(model.event_id, sid=model.slot_id, mode='delete')
-
 		# Validate promotions start dates against any changes to event last date
 		event = Event.query.get(model.event_id)
 		last_date = None
@@ -249,6 +246,11 @@ class StaffEventSlotView(StaffBaseView):
 				if not last_date or date > last_date:
 					last_date = date
 		self.check_event_promo_dates(last_date, event.promo_pairings)
+
+		# Verify no current bookings and deactivate event if no active slots left
+		if model.bookings:
+			raise ValidationError('Cannot delete a slot that has bookings.')
+		utils.check_event_active_slots(model.event_id, sid=model.slot_id, mode='delete')
 
 
 class StaffBookingView(StaffBaseView):
