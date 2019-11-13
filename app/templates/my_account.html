@@ -26,21 +26,27 @@
 	  <div class="col-lg-1 col-md-2 col-sm-3 label-col">
 		Email:
 	  </div>
-	  <div class="col-lg-3 col-md-7 col-sm-6 field-col">
-		<!-- Email entry field -->
-		<span oninput="email_len_check()">
-		  {{ update_form.update_email.email(placeholder=current_user.email) }}
-		</span>
-	  </div>
-	  <div class="col-lg-2 col-md-3 col-sm-3 button-col">
-		<!-- Email update button -->
-		<span onclick="return confirm('confirm update email')">
-		  {{ update_form.update_email.update_email(disabled="", class="btn btn-primary", style="width:150px;") }}
-		</span>
-		<!-- Flash error messages -->
-		{% for error in update_form.update_email.email.errors %}
-		<br><span style="color: red;">[{{ error }}]</span>
-		{% endfor %}
+	  <div class="col-lg-5 col-md-10 col-sm-9 field-col">
+		<div class="row no-gutters">
+			<div class="col">
+			<!-- Email entry field -->
+			<span oninput="email_len_check()">
+			  {{ update_form.update_email.email(placeholder=current_user.email) }}
+			</span>
+			<!-- Flash error messages -->
+			{% for error in update_form.update_email.email.errors %}
+			<span style="color: red;">[{{ error }}]</span>
+			{% endfor %}
+			</div>
+		</div>
+		<div class="row no gutters">
+			<div class="col mt-2 offset-3">
+			<!-- Email update button -->
+			<span onclick="return confirm('confirm update email')">
+			  {{ update_form.update_email.update_email(disabled="", class="btn btn-primary", style="width:100px;") }}
+			</span>
+			</div>
+		</div>
 	  </div><br><br>
 
 	  <script>
@@ -56,66 +62,70 @@
 	  </script>
 	</div>
 	
-	<div class="row old-password-row">
-	  <!-- Update password section -->
-	  {{ update_form.update_password.hidden_tag() }}
-	  <div class="col-lg-1 col-md-2 col-sm-3 label-col">
-		Old password:
-	  </div>
-	  <div class="col-lg-3 col-md-6 col-sm-5 field-col">
-		<!--  Old password field -->
-		<span oninput="pw_len_check()">
-		  {{ update_form.update_password.old_password }}
-		</span>
-		<!-- Flash error messages for old password -->
-		{% for error in update_form.update_password.old_password.errors %}
-		<br><span style="color: red;">[{{ error }}]</span>
-		{% endfor %}
-		<br><br>
-	  </div>
-	</div>
+	<div class="row password-row">
+		<div class="col">
+			<div class="row old-password-row my-3">
+			  <!-- Update password section -->
+			  {{ update_form.update_password.hidden_tag() }}
+			  <div class="col-lg-1 col-md-2 col-sm-3 label-col">
+				Old password:
+			  </div>
+			  <div class="col-lg-5 col-md-6 col-sm-5 field-col">
+				<!--  Old password field -->
+				<span oninput="pw_len_check()">
+				  {{ update_form.update_password.old_password }}
+				</span>
+				<!-- Flash error messages for old password -->
+				{% for error in update_form.update_password.old_password.errors %}
+				<span style="color: red;">[{{ error }}]</span>
+				{% endfor %}
+			  </div>
+			</div>
 
-	<div class="row old-password-row">
-	  <div class="col-lg-1 col-md-2 col-sm-3 label-col">
-		New password:
-	  </div>
-	  <div class="col-lg-3 col-md-6 col-sm-5 field-col">
-		<!--  New password field -->
-		<span oninput="pw_len_check()">
-		  {{ update_form.update_password.new_password }}
-		</span>
-		<!-- Flash error messages for new password -->
-		{% for error in update_form.update_password.new_password.errors %}
-		<br><span style="color: red;">[{{ error }}]</span>
-		{% endfor %}
-		<br><br>
-	  </div>
-	</div>
+			<div class="row new-password-row mb-3">
+			  <div class="col-lg-1 col-md-2 col-sm-3 label-col">
+				New password:
+			  </div>
+			  <div class="col-lg-5 col-md-6 col-sm-5 field-col">
+				<!--  New password field -->
+				<span oninput="pw_len_check()">
+				  {{ update_form.update_password.new_password }}
+				</span>
+				<!-- Flash error messages for new password -->
+				{% for error in update_form.update_password.new_password.errors %}
+				<span style="color: red;">[{{ error }}]</span>
+				{% endfor %}
+			  </div>
+			</div>
 
-	<div class="row confirm-password-row">
-	  <div class="col-lg-1 col-md-2 col-sm-3 label-col">
-		Confirm password:
-	  </div>
-	  <div class="col-lg-3 col-md-6 col-sm-5 field-col">
-		<!--  Confirm password field -->
-		<span oninput="pw_len_check()">
-		  {{ update_form.update_password.confirm_password }}
-		</span>
-		<!-- Flash error messages for confirm password -->
-		{% for error in update_form.update_password.confirm_password.errors %}
-		<br><span style="color: red;">[{{ error }}]</span>
-		{% endfor %}
-		<br><br>
-	  </div>
-	</div>
-	
-	<div class="row update-button-row">
-	  <div class="col-lg-2 col-md-4 col-sm-4 button-col">
-		<!-- Password update button -->
-		<span onclick="return confirm('confirm update password')">
-		  {{ update_form.update_password.update_password(disabled="", class="btn btn-primary") }}
-		</span>
-	  </div>
+			<div class="row confirm-password-row">
+			  <div class="col-lg-1 col-md-2 col-sm-3 label-col">
+				Confirm password:
+			  </div>
+			  <div class="col-lg-5 col-md-10 col-sm-9 field-col">
+				<div class="row no-gutters">
+					<div class="col">
+						<!--  Confirm password field -->
+						<span oninput="pw_len_check()">
+						  {{ update_form.update_password.confirm_password }}
+						</span>
+						<!-- Flash error messages for confirm password -->
+						{% for error in update_form.update_password.confirm_password.errors %}
+						&nbsp<span style="color: red;">[{{ error }}]</span>
+						{% endfor %}
+					</div>
+				</div>
+				<div class="row no gutters">
+					<div class="col mt-2 offset-3">	
+						<!-- Password update button -->
+						<span onclick="return confirm('confirm update password')">
+						  {{ update_form.update_password.update_password(disabled="", class="btn btn-primary", style="width:100px;") }}
+						</span>
+					</div>
+				</div>
+			  </div>
+			</div>
+		</div>
 	</div>
 
 	  <script>
