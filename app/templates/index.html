@@ -47,14 +47,15 @@
 	<!-- display event posters -->
 	<div class="row main-row">
 	  {% for event in event_list %}
-		<div class="col-4" style="float: left;">
+		<div class="col-2">
 		  {% set url = request.url_root ~ 'event/details/' ~ event.event_id %}
-	 	  <a href={{ url }} class="stretched-link"></a>
-			<div class="event-container">
+
+			<div class="event-container grey">
+				<a href={{ url }} class="stretched-link"></a>
 				<div class="image-row">
 				  <div class="col-auto m-auto">
-					{% set path = '/static/images/' ~ event.img_root ~ '_thumb.jpg' %}
-					<img src='{{ path }}', style='height: 100%; width: 100%; object-fit: contain'>
+						{% set path = '/static/images/' ~ event.img_root ~ '_thumb.jpg' %}
+						<img src='{{ path }}' class='thumbnail'>
 				  </div>
 				</div>
 				<div class="event-name-row">
