@@ -7,62 +7,62 @@
 
 		<!-- Event title -->
 		<div class="row mb-2">
-			<div class="col-md-1">
+			<div class="col-lg-1 col-md-2">
 				{{ form.title.label }}
 			</div>
-			<div class="col-md-8">
+			<div class="col-lg-8 col-md-9">
 				{{ form.title() }}
 			</div>
 		</div>
 
 		<!-- Username -->
 		<div class="row mb-2">
-			<div class="col-md-1">
+			<div class="col-lg-1 col-md-2">
 				{{ form.username.label }}
 			</div>
-			<div class="col-md-8">
+			<div class="col-lg-8 col-md-9">
 				{{ form.username() }}
 			</div>
 		</div>
 
 		<!-- Date and Time -->
 		<div class="row mb-2">
-			<div class="col-md-1">
+			<div class="col-lg-1 col-md-2">
 				Slot
-				</div>
-			<div class="col-md-1" style="padding-left:5.5%;">
+			</div>
+			<div class="col-lg-1 col-md-2">
 				{{ form.date.label }}
 			</div>
-			<div class="col-md-1" style="margin-left:7.3%;">
+			<div class="col-lg-1 col-md-2 offset-1">
 				{{ form.time.label }}
 			</div>
 
 		</div>
 		<div class="row mb-2">
-		<div class="col-md-2" style="margin-left:8.4%; margin-right:-3.9%;">
+		<div class="col-lg-2 col-md-4 offset-1">
 			{{ form.date(size=1, class_='custom-select', style='width:80%;') }}
 		</div>
-		<div class="col-md-2"">
+		<div class="col-lg-2 col-md-4">
 			{{ form.time(size=1, class_='custom-select', style='width:65%;') }}
 		</div>
 		</div>
 
 		<!-- Vacancy -->
 		<div class="row mb-2">
-			<div class="col-md-1">
+			<div class="col-lg-1 col-md-2">
 				Available Seats:
 			</div>
-			<div class="col-md-8">
+			<div class="col-lg-8 col-md-9">
 				{{ form.vacancy() }}
 			</div>
 		</div>
 
 		<!-- No. of Tickets -->
 		<div class="row mb-2">
-			<div class="col-md-1">
+			<div class="col-lg-1 col-md-2">
 				Tickets
 			</div>
-			<div class="col-md-8">
+			<div class="col-lg-8 col-md-9">
 			  	{{ form.count(onchange="refreshPrice()", max=form.vacancy.data) }}
 				<!-- {{ form.count(onchange="refreshPrice()", max=capacity, onkeydown="return false") }} -->
 				{% for error in form.count.errors %}
@@ -73,10 +73,10 @@
 
 		<!-- Total Cost -->
 		<div class="row mb-2">
-			 <div class="col-md-1">
+			 <div class="col-lg-1 col-md-2">
 			   Total ($)
 			 </div>
-			 <div class="col-md-8">
+			 <div class="col-lg-8 col-md-9">
 			   {{ form.price() }}
 			   <script>var basePrice = document.getElementById('price').value</script>
 			 </div>
