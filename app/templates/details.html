@@ -70,10 +70,13 @@
 				</div>
 				<div class="row event-datetime-row pb-1">
 					<div class="col event-datetime-col">
-						<div class="overflow-auto" style="max-width: 300px; max-height: 300px;padding-top:2%;">
+						<div class="overflow-auto" style="max-width: 300px; max-height: 341px;padding-top: 2%;">
 							{% for date in event.timings %}
+							<div>
+							<div style="margin-bottom: 5px;">
 							<span class="details-date">{{ date }}</span>
-							<br>
+							</div>
+							<div style="margin-bottom: 10px;">
 							{% for timeslot in event.timings[date] %}
 								<!-- timeslot[0] == time
 									 timeslot[1] == seats remaining for that time -->
@@ -83,8 +86,8 @@
 								{% endif %}
 								&nbsp
 							{% endfor %}
-							<br>
-							<br>
+							</div>
+							</div>
 							{% endfor %}
 						</div>
 					</div>
