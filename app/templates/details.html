@@ -15,7 +15,7 @@
 					<div class="col center">
 						<a href="/search" class="btn btn-secondary" role="button">◄ Back</a>
 						{% if not is_admin %}
-						<a href="{{url_for('booking', eid=event.event_id)}}" class="btn btn-primary">Book</a>
+						<a href="{{url_for('booking', eid=event.event_id)}}" class="btn btn-primary" style="width:60%;">Book</a>
 						{% endif %}
 					</div>
 				</div>
@@ -70,9 +70,9 @@
 				</div>
 				<div class="row event-datetime-row pb-1">
 					<div class="col event-datetime-col">
-						<div class="overflow-auto" style="max-width: 300px; max-height: 300px;">
+						<div class="overflow-auto" style="max-width: 300px; max-height: 300px;padding-top:2%;">
 							{% for date in event.timings %}
-							{{ date }}
+							<span class="details-date">{{ date }}</span>
 							<br>
 							{% for timeslot in event.timings[date] %}
 								<!-- timeslot[0] == time
