@@ -27,6 +27,13 @@ http://localhost:4000/ to access the website
 ## Tasks
 1. Once the above (prioritized and chosen) tasks are done, a major cleanup will be required - HTML requires segregation with inline css styling as much as possible, JS to live separately in /js/. Flask end will have to deal with code block segmentation and categorizing for organization.
 
+### Optional Tasks (mostly UI)
+- Member/Staff login + registration interactable buttons: highlight on mouseover? make consistent with rest of website theme
+- Payment page: Price set to 2 decimal places
+- Error messages: Create a css class for error messages
+- Consider making even title text smaller on event search page
+- (not so important) Event details page. List of timings. Make thematically similar to my_bookings listing
+
 
 ## Contributing
 ```git
