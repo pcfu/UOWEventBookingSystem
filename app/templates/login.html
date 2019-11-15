@@ -22,7 +22,7 @@
 		<div class="col-3 field-col text-center">
 			{{ form.username(size=32) }}
 			{% for error in form.username.errors %}
-			<span class="center" style="color: red;">[{{ error }}]</span><br>
+			<span class="center error-message">[{{ error }}]</span><br>
 			{% endfor %}
 		</div>
 	</div>
@@ -37,7 +37,7 @@
 		<div class="col-3 field-col text-center">
 			{{ form.password(size=32) }}
 			{% for error in form.password.errors %}
-			<span class ="center" style="color: red;">[{{ error }}]</span><br>
+			<span class="center error-message">[{{ error }}]</span><br>
 			{% endfor %}
 		</div>
 	</div>
@@ -54,7 +54,7 @@
 	<div class="row submit-row mt-2 justify-content-center">
 		<div class="col-3 submit-col">
 			<!-- sign-in -->
-			{{ form.submit(class_='signin-btn btn') }}
+			{{ form.submit(class_='signin-btn btn btn-primary') }}
 		</div>
 	</div>
 	</form>
@@ -62,7 +62,7 @@
 	<div class="row register-row justify-content-center mt-4">
 		<div class="col-3 register-col">
 			<!-- register button -->
-			<a href="{{ url_for('register') }}" class="signin-btn btn" role="button">Register</a>
+			<a href="{{ url_for('register') }}" class="signin-btn btn btn-primary" role="button">Register</a>
 		</div>
 	</div>
 </div>
