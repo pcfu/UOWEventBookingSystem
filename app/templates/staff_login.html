@@ -22,7 +22,7 @@
 		<div class="col-3 field-col text-center">
 			{{ form.username(size=32) }}
 			{% for error in form.username.errors %}
-			<span class="center" style="color: red;">[{{ error }}]</span><br>
+			<span class="center error-message">[{{ error }}]</span><br>
 			{% endfor %}
 		</div>
 	</div>
