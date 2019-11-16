@@ -70,7 +70,8 @@ class Event(db.Model):
 	@last_active_date.expression
 	def last_active_date(cls):
 		return db.select([db.func.max(EventSlot.event_date)])\
-				 .where(EventSlot.event_id == cls.event_id).correlate(cls)
+				 .where(EventSlot.event_id == cls.event_id)\
+				 .correlate(cls).as_scalar()
 
 
 class EventSlot(db.Model):

@@ -458,12 +458,55 @@ class StaffPromotionView(StaffBaseView):
 
 
 class StaffEventPromoView(StaffBaseView):
-	column_list = ['event', 'promotion', 'is_active']
-	column_labels = {'is_active' : 'Active'}
+	# List View Settings
+	column_list = ['event', 'promotion', 'event.last_active_date',
+				   'promotion.date_start', 'promotion.date_end', 'is_active']
+	column_labels = {'event.last_active_date' : 'Event End',
+					 'promotion.date_start' : 'Promo Start',
+					 'promotion.date_end' : 'Promo End',
+					 'is_active' : 'Active'}
 	column_sortable_list = [ ('event', 'event.event_id'),
 							 ('promotion', 'promotion.promotion_id'),
+							 'event.last_active_date',
+							 'promotion.date_start',
+							 'promotion.date_end',
 							 'is_active' ]
 
+	def get_last_date(view, context, model, name):
+		if model.event.last_active_date:
+			last_date = model.event.last_active_date.strftime('%d/%b/%Y')
+		else:
+			last_date = 'None'
+		return last_date
+
+	column_formatters = {
+		'event.last_active_date' : get_last_date,
+		'promotion.date_start' :
+			lambda v, c, m, p: m.promotion.date_start.strftime('%d/%b/%Y'),
+		'promotion.date_end' :
+			lambda v, c, m, p: m.promotion.date_end.strftime('%d/%b/%Y'),
+	}
+
+	# Filters
+	column_filters = ['event.title',
+					  'event.last_active_date',
+					  'promotion.promo_code',
+					  'promotion.date_start',
+					  'promotion.date_end',
+					  utils.BooleanFilter(column=EventPromotion.is_active,
+										  name='Is Active')]
+	column_filter_labels = { 'event.title' : 'Event Title',
+							 'event.last_active_date' : 'Event End',
+							 'promotion.promo_code' : 'Promo Code'}
+
+	def scaffold_filters(self, name):
+		filters = super().scaffold_filters(name)
+		if name in self.column_filter_labels:
+			for f in filters:
+				f.name = self.column_filter_labels[name]
+		return filters
+
+	# Perform data validation when creating/editing an event promotion
 	def on_model_change(self, form, model, is_created):
 		if model.is_active:
 			event_last_date = model.event.last_active_date
