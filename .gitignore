@@ -6,5 +6,6 @@ Include
 __pycache__
 pyvenv.cfg
 flask_session/
+virtual/
 *.bak
 *BAK*
