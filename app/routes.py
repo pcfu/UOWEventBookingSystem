@@ -1,17 +1,17 @@
-from app import app, db, query, session
-from app.models.users import User, Admin
-from app.models.events import Event, EventSlot, EventType
-from app.models.booking import Booking
-from app.models.payments import Payment, EventPromotion, Promotion, Refund
-from app.models.logs import add_login_record, add_logout_record
-from app.forms.forms import MemberLoginForm, StaffLoginForm, RegistrationForm, \
-							SearchForm, BookingForm, PaymentForm, AccountUpdateForm
+from app import app, db #, query, session
+#from app.models.users import User, Admin
+#from app.models.events import Event, EventSlot, EventType
+#from app.models.booking import Booking
+#from app.models.payments import Payment, EventPromotion, Promotion, Refund
+#from app.models.logs import add_login_record, add_logout_record
+#from app.forms.forms import MemberLoginForm, StaffLoginForm, RegistrationForm, \
+#							SearchForm, BookingForm, PaymentForm, AccountUpdateForm
 from flask import render_template, redirect, url_for, request, session, jsonify
-from flask_login import current_user, login_user, logout_user
-from app.views.utils import is_admin_user, is_staff_user
-from flask import flash
+#from flask_login import current_user, login_user, logout_user
+#from app.views.utils import is_admin_user, is_staff_user
+#from flask import flash
 
-
+'''
 @app.login_manager.user_loader
 def load_user(entry):
 	if entry[0] == 'User':
@@ -25,8 +25,14 @@ def load_user(entry):
 @app.route('/search')
 def index():
 	return redirect(url_for('get_events', option='title'))
+'''
+
+@app.route('/')
+def index():
+	return render_template('base.html', title='Base page')
 
 
+'''
 @app.route('/search/<option>', methods=['GET', 'POST'])
 def get_events(option):
 	form = SearchForm()
@@ -385,3 +391,4 @@ def db_update_booking_payment(form, payment):
 						  promotion_id=payment['promo_id'])
 	db.session.add(new_payment)
 	db.session.commit()
+'''
