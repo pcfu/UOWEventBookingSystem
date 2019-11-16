@@ -7,7 +7,7 @@ from app import app, db #, query, session
 #from app.forms.forms import MemberLoginForm, StaffLoginForm, RegistrationForm, \
 #							SearchForm, BookingForm, PaymentForm, AccountUpdateForm
 from flask import render_template, redirect, url_for, request, session, jsonify
-#from flask_login import current_user, login_user, logout_user
+from flask_login import current_user #, login_user, logout_user
 #from app.views.utils import is_admin_user, is_staff_user
 #from flask import flash
 
@@ -77,8 +77,11 @@ def event_details(eid):
 						   is_admin=is_admin_user(), is_staff=is_staff_user())
 
 
+'''
 @app.route('/login', methods=['GET', 'POST'])
 def user_login():
+	return 'user login page'
+	'''
 	# if already logged in redirect to homepage
 	if current_user.is_authenticated:
 		return redirect(url_for('index'))
@@ -94,10 +97,12 @@ def user_login():
 
 	# render login page
 	return render_template('login.html', title='EBS: Sign In', form=form)
-
+	'''
 
 @app.route('/staff_login', methods=['GET', 'POST'])
 def staff_login():
+	return 'staff login page'
+	'''
 	# if already logged in redirect to admin page
 	if current_user.is_authenticated:
 		return redirect(url_for('index'))
@@ -112,8 +117,9 @@ def staff_login():
 
 	# renders staff login page
 	return render_template('staff_login.html', title='EBS: Admin', form=form)
+	'''
 
-
+'''
 @app.route('/logout')
 def logout():
 	session['payment_due'] = None

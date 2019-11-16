@@ -3,7 +3,7 @@ from app.config import Config
 from sqlalchemy import MetaData
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
-#from flask_login import LoginManager
+from flask_login import LoginManager
 #from flask_session import Session
 #from flask_apscheduler import APScheduler
 #from flask_admin import Admin
@@ -30,13 +30,13 @@ db = SQLAlchemy(app, metadata=MetaData(naming_convention=convention)) # DB insta
 migrate = Migrate(app, db, render_as_batch=True) # Flask database migration manager
 
 
+# Create login manager
+login_manager = LoginManager(app) # Flask login_manager
+
+
 '''
 # Set up session
 Session(app)
-
-
-# Create login manager
-login_manager = LoginManager(app) # Flask login_manager
 
 
 # Create scheduler (conditional prevents scheduler from initialising twice)
