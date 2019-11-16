@@ -59,13 +59,18 @@ class Event(db.Model):
 										 EventSlot.is_active == True))\
 						  .correlate(cls)
 
-	@property
+	@hybrid_property
 	def last_active_date(self):
 		last_date = None
 		for slot in [slot for slot in self.slots if slot.is_active]:
 			if not last_date or slot.event_date.date() > last_date:
 				last_date = slot.event_date.date()
 		return last_date
+
+	@last_active_date.expression
+	def last_active_date(cls):
+		return db.select([db.func.max(EventSlot.event_date)])\
+				 .where(EventSlot.event_id == cls.event_id).correlate(cls)
 
 
 class EventSlot(db.Model):
