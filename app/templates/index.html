@@ -47,7 +47,7 @@
 	<!-- display event posters -->
 	<div class="row main-row">
 	  {% for event in event_list %}
-		<div class="col-2">
+		<div class="col-6 col-lg-2 col-md-3 col-sm-4">
 		  {% set url = request.url_root ~ 'event/details/' ~ event.event_id %}
 
 			<div class="event-container">
