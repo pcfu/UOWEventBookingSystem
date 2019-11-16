@@ -37,26 +37,11 @@ class User(UserMixin, db.Model):
 	def check_password(self, password):
 		return check_password_hash(self.password_hash, password)
 
+	def is_regular(self):
+		return self.group.group_name == 'regular'
 
-'''
-class Admin(UserMixin, db.Model):
-	admin_id = db.Column(db.Integer, primary_key=True)
-	username = db.Column(db.String(30), index=True, unique=True, nullable=False)
-	email = db.Column(db.String(30), index=True, unique=True, nullable=False)
-	password_hash = db.Column(db.String(255), nullable=False)
+	def is_staff(self):
+		return self.group.group_name == 'staff'
 
-	logins = db.relationship('LoginHistory', back_populates='admin')
-	logouts = db.relationship('LogoutHistory', back_populates='admin')
-
-	def __repr__(self):
-		return '[ AID:{:0>4} ] {}'.format(self.admin_id, self.username)
-
-	def get_id(self):
-		return ('Admin', self.admin_id)
-
-	def set_password(self, password):
-		self.password_hash = generate_password_hash(password)
-
-	def check_password(self, password):
-		return check_password_hash(self.password_hash, password)
-'''
+	def is_admin(self):
+		return self.group.group_name == 'admin'
