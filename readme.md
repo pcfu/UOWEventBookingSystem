@@ -29,7 +29,7 @@ http://localhost:4000/ to access the website
 
 ### Optional Tasks (mostly UI)
 - <s>Member/Staff login + registration interactable buttons: highlight on mouseover? make consistent with rest of website theme</s> - Done, Jon
-- Payment page: Price set to 2 decimal places
+- <s>Payment page: Price set to 2 decimal places</s> - Done, Jon
 - <s> Error messages: Create a css class for error messages</s> Done, Jon
 - <s>Consider making even title text smaller on event search page </s> - Done, Jon
 - (not so important) Event details page. List of timings. Make thematically similar to my_bookings listing
