@@ -73,30 +73,6 @@ input:focus {
 
 /* End of Page Fade Animations */
 
-/* Sign In Button */
-
-.signin-btn {
-    border: 2px solid transparent;
-    /* background-color: #ECF0F1; */
-    font-size: 16px;
-    line-height: 25px;
-    text-decoration: none;
-    text-shadow: none;
-    border-radius: 3px;
-    box-shadow: none;
-    transition: 0.25s;
-    display: block;
-    width: 250px;
-    margin: 0 auto;
-    padding: 10px 0;
-}
-
-/*.signin-btn:hover {
-    background-color: #1a4e70;
-}*/
-
-/* End of Sign In Component */
-
 
 /* Table Styles for my-bookings */
 
@@ -155,6 +131,7 @@ input:focus {
   margin-top: 4%;
   vertical-align: center;
   text-align: center;
+  font-size:80%;
 }
 
 .thumbnail {
@@ -167,4 +144,9 @@ input:focus {
   font-size: 110%;
   margin-top: 2%;
   color: blue;
+}
+
+.acc-update-btn {
+  width: 100px;
+  margin-left: 7%;
 }
