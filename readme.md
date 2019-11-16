@@ -25,9 +25,14 @@ http://localhost:4000/ to access the website
 
 
 ## Tasks
-1. Logged in account stays logged in - will have to initiate some sort of onunload to disconnect connected user after leaving the website/closing browser
-2. Setting rules for account names with regex, and special exceptions such as null or none or nil etc.
-3. Once the above (prioritized and chosen) tasks are done, a major cleanup will be required - HTML requires segregation with inline css styling as much as possible, JS to live separately in /js/. Flask end will have to deal with code block segmentation and categorizing for organization.
+1. Once the above (prioritized and chosen) tasks are done, a major cleanup will be required - HTML requires segregation with inline css styling as much as possible, JS to live separately in /js/. Flask end will have to deal with code block segmentation and categorizing for organization.
+
+### Optional Tasks (mostly UI)
+- <s>Member/Staff login + registration interactable buttons: highlight on mouseover? make consistent with rest of website theme</s> - Done, Jon
+- <s>Payment page: Price set to 2 decimal places</s> - Done, Jon
+- <s> Error messages: Create a css class for error messages</s> Done, Jon
+- <s>Consider making even title text smaller on event search page </s> - Done, Jon
+- (not so important) Event details page. List of timings. Make thematically similar to my_bookings listing
 
 
 ## Contributing

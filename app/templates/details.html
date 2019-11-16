@@ -12,10 +12,10 @@
 					</div>
 				</div>
 				<div class="row book-button">
-					<div class="col" style="text-align: center;">
+					<div class="col center">
 						<a href="/search" class="btn btn-secondary" role="button">◄ Back</a>
 						{% if not is_admin %}
-						<a href="{{url_for('booking', eid=event.event_id)}}" class="btn btn-primary">Book</a>
+						<a href="{{url_for('booking', eid=event.event_id)}}" class="btn btn-primary" style="width:60%;">Book</a>
 						{% endif %}
 					</div>
 				</div>
@@ -70,22 +70,27 @@
 				</div>
 				<div class="row event-datetime-row pb-1">
 					<div class="col event-datetime-col">
-						<div class="overflow-auto" style="max-width: 300px; max-height: 300px;">
+						<div class="table-wrapper-scroll-y my-custom-scrollbar"
+							style="max-width: 300px; max-height: 372px; overflow: auto; display: block;">
+						<table class="table table-striped table-borderless table-active date-time-table" width="300px">
 							{% for date in event.timings %}
-							{{ date }}
-							<br>
-							{% for timeslot in event.timings[date] %}
-								<!-- timeslot[0] == time
-									 timeslot[1] == seats remaining for that time -->
-								{{ timeslot[0] }}
-								{% if timeslot[1] == 0 %}
-								<span style="color: red;">(F)</span>
-								{% endif %}
-								&nbsp
+							<tr>
+								<td>
+									<span class="details-date">{{ date }}</span>
+									<br>
+									{% for timeslot in event.timings[date] %}
+									<!-- timeslot[0] == time
+										 timeslot[1] == seats remaining for that time -->
+									{{ timeslot[0] }}
+									{% if timeslot[1] == 0 %}
+									<span style="color: red;">(F)</span>
+									{% endif %}
+									&nbsp
+									{% endfor %}
+								</td>
+							</tr>
 							{% endfor %}
-							<br>
-							<br>
-							{% endfor %}
+						</table>
 						</div>
 					</div>
 				</div>

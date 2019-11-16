@@ -2,6 +2,7 @@
 
 {% block content %}
 
+
 <div class="container payment-container ml-2">
   <div class="row payment-row mb-2">
 	<div class="col">
@@ -32,7 +33,7 @@
 
 		  <!-- Promotion code -->
 		  <div class="row no-gutters">
-			<div class="col-2">
+			<div class="col-md-2 col-sm-3">
 			  <p>
 				{{ form.promo.promo_code.label }}
 			  </p>
@@ -60,7 +61,7 @@
 
 		  <!-- Credit card number -->
 		  <div class="row no-gutters">
-			<div class="col-2">
+			<div class="col-md-2 col-sm-3">
 			  <p>
 				{{ form.card_number.label }}
 			  </p>
@@ -79,7 +80,7 @@
 
 		  <!-- Card expiry date and CVV -->
 		  <div class="row no-gutters">
-			<div class="col-2">
+			<div class="col-md-2 col-sm-3">
 			  <p>
 				{{ form.expire_month.label }}
 			  </p>
@@ -112,7 +113,7 @@
 
 		  <!-- Card owner name -->
 		  <div class="row no-gutters">
-			<div class="col-2">
+			<div class="col-md-2 col-sm-3">
 			  <p>
 				{{ form.name_on_card.label }}
 			  </p>
@@ -131,7 +132,7 @@
 		  <br><b>[ OPTIONAL ]</b><br><br><!-- Optional fields -->
 		  <!-- Address -->
 		  <div class="row no-gutters">
-			<div class="col-2">
+			<div class="col-md-2 col-sm-3">
 			  <p>
 				{{ form.address.label }}
 			  </p>
@@ -145,7 +146,7 @@
 
 		  <!-- Postal code -->
 		  <div class="row no-gutters">
-			<div class="col-2">
+			<div class="col-md-2 col-sm-3">
 			  <p>
 				{{ form.postal_code.label }}
 			  </p>
@@ -159,7 +160,7 @@
 
 		  <!-- Contact number -->
 		  <div class="row no-gutters">
-			<div class="col-2">
+			<div class="col-md-2 col-sm-3">
 			  <p>
 				{{ form.contact.label }}
 			  </p>
@@ -227,4 +228,10 @@
 	  document.getElementById('promo-skip_promo_check').value = "SKIP";
   }
 </script>
+
+<script>
+  var priceEle = (document.getElementById('price').innerHTML).substr(1)
+  document.getElementById('price').innerHTML = '$' + parseFloat(priceEle).toFixed(2)
+</script>
+
 {% endblock %}

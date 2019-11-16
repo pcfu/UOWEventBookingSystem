@@ -271,9 +271,9 @@ def booking(eid):
 		# Load payment details into session
 		session['payment_due'] = {'event_id' : eid,
 								  'user_id' : current_user.user_id,
-								  'slot_id' : form.times.data,
+								  'slot_id' : form.time.data,
 								  'quantity' : form.count.data,
-								  'price' : event.price,
+								  'price' : round(event.price,2),
 								  'booking_type' : 'new'}
 		return redirect(url_for('payment'))
 

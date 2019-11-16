@@ -11,7 +11,7 @@
 
 	<form action="" method="post" novalidate>
     {{ form.hidden_tag() }}
-	
+
 	<div class="row label-row justify-content-center">
 		<div class="col-2 label-col text-center">
 			<!-- username field -->
@@ -22,11 +22,11 @@
 		<div class="col-3 field-col text-center">
 			{{ form.username(size=32) }}
 			{% for error in form.username.errors %}
-			<span class="center" style="color: red;">[{{ error }}]</span><br>
+			<span class="center error-message">[{{ error }}]</span><br>
 			{% endfor %}
 		</div>
 	</div>
-	
+
 	<div class="row label-row justify-content-center mb-2">
 		<div class="col-2 label-col text-center">
 			<!-- password field -->
@@ -37,11 +37,11 @@
 		<div class="col-3 field-col text-center">
 			{{ form.password(size=32) }}
 			{% for error in form.password.errors %}
-			<span class ="center" style="color: red;">[{{ error }}]</span><br>
+			<span class="center error-message">[{{ error }}]</span><br>
 			{% endfor %}
 		</div>
 	</div>
-	
+
 	<div class="row remember-me-row justify-content-center no-gutters">
 		<div class="col-lg-2 label-col text-center">
 			{{ form.remember_me.label() }}
@@ -50,19 +50,19 @@
 			{{ form.remember_me(style="width:12px;") }}
 		</div>
 	</div>
-	
+
 	<div class="row submit-row mt-2 justify-content-center">
 		<div class="col-3 submit-col">
 			<!-- sign-in -->
-			{{ form.submit(class_='signin-btn btn') }}
+			{{ form.submit(class_='btn btn-primary', style="width:98%;margin-left:1%;") }}
 		</div>
 	</div>
 	</form>
-	
+
 	<div class="row register-row justify-content-center mt-4">
 		<div class="col-3 register-col">
 			<!-- register button -->
-			<a href="{{ url_for('register') }}" class="signin-btn btn" role="button">Register</a>
+			<a href="{{ url_for('register') }}" class="register-btn btn-primary btn" role="button" style="width:98%;margin-left:1%;">Register</a>
 		</div>
 	</div>
 </div>
