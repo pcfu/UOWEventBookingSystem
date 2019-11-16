@@ -455,32 +455,24 @@ class StaffPromotionView(StaffBaseView):
 	def on_model_delete(self, model):
 		if model.is_used:
 			raise ValidationError('Cannot delete promotions applied by users.')
-		# Delete all EventPromotions linked to this promotion
-		elif model.event_pairings:
-			eps = EventPromotion.query.filter_by(promotion_id=model.promotion_id).all()
-			for ep in eps:
-				try:
-					db.session.delete(ep)
-				except Exception as e:
-					print(e) 	## Need better error logging (log to file)
-					db.session.rollback()
-					raise ValidationError('Error removing associated EventPromotion. Halt delete.')
-
-			try:
-				db.session.commit()
-			except Exception as e:
-				print(e)
-				db.session.rollback()
-				raise ValidationError('Error removing associated EventPromotion. Halt delete.')
 
 
-
-class StaffEPView(StaffBaseView):
+class StaffEventPromoView(StaffBaseView):
 	column_list = ['event', 'promotion', 'is_active']
 	column_labels = {'is_active' : 'Active'}
 	column_sortable_list = [ ('event', 'event.event_id'),
 							 ('promotion', 'promotion.promotion_id'),
 							 'is_active' ]
+
+	def on_model_change(self, form, model, is_created):
+		if model.is_active:
+			event_last_date = model.event.last_active_date
+			promo_start_date = model.promotion.date_start
+			if event_last_date is not None and event_last_date < promo_start_date:
+				msg = 'Promotion applicable to [ {} ] '.format(model.event.title)
+				msg += 'but effective start date [ {} ] '.format(promo_start_date)
+				msg += 'not before last day of event [ {} ].'.format(event_last_date)
+				raise ValidationError(msg)
 
 
 class AdminUserView(AdminBaseView):
