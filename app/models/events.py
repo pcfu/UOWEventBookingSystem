@@ -42,7 +42,7 @@ class Event(db.Model):
 	event_type = db.relationship('EventType', back_populates='events')
 	venue = db.relationship('Venue', back_populates='events')
 	slots = db.relationship('EventSlot', cascade='all, delete', back_populates='event')
-	promo_pairings = db.relationship('EventPromotion', back_populates='event')
+	promo_pairings = db.relationship('EventPromotion', cascade='all, delete', back_populates='event')
 
 	def __repr__(self):
 		return '[ EID:{:0>4} ] {}'\

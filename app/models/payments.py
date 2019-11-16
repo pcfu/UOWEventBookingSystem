@@ -44,7 +44,7 @@ class Promotion(db.Model):
 	promo_code = db.Column(db.String, nullable=False)
 
 	payments = db.relationship('Payment', back_populates='promotion')
-	event_pairings = db.relationship('EventPromotion', back_populates='promotion')
+	event_pairings = db.relationship('EventPromotion', cascade='all, delete', back_populates='promotion')
 
 	def __repr__(self):
 		return '[ PROID:{:0>4} ] {}'.format(self.promotion_id, self.promo_code)
