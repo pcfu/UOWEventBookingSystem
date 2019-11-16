@@ -186,8 +186,10 @@ class StaffEventSlotView(StaffBaseView):
 	column_formatters = { 'event_date' : date_format }
 
 	# Filters
-	column_filters = ['is_active', 'event', 'event_date', 'num_bookings']
+	column_filters = ['is_active', 'event.title', 'event_date', 'num_bookings']
 	column_filter_labels = dict(event='Event', num_bookings='Total Bookings')
+	column_filter_labels = { 'event.title' : 'Event',
+							 'num_bookings' : 'Total Bookings'}
 
 	def scaffold_filters(self, name):
 		filters = super().scaffold_filters(name)
