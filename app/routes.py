@@ -3,7 +3,7 @@ from app.models.users import User
 #from app.models.events import Event, EventSlot, EventType
 #from app.models.booking import Booking
 #from app.models.payments import Payment, EventPromotion, Promotion, Refund
-#from app.models.logs import add_login_record, add_logout_record
+from app import db_tools
 from app.forms.forms import LoginForm #, StaffLoginForm, RegistrationForm, \
 #							SearchForm, BookingForm, PaymentForm, AccountUpdateForm
 from flask import render_template, redirect, url_for, request, session, jsonify
@@ -86,8 +86,8 @@ def login():
 	if form.validate_on_submit():
 		user = User.query.filter_by(username=form.username.data).first()
 		login_user(user, remember=form.remember_me.data)
+		db_tools.add_login_record()
 		'''
-		add_login_record()
 		session['payment_due'] = None
 		'''
 		# return regular users to homepage; staff users to admin page
@@ -100,10 +100,9 @@ def login():
 	return render_template('login.html', title='EBS: Sign In', form=form)
 
 
+'''
 @app.route('/staff_login', methods=['GET', 'POST'])
 def staff_login():
-	return 'staff login page'
-	'''
 	# if already logged in redirect to admin page
 	if current_user.is_authenticated:
 		return redirect(url_for('index'))
@@ -118,13 +117,13 @@ def staff_login():
 
 	# renders staff login page
 	return render_template('staff_login.html', title='EBS: Admin', form=form)
-	'''
+'''
 
 
 @app.route('/logout')
 def logout():
 	#session['payment_due'] = None
-	#add_logout_record()
+	db_tools.add_logout_record()
 	logout_user()
 	return redirect(url_for('index'))
 
