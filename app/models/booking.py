@@ -10,7 +10,7 @@ class Booking(db.Model):
 
 	user = db.relationship('User', back_populates='bookings')
 	slot = db.relationship('EventSlot', back_populates='bookings')
-	payments = db.relationship('Payment', back_populates='booking')
+	#payments = db.relationship('Payment', back_populates='booking')
 
 	def __repr__(self):
 		return "Booking No: {}\nUserID: {}".format(self.booking_id, self.user_id)

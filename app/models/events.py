@@ -84,7 +84,7 @@ class EventSlot(db.Model):
 	event_id = db.Column(db.Integer, ForeignKey('event.event_id'))
 
 	event = db.relationship('Event', back_populates='slots')
-	#bookings = db.relationship('Booking', back_populates='slot')
+	bookings = db.relationship('Booking', back_populates='slot')
 
 	def __repr__(self):
 		return "[ SID:{:0>4} ] Date: {}"\

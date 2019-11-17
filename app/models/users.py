@@ -26,7 +26,7 @@ class User(UserMixin, db.Model):
 	group = db.relationship('UserGroup', back_populates='users')
 	logins = db.relationship('LoginHistory', back_populates='user')
 	logouts = db.relationship('LogoutHistory', back_populates='user')
-	#bookings = db.relationship('Booking', back_populates='user')
+	bookings = db.relationship('Booking', back_populates='user')
 
 	def __repr__(self):
 		return '[ UID:{:0>4} ] {}'.format(self.user_id, self.username)
