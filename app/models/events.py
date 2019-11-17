@@ -1,13 +1,14 @@
 from app import db
-from app.models.booking import Booking
+#from app.models.booking import Booking
 from sqlalchemy import ForeignKey
-from dateutil.parser import parse
-from datetime import timedelta
-from sqlalchemy.ext.hybrid import hybrid_property
-from sqlalchemy.sql import func
+#from dateutil.parser import parse
+#from datetime import timedelta
+#from sqlalchemy.ext.hybrid import hybrid_property
+#from sqlalchemy.sql import func
 
 
 class Venue(db.Model):
+	__tablename__ = 'venue'
 	venue_id = db.Column(db.Integer, primary_key=True)
 	name = db.Column(db.String, index=True, unique=True, nullable=False)
 
@@ -18,6 +19,7 @@ class Venue(db.Model):
 
 
 class EventType(db.Model):
+	__tablename__ = 'event_type'
 	type_id = db.Column(db.Integer, primary_key=True)
 	name = db.Column(db.String, index=True, unique=True, nullable=False)
 
@@ -28,6 +30,7 @@ class EventType(db.Model):
 
 
 class Event(db.Model):
+	__tablename__ = 'event'
 	event_id = db.Column(db.Integer, primary_key=True)
 	title = db.Column(db.String, index=True, nullable=False)
 	duration = db.Column(db.Float, nullable=False)
@@ -37,17 +40,18 @@ class Event(db.Model):
 	img_root = db.Column(db.String)
 	is_launched = db.Column(db.Boolean, nullable=False)
 	type_id = db.Column(db.Integer, ForeignKey('event_type.type_id'))
-	venue_id = db.Column(db.Integer, ForeignKey('venue.venue_id'), nullable=False)
+	venue_id = db.Column(db.Integer, ForeignKey('venue.venue_id'))
 
 	event_type = db.relationship('EventType', back_populates='events')
 	venue = db.relationship('Venue', back_populates='events')
 	slots = db.relationship('EventSlot', cascade='all, delete', back_populates='event')
-	promo_pairings = db.relationship('EventPromotion', cascade='all, delete', back_populates='event')
+	#promo_pairings = db.relationship('EventPromotion', cascade='all, delete', back_populates='event')
 
 	def __repr__(self):
 		return '[ EID:{:0>4} ] {}'\
 			.format(self.event_id, self.title)
 
+	'''
 	@hybrid_property
 	def has_active_slots(self):
 		active_slots = [slot for slot in self.slots if slot.is_active]
@@ -72,21 +76,24 @@ class Event(db.Model):
 		return db.select([db.func.max(EventSlot.event_date)])\
 				 .where(EventSlot.event_id == cls.event_id)\
 				 .correlate(cls).as_scalar()
+	'''
 
 
 class EventSlot(db.Model):
+	__tablename__ = 'event_slot'
 	slot_id = db.Column(db.Integer, primary_key=True)
 	event_date = db.Column(db.DateTime, nullable=False)
 	is_active = db.Column(db.Boolean)
 	event_id = db.Column(db.Integer, ForeignKey('event.event_id'))
 
 	event = db.relationship('Event', back_populates='slots')
-	bookings = db.relationship('Booking', back_populates='slot')
+	#bookings = db.relationship('Booking', back_populates='slot')
 
 	def __repr__(self):
 		return "[ SID:{:0>4} ] Date: {}"\
 			.format(self.slot_id, self.event_date, self.event_id)
 
+	'''
 	@hybrid_property
 	def start_time(self):
 		dt = parse(str(self.event_date))
@@ -145,3 +152,4 @@ class EventSlot(db.Model):
 		return db.select([db.func.count(Booking.booking_id)])\
 				 .where(Booking.event_slot_id == cls.slot_id)\
 				 .label('num_bookings')
+	'''
