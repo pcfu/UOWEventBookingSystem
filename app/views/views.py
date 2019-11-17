@@ -46,7 +46,6 @@ class AdminBaseView(ModelView):
 		return redirect(url_for('login'))
 
 
-'''
 class StaffVenueView(StaffBaseView):
 	# List View Settings
 	column_display_pk = True
@@ -62,6 +61,12 @@ class StaffEventTypeView(StaffBaseView):
 
 
 class StaffEventView(StaffBaseView):
+	# List View Settings
+	can_view_details = True
+	can_set_page_size = True
+	column_display_pk = True
+
+	'''
 	# File Paths
 	par_dir = Path(__file__).parents[1]
 	upload_path = path.join(par_dir, 'static/images')
@@ -159,9 +164,14 @@ class StaffEventView(StaffBaseView):
 		for slot in model.slots:
 			if slot.bookings:
 				raise ValidationError('Cannot delete event. One or more of its slots has bookings.')
-
+	'''
 
 class StaffEventSlotView(StaffBaseView):
+	# List View Settings
+	can_set_page_size = True
+	column_display_pk = True
+
+	'''
 	# List View Settings
 	can_set_page_size = True
 	column_display_pk = True
@@ -254,8 +264,10 @@ class StaffEventSlotView(StaffBaseView):
 		if model.bookings:
 			raise ValidationError('Cannot delete a slot that has bookings.')
 		utils.check_event_active_slots(model.event_id, sid=model.slot_id, mode='delete')
+'''
 
 
+'''
 class StaffBookingView(StaffBaseView):
 	# List View Settings
 	can_create = False
@@ -521,6 +533,7 @@ class StaffEventPromoView(StaffBaseView):
 
 class AdminUserView(AdminBaseView):
 	# List View Settings
+	can_set_page_size = True
 	column_display_pk = True
 	column_list = ['user_id', 'username', 'email', 'group.group_name']
 	column_labels = {'user_id' : 'ID',
@@ -569,6 +582,7 @@ class AdminLoginHistoryView(AdminBaseView):
 	can_create = False
 	can_edit = False
 	can_delete = False
+	can_set_page_size = True
 	column_display_pk = True
 	column_list = ['in_id', 'timestamp', 'user', 'user.group']
 	column_labels = { 'in_id' : 'ID',
@@ -596,6 +610,7 @@ class AdminLogoutHistoryView(AdminBaseView):
 	can_create = False
 	can_edit = False
 	can_delete = False
+	can_set_page_size = True
 	column_display_pk = True
 	column_list = ['out_id', 'timestamp', 'user', 'user.group']
 	column_labels = { 'out_id' : 'ID',

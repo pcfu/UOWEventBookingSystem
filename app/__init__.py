@@ -56,16 +56,18 @@ from app.views import views
 admin = Admin(app, name='UOW EBS', template_mode='bootstrap3',
 			  index_view=views.GlobalIndexView())
 
-'''
+
 # Add staff views
 admin.add_view(views.StaffVenueView(events.Venue, db.session, category='Events'))
 admin.add_view(views.StaffEventTypeView(events.EventType, db.session, category='Events'))
+
 with warnings.catch_warnings():
 	warnings.filterwarnings('ignore', 'Fields missing from ruleset', UserWarning)
 	admin.add_view(views.StaffEventView(events.Event, db.session, category='Events'))
 	admin.add_view(views.StaffEventSlotView(events.EventSlot, db.session, category='Events'))
-	admin.add_view(views.StaffPromotionView(payments.Promotion, db.session, category='Promotions'))
+	#admin.add_view(views.StaffPromotionView(payments.Promotion, db.session, category='Promotions'))
 
+'''
 admin.add_view(views.StaffEventPromoView(payments.EventPromotion, db.session, category='Promotions'))
 admin.add_view(views.StaffBookingView(booking.Booking, db.session))
 admin.add_view(views.StaffPaymentView(payments.Payment, db.session, category='Payments'))
