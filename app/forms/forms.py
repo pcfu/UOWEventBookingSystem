@@ -1,7 +1,7 @@
 from flask_wtf import FlaskForm
 #from app import db, query
 from app.models.users import User
-#from app.models.events import Event, EventSlot
+from app.models.events import EventType #, Event, EventSlot
 #from app.models.payments import EventPromotion, Promotion
 from wtforms import FormField, StringField, PasswordField, BooleanField, \
 					SelectField, SubmitField
@@ -112,9 +112,11 @@ class AccountUpdateForm(FlaskForm):
 	update_password = FormField(UpdatePasswordForm)
 '''
 
+
 class DateRangeForm(FlaskForm):
 	from_date = DateField(default=date.today(), label='From')
 	to_date = DateField(default=date.today(), label='To')
+
 
 class SearchForm(FlaskForm):
 	CHOICES = [('title', 'Title'),
@@ -125,10 +127,12 @@ class SearchForm(FlaskForm):
 			  ('cheap', '< $20'),
 			  ('mid', '$20 - 50'),
 			  ('expensive', '> $50')]
+	CATEGORIES = [(row.name, row.name) for row in EventType.query.all()]
+
 	STRING_FIELD = StringField()
 	DATE_FIELD = FormField(DateRangeForm)
 	PRICE_FIELD = SelectField(choices=RANGES)
-	TYPE_FIELD = SelectField(coerce=str)
+	TYPE_FIELD = SelectField(choices=CATEGORIES, coerce=str)
 
 	search_field = STRING_FIELD
 	search_type = SelectField(choices=CHOICES)

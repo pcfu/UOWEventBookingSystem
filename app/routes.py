@@ -32,12 +32,6 @@ def get_events(option):
 	elif option == 'price':
 		form.search_field = form.PRICE_FIELD
 	elif option == 'type':
-		categories = EventType.query.all()
-		type_choices = []
-		for category in categories:
-			type_choices.append((category, category))
-
-		form.TYPE_FIELD.choices = type_choices
 		form.search_field = form.TYPE_FIELD
 
 	if form.is_submitted():
