@@ -4,7 +4,7 @@ from app.models.users import User
 #from app.models.booking import Booking
 #from app.models.payments import Payment, EventPromotion, Promotion, Refund
 from app import db_tools
-from app.forms.forms import LoginForm #, StaffLoginForm, RegistrationForm, \
+from app.forms.forms import LoginForm, RegistrationForm
 #							SearchForm, BookingForm, PaymentForm, AccountUpdateForm
 from flask import render_template, redirect, url_for, request, session, jsonify
 from flask_login import current_user, login_user, logout_user
@@ -100,26 +100,6 @@ def login():
 	return render_template('login.html', title='EBS: Sign In', form=form)
 
 
-'''
-@app.route('/staff_login', methods=['GET', 'POST'])
-def staff_login():
-	# if already logged in redirect to admin page
-	if current_user.is_authenticated:
-		return redirect(url_for('index'))
-
-	form = StaffLoginForm()
-	if form.validate_on_submit():
-		staff = query.staff_user_query(form.username.data)
-		login_user(staff, remember=form.remember_me.data)
-		add_login_record()
-		session['payment_due'] = None
-		return redirect(url_for('admin.index'))
-
-	# renders staff login page
-	return render_template('staff_login.html', title='EBS: Admin', form=form)
-'''
-
-
 @app.route('/logout')
 def logout():
 	#session['payment_due'] = None
@@ -130,28 +110,28 @@ def logout():
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
-	return 'user registration page'
-	'''
 	# if already logged in redirect to homepage
 	if current_user.is_authenticated:
 		return redirect(url_for('index'))
 
 	form = RegistrationForm()
 	if form.validate_on_submit():
-		new_user = User(username=form.username.data,
-						email=form.email.data,
-						is_staff=False)
+		# Add new user record to db
+		new_user = User(username=form.username.data, email=form.email.data, group_id=1)
 		new_user.set_password(form.password.data)
 		db.session.add(new_user)
 		db.session.commit()
+
+		# Auto login new user
 		login_user(new_user)
-		add_login_record()
+		db_tools.add_login_record()
+		'''
+		session['payment_due'] = None
+		'''
 		return redirect(url_for('index'))
 
-	return render_template('register.html',
-						   title='EBS: Account Registration',
-						   form=form)
-'''
+	return render_template('register.html', title='EBS: Account Registration', form=form)
+
 
 @app.route('/my_account', methods=['GET', 'POST'])
 def my_account():

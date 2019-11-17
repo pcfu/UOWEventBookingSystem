@@ -6,8 +6,8 @@ from app.models.users import User
 from wtforms import SubmitField, StringField, PasswordField, BooleanField #, HiddenField,\
 #					IntegerField, SelectField, DecimalField, FormField
 #from wtforms.fields.html5 import DateField
-from wtforms.validators import DataRequired, ValidationError#, EqualTo, \
-#								NumberRange, Email, Optional
+from wtforms.validators import DataRequired, ValidationError, Email, EqualTo
+#								NumberRange, Optional
 #from wtforms_components import NumberInput
 #from flask_login import current_user
 #from app.views.utils import is_admin_user
@@ -40,21 +40,6 @@ class LoginForm(FlaskForm):
 		return True
 
 
-'''
-class MemberLoginForm(BaseLogin):
-	def validate(self):
-		user = User.query.filter(User.is_staff == False,
-								 User.username == self.username.data).first()
-		return super().authenticate(user)
-
-
-class StaffLoginForm(BaseLogin):
-	def validate(self):
-		target_name = self.username.data
-		staff = staff_user_query(target_name)
-		return super().authenticate(staff)
-
-
 class RegistrationForm(FlaskForm):
 	username = StringField('Username', validators=[DataRequired()])
 	email = StringField('Email', validators=[DataRequired(), Email()])
@@ -75,6 +60,7 @@ class RegistrationForm(FlaskForm):
 			raise ValidationError('Email already taken')
 
 
+'''
 class UpdateEmailForm(FlaskForm):
 	email = StringField('New Email', validators=[Email()])
 	update_email = SubmitField('Update')
