@@ -15,7 +15,10 @@ def img_filename_gen(obj, file_data):
 	if obj.event_id is None:
 		with db.session.no_autoflush:
 			last_event = Event.query.order_by(Event.event_id.desc()).first()
-		idx = f'{(last_event.event_id + 1):04}'
+			if last_event is None:
+				idx = f'{1:04}'
+			else:
+				idx = f'{(last_event.event_id + 1):04}'
 	else:
 		idx = f'{obj.event_id:04}'
 
