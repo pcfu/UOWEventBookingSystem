@@ -258,7 +258,6 @@ class StaffEventSlotView(StaffBaseView):
 		utils.check_event_active_slots(model.event_id, sid=model.slot_id, mode='delete')
 
 
-'''
 class StaffBookingView(StaffBaseView):
 	# List View Settings
 	can_create = False
@@ -275,23 +274,17 @@ class StaffBookingView(StaffBaseView):
 					  'slot.event' : 'Event' }
 
 	# Filters
-	column_filters = ['user.username', 'user.user_id', 'slot.slot_id',
-					  'slot.event_date', 'slot.event.title', 'slot.event.event_id']
-	column_filter_labels = { 'user.username' : 'username',
-							 'user.user_id' : 'user id',
+	column_filters = ['user.user_id', 'user.username', 'slot.slot_id',
+					  'slot.event_date', 'slot.event.event_id', 'slot.event.title']
+	column_filter_labels = { 'user.user_id' : 'user id',
+							 'user.username' : 'username',
 							 'slot.slot_id' : 'slot id',
-							 'slot.event_date' : 'event date',
-							 'slot.event.title' : 'event name',
-							 'slot.event.event_id' : 'event id'}
-
-	def scaffold_filters(self, name):
-		filters = super().scaffold_filters(name)
-		if name in self.column_filter_labels:
-			for f in filters:
-				f.name = self.column_filter_labels[name]
-		return filters
+							 'slot.event_date' : 'slot date',
+							 'slot.event.event_id' : 'event id',
+							 'slot.event.title' : 'event name' }
 
 
+'''
 class StaffPaymentView(StaffBaseView):
 	# List View Settings
 	can_create = False
