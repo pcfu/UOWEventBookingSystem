@@ -1,5 +1,5 @@
 from app import db
-#from app.models.booking import Booking
+from app.models.booking import Booking
 from sqlalchemy import ForeignKey
 from sqlalchemy.ext.hybrid import hybrid_property
 from dateutil.parser import parse
@@ -123,12 +123,6 @@ class EventSlot(db.Model):
 		return db.exists().where(db.and_(Event.event_id == cls.event_id,
 										 Event.is_launched == True)).correlate(cls)
 
-	# TEMP PROPERTY
-	@property
-	def vacancy(self):
-		return self.event.capacity
-
-	'''
 	@hybrid_property
 	def vacancy(self):
 		seats = self.event.capacity
@@ -154,4 +148,3 @@ class EventSlot(db.Model):
 		return db.select([db.func.count(Booking.booking_id)])\
 				 .where(Booking.event_slot_id == cls.slot_id)\
 				 .label('num_bookings')
-	'''
