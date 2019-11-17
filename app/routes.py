@@ -4,7 +4,7 @@ from app.models.events import EventType, Event, EventSlot
 from app.models.booking import Booking
 #from app.models.payments import Payment, EventPromotion, Promotion, Refund
 from app.forms.forms import LoginForm, RegistrationForm, SearchForm, \
-							BookingForm #, PaymentForm, AccountUpdateForm
+							BookingForm, PaymentForm #, AccountUpdateForm
 from flask import render_template, redirect, url_for, request, session, jsonify
 from flask_login import current_user, login_user, logout_user
 from flask import flash
@@ -290,20 +290,17 @@ def booking_vacancy(sid):
 
 @app.route('/booking/payment', methods=['GET', 'POST'])
 def payment():
-	sid = session['payment_due']['slot_id']
-	return 'Payment page for Slot {}'.format(sid)
-
-	'''
 	# Redirect to other endpoint if pre-reqs not met
 	if not current_user.is_authenticated:
-		return redirect(url_for('user_login'))
-	elif is_admin_user() or session['payment_due'] is None:
+		return redirect(url_for('login'))
+	elif current_user.is_admin() or session['payment_due'] is None:
 		return redirect(url_for('index'))
 
 	# Retrieve payment details from session object
 	payment = session['payment_due']
 	payment['title'] = Event.query.get(payment['event_id']).title
-	payment['time'] = EventSlot.query.get(payment['slot_id']).event_date
+	payment['time'] = EventSlot.query.get(payment['slot_id']).event_date\
+							   .strftime('%d %b %Y, %-I:%M %p')
 	if not 'promo_id' in payment:
 		payment['promo_id'] = None
 
@@ -331,46 +328,15 @@ def payment():
 				e_msg='{}{}'.format('Number of tickets exceed available seats. ',
 									'Please edit your booking.'),
 				page='booking page',
-				redirect_url=url_for('booking', eid=payment['event_id']),
-				is_admin=is_admin_user(), is_staff=is_staff_user())
+				redirect_url=url_for('booking', eid=payment['event_id']) )
 
 		# Update db
-		db_update_booking_payment(form=form, payment=payment)
+		db_tools.update_booking_payment(form=form, payment=payment)
 
 		# Clear session object and confirm booking
 		session['payment_due'] = None
 		is_new_booking = payment['booking_type'] == 'new'
 		return render_template('confirm_booking.html',
-							   redirect_homepage=is_new_booking,
-							   is_admin=is_admin_user(),
-							   is_staff=is_staff_user())
+							   redirect_homepage=is_new_booking)
 
-	return render_template('payment.html', form=form, booking_details=payment,
-						   is_admin=is_admin_user(), is_staff=is_staff_user())
-
-
-#####################################
-# Supporting function for payment() #
-#####################################
-
-def db_update_booking_payment(form, payment):
-	# Update db with new booking or edit existing booking
-	if payment['booking_type'] == 'new':
-		booking = Booking(user_id=payment['user_id'],
-						  event_slot_id=payment['slot_id'],
-						  quantity=payment['quantity'])
-		db.session.add(booking)
-	elif payment['booking_type'] == 'update':
-		booking = Booking.query.get(payment['booking_id'])
-		booking.quantity += payment['quantity']
-	db.session.commit()
-
-	# Update db with new payment record
-	new_payment = Payment(quantity=payment['quantity'],
-						  amount=(payment['price'] * payment['quantity']),
-						  card_number=form.card_number.data,
-						  booking_id=booking.booking_id,
-						  promotion_id=payment['promo_id'])
-	db.session.add(new_payment)
-	db.session.commit()
-'''
+	return render_template('payment.html', form=form, booking_details=payment)

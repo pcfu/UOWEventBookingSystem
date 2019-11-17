@@ -1,5 +1,7 @@
 from app import db
 from app.models.events import EventType, Event, EventSlot
+from app.models.booking import Booking
+from app.models.payments import Payment
 from app.models.logs import LoginHistory, LogoutHistory
 from flask_login import current_user
 from sqlalchemy.sql import func
@@ -81,6 +83,28 @@ def format_events(records):
 			event['timings'][date] = [(time, vacancy)]
 
 	return event
+
+
+def update_booking_payment(form, payment):
+	# Update db with new booking or edit existing booking
+	if payment['booking_type'] == 'new':
+		booking = Booking(user_id=payment['user_id'],
+						  event_slot_id=payment['slot_id'],
+						  quantity=payment['quantity'])
+		db.session.add(booking)
+	elif payment['booking_type'] == 'update':
+		booking = Booking.query.get(payment['booking_id'])
+		booking.quantity += payment['quantity']
+	db.session.commit()
+
+	# Update db with new payment record
+	new_payment = Payment(quantity=payment['quantity'],
+						  amount=(payment['price'] * payment['quantity']),
+						  card_number=form.card_number.data,
+						  booking_id=booking.booking_id,
+						  promotion_id=payment['promo_id'])
+	db.session.add(new_payment)
+	db.session.commit()
 
 
 ########################

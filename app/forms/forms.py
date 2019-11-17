@@ -2,18 +2,17 @@ from flask_wtf import FlaskForm
 from app import db_tools
 from app.models.users import User
 from app.models.events import EventType, EventSlot #, Event
-from app.models.payments import Payment #, EventPromotion, Promotion
-from wtforms import FormField, StringField, PasswordField, BooleanField, \
-					IntegerField, DecimalField, SelectField, SubmitField
-					#HiddenField
+from app.models.payments import Payment, Promotion #, EventPromotion
+from wtforms import FormField, StringField, PasswordField, \
+					BooleanField, IntegerField, DecimalField, \
+					SelectField, SubmitField, HiddenField
 from wtforms.fields.html5 import DateField
 from wtforms.validators import DataRequired, ValidationError, Email, \
-							   EqualTo, NumberRange #, Optional
+							   EqualTo, NumberRange, Optional
 from wtforms_components import NumberInput
 #from flask_login import current_user
-#from sqlalchemy.sql import func
 from datetime import date, datetime
-#import re
+import re
 
 
 def RaiseError(field, message='Invalid data'):
@@ -193,7 +192,6 @@ class BookingForm(FlaskForm):
 		self.capacity = event.capacity
 
 
-'''
 class PromotionForm(FlaskForm):
 	promo_code = StringField('Promotion Code')
 	promo_event_id = IntegerField()
@@ -253,4 +251,3 @@ class PaymentForm(FlaskForm):
 		if (expire_year.data > int(datetime.now().strftime("%y")) + 5) or \
 		(expire_year.data < int(datetime.now().strftime("%y"))) or (expire_year.data < 1):
 			raise ValidationError('Invalid year!')
-'''
