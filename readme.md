@@ -1,10 +1,11 @@
 # CSIT214 - Event Booking System
 
-This repository contains the prototype for CSIT214's Event Booking System for my group. It uses Flask micro framework for web services and Flask-SQLAlchemy
-
+Completed prototype for CSIT214's Event Booking System. 
+<br>Flask micro web service framework
+<br>HTML, CSS, Bootstrap 4, JS, JQuery for front page
 ## Installation
 
-Follow the below instructions in cmd/bash for a rough guide on how to get this working - The below code assumes you already have Git installed on your computer. The instruction creates an isolated venv and activates it, which then installs the required packages via requirements.txt so they are not installed globally.
+Follow the below instructions in cmd for a rough guide on how to get this working - The below code assumes you already have Git installed on your computer. The instruction creates an isolated venv and activates it, which then installs the required packages via requirements.txt so they are not installed globally.
 ```bash
 ::cd into your desired directory
 git clone <this_repository_url>
@@ -25,15 +26,14 @@ http://localhost:4000/ to access the website
 
 
 ## Tasks
-1. Once the above (prioritized and chosen) tasks are done, a major cleanup will be required - HTML requires segregation with inline css styling as much as possible, JS to live separately in /js/. Flask end will have to deal with code block segmentation and categorizing for organization.
-
-### Optional Tasks (mostly UI)
-- <s>Member/Staff login + registration interactable buttons: highlight on mouseover? make consistent with rest of website theme</s> - Done, Jon
-- <s>Payment page: Price set to 2 decimal places</s> - Done, Jon
-- <s> Error messages: Create a css class for error messages</s> Done, Jon
-- <s>Consider making even title text smaller on event search page </s> - Done, Jon
-- (not so important) Event details page. List of timings. Make thematically similar to my_bookings listing
-
+- Test out the system and ensure that following functions can be done 
+    1. Staff User login, Create/Update/Delete 3 DIFFERENT Event Types & Date/Time
+    2. Student Login
+        - Search by event type, date range, price range
+        - Book > 1 ticket, for >= 2 different events
+        - Cancel existing booking
+    3. Change Request
+        - <s>User Management</s> / <b>System Admin </b>
 
 ## Contributing
 ```git
