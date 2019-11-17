@@ -5,11 +5,11 @@ from app.models.events import Event, EventSlot
 #from app.models.booking import Booking
 from app.models.logs import LoginHistory, LogoutHistory
 from flask_admin import AdminIndexView
-from flask_admin.contrib.sqla import ModelView#, filters
+from flask_admin.contrib.sqla import ModelView
 from wtforms import StringField
 from flask_admin.form.upload import ImageUploadField
 from wtforms.validators import DataRequired, NumberRange, ValidationError, Email
-from app.forms.custom_validators import Interval #, DateInRange
+from app.forms.custom_validators import Interval, DateInRange
 from app.views import utils, filters
 from flask_login import current_user
 from flask import redirect, url_for
@@ -170,11 +170,6 @@ class StaffEventSlotView(StaffBaseView):
 	# List View Settings
 	can_set_page_size = True
 	column_display_pk = True
-
-	'''
-	# List View Settings
-	can_set_page_size = True
-	column_display_pk = True
 	column_list = ['slot_id', 'is_launched', 'is_active', 'event', 'event.venue',
 				   'event_date', 'start_time', 'end_time', 'vacancy', 'num_bookings']
 	column_labels = { 'slot_id' : 'ID',
@@ -201,13 +196,6 @@ class StaffEventSlotView(StaffBaseView):
 	column_filter_labels = dict(event='Event', num_bookings='Total Bookings')
 	column_filter_labels = { 'event.title' : 'Event',
 							 'num_bookings' : 'Total Bookings'}
-
-	def scaffold_filters(self, name):
-		filters = super().scaffold_filters(name)
-		if name in self.column_filter_labels:
-			for f in filters:
-				f.name = self.column_filter_labels[name]
-		return filters
 
 	# Create/Edit Form Settings
 	form_columns = ['event', 'event_date', 'is_active']
@@ -242,7 +230,9 @@ class StaffEventSlotView(StaffBaseView):
 		# Validate promotions start dates against any changes to event last date
 		# This MUST come BEFORE the next check
 		last_date = event.last_active_date
+		'''
 		self.check_event_promo_dates(last_date, event.promo_pairings)
+		'''
 
 		# Verify no slot clashes and deactivate event if no active slots left
 		utils.check_slot_clash(schedule, timing, model.slot_id)
@@ -258,13 +248,14 @@ class StaffEventSlotView(StaffBaseView):
 				date = slot.event_date.date()
 				if not last_date or date > last_date:
 					last_date = date
+		'''
 		self.check_event_promo_dates(last_date, event.promo_pairings)
+		'''
 
 		# Verify no current bookings and deactivate event if no active slots left
 		if model.bookings:
 			raise ValidationError('Cannot delete a slot that has bookings.')
 		utils.check_event_active_slots(model.event_id, sid=model.slot_id, mode='delete')
-'''
 
 
 '''
@@ -530,6 +521,7 @@ class StaffEventPromoView(StaffBaseView):
 				msg += 'not before last day of event [ {} ].'.format(event_last_date)
 				raise ValidationError(msg)
 '''
+
 
 class AdminUserView(AdminBaseView):
 	# List View Settings

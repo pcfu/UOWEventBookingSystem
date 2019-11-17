@@ -1,11 +1,8 @@
 from app import db
-#from app.models.users import User, Admin
 from app.models.events import Event
-#from flask_login import current_user
-#from sqlalchemy.sql import literal_column
 from werkzeug.utils import secure_filename
 from wtforms.validators import ValidationError
-from datetime import timedelta #, date
+from datetime import timedelta
 from os import path
 
 
@@ -56,7 +53,6 @@ def check_slot_clash(schedule, timing, id_):
 					raise ValidationError(error_msg)
 
 
-'''
 def check_event_active_slots(eid, sid=None, mode='edit'):
 	active_slots = []
 	event = Event.query.get(eid)
@@ -69,4 +65,3 @@ def check_event_active_slots(eid, sid=None, mode='edit'):
 	if not active_slots:
 		event.is_launched = False
 		db.session.commit()
-'''
