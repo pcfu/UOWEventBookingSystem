@@ -123,6 +123,11 @@ class EventSlot(db.Model):
 		return db.exists().where(db.and_(Event.event_id == cls.event_id,
 										 Event.is_launched == True)).correlate(cls)
 
+	# TEMP PROPERTY
+	@property
+	def vacancy(self):
+		return self.event.capacity
+
 	'''
 	@hybrid_property
 	def vacancy(self):

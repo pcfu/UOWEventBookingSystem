@@ -15,6 +15,7 @@ def staff_user_query(name):
 	return user
 
 
+'''
 def format_events(records):
 	event = { 'title' : records[0].Event.title,
 			  'venue' : records[0].Event.venue,
@@ -38,6 +39,7 @@ def format_events(records):
 			event['timings'][date] = [(time, vacancy)]
 
 	return event
+'''
 
 
 def format_bookings(records):

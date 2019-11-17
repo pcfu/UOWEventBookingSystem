@@ -1,6 +1,6 @@
 from app import app, db, db_tools
 from app.models.users import User
-from app.models.events import EventType #,Event, EventSlot
+from app.models.events import EventType, Event #, EventSlot
 #from app.models.booking import Booking
 #from app.models.payments import Payment, EventPromotion, Promotion, Refund
 from app.forms.forms import LoginForm, RegistrationForm, SearchForm
@@ -51,19 +51,17 @@ def get_events(option):
 						   form=form, event_list=db_tools.get_event_list())
 
 
-'''
 @app.route('/event/details/<eid>')
 def event_details(eid):
 	# Redirect to homepage if no event with specified eid
-	records = query.details_query(eid)
+	records = db_tools.details_query(eid)
 	if not records:
 		return redirect(url_for('index'))
 
-	event = query.format_events(records)
+	event = db_tools.format_events(records)
 	return render_template('details.html',
-						   title='EBS: {}'.format(event['title']), event=event,
-						   is_admin=is_admin_user(), is_staff=is_staff_user())
-'''
+						   title='EBS: {}'.format(event['title']),
+						   event=event)
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -237,19 +235,23 @@ def cancel_booking(bid, delta):
 	return render_template('confirm_refund.html',
 						   amount=refund_amount, qty=delta, details=details,
 						   is_admin=is_admin_user(), is_staff=is_staff_user())
+'''
 
 
 @app.route('/booking/<eid>', methods=['GET', 'POST'])
 def booking(eid):
 	# Redirect to other endpoint if pre-reqs not met
 	if not current_user.is_authenticated:
-		return redirect(url_for('user_login'))
-	elif is_admin_user():
+		return redirect(url_for('login'))
+	elif current_user.is_admin():
 		return redirect(url_for('event_details', eid=eid))
 	event = Event.query.get(eid)
 	if not event or not event.is_launched:
 		return redirect(url_for('index'))
 
+	return 'Book event {}'.format(eid)
+
+	'''
 	# Create booking form
 	form = BookingForm()
 	form.preload(current_user, event)
@@ -265,8 +267,9 @@ def booking(eid):
 
 	return render_template('booking.html', form=form, eid=eid,
 						   is_admin=is_admin_user(), is_staff=is_staff_user())
+	'''
 
-
+'''
 @app.route('/booking/<eid>/<date>')
 def booking_slot(eid, date):
 	timings = []

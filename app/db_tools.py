@@ -3,6 +3,7 @@ from app.models.events import EventType, Event, EventSlot
 from app.models.logs import LoginHistory, LogoutHistory
 from flask_login import current_user
 from sqlalchemy.sql import func
+from dateutil.parser import parse
 from datetime import datetime
 
 
@@ -30,6 +31,45 @@ def get_event_list(search_type=None, keyword=None):
 	else:
 		return price_query(keyword)
 
+
+def details_query(eid):
+	return db.session.query(Event, EventSlot)\
+					 .join(EventSlot, Event.event_id == EventSlot.event_id)\
+					 .filter(Event.event_id == eid,
+							 Event.is_launched,
+							 EventSlot.is_active)\
+					 .order_by(EventSlot.event_date).all()
+
+
+def format_events(records):
+	event = { 'title' : records[0].Event.title,
+			  'venue' : records[0].Event.venue,
+			  'timings' : dict(),
+			  'duration' : int(records[0].Event.duration * 60),
+			  'capacity' : records[0].Event.capacity,
+			  'type': records[0].Event.event_type,
+			  'desc': records[0].Event.description,
+			  'price' : records[0].Event.price,
+			  'img_root' : records[0].Event.img_root,
+			  'event_id' : records[0].Event.event_id }
+
+	for row in records:
+		dt = parse(str(row.EventSlot.event_date))
+		date = str(dt.date())
+		time = str(dt.time().strftime('%H:%M'))
+
+		vacancy = row.EventSlot.vacancy
+		if date in event['timings']:
+			event['timings'][date].append((time, vacancy))
+		else:
+			event['timings'][date] = [(time, vacancy)]
+
+	return event
+
+
+########################
+# Supporting Functions #
+########################
 
 def query_all():
 	return db.session.query(Event.event_id, Event.title, Event.img_root)\
@@ -109,15 +149,6 @@ def price_query(keyword):
 
 
 '''
-def details_query(eid):
-	return db.session.query(Event, EventSlot)\
-					 .join(EventSlot, Event.event_id == EventSlot.event_id)\
-					 .filter(Event.event_id == eid,
-							 Event.is_launched,
-							 EventSlot.is_active)\
-					 .order_by(EventSlot.event_date).all()
-
-
 def event_dates_query(eid):
 	return db.session.query(func.DATE(EventSlot.event_date).label('date'),
 							EventSlot.vacancy.label('vacancy'))\
