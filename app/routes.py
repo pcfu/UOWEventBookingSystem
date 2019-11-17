@@ -5,7 +5,7 @@ from app.models.booking import Booking
 from app.models.payments import Payment, EventPromotion, Promotion, Refund
 from app.models.logs import add_login_record, add_logout_record
 from app.forms.forms import MemberLoginForm, StaffLoginForm, RegistrationForm, \
-							SearchForm, BookingForm, PaymentForm, AccountUpdateForm
+							SearchForm, BookingForm, PaymentForm, AccountUpdateForm, DateRangeForm
 from flask import render_template, redirect, url_for, request, session, jsonify
 from flask_login import current_user, login_user, logout_user
 from app.views.utils import is_admin_user, is_staff_user
@@ -32,21 +32,25 @@ def get_events(option):
 	form = SearchForm()
 	form.search_type.data = option
 	if option == 'date':
+		#form.search_field = form.DATE_FIELD
 		form.search_field = form.DATE_FIELD
 	elif option == 'price':
 		form.search_field = form.PRICE_FIELD
 	elif option == 'type':
 		types_query = (EventType.query.all())
 		list_of_types = []
-		for type in types_query:
-			list_of_types.append((type, type))
+		for event_type in types_query:
+			list_of_types.append((event_type, event_type))
 
 		form.TYPE_FIELD.choices = list_of_types
 		form.search_field = form.TYPE_FIELD
 
 	if form.is_submitted():
 		search_type = form.search_type.data
-		keyword = str(form.search_field.data).strip()
+		if not option == 'date':
+			keyword = str(form.search_field.data).strip()
+		else:
+			keyword = form.search_field.data
 		if len(keyword) > 0:
 			return render_template(
 				'index.html', title='Event Booking System', form=form,

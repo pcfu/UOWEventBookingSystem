@@ -122,6 +122,9 @@ class AccountUpdateForm(FlaskForm):
 	update_email = FormField(UpdateEmailForm)
 	update_password = FormField(UpdatePasswordForm)
 
+class DateRangeForm(FlaskForm):
+	from_date = DateField(default=date.today())
+	to_date = DateField(default=date.today())
 
 class SearchForm(FlaskForm):
 	CHOICES = [('title', 'Title'),
@@ -133,7 +136,7 @@ class SearchForm(FlaskForm):
 			  ('mid', '$20 - 50'),
 			  ('expensive', '> $50')]
 	STRING_FIELD = StringField()
-	DATE_FIELD = DateField(default=date.today())
+	DATE_FIELD = FormField(DateRangeForm)
 	PRICE_FIELD = SelectField(choices=RANGES)
 	TYPE_FIELD = SelectField(coerce=str)
 

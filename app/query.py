@@ -45,14 +45,17 @@ def type_query(keyword):
 
 def date_query(keyword):
 	records = []
-	if keyword == 'None' or datetime.strptime(keyword, '%Y-%m-%d').date() < date.today():
-		flash('Invalid date')
-	else:
-		records = db.session.query(Event.event_id, Event.title, Event.img_root)\
+	print(keyword['from_date'])
+	print(keyword['to_date'])
+	"""records = db.session.query(Event.event_id, Event.title, Event.img_root)\
 							.join(EventSlot, Event.event_id == EventSlot.event_id)\
 							.filter(Event.is_launched, Event.has_active_slots,
 									func.DATE(EventSlot.event_date) == keyword)\
 							.group_by(Event.event_id).order_by(Event.title).all()
+	"""
+	records = db.session.query(Event.event_id, Event.title, Event.img_root).join(EventSlot, Event.event_id == EventSlot.event_id).group_by(Event.event_id).order_by(Event.title)\
+			.filter(EventSlot.event_date > keyword['from_date'], EventSlot.event_date < keyword['to_date']).all()
+
 
 	return records
 
