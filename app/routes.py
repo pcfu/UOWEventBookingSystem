@@ -1,7 +1,7 @@
 from app import app, db, db_tools
 from app.models.users import User
 from app.models.events import EventType, Event #, EventSlot
-#from app.models.booking import Booking
+from app.models.booking import Booking
 #from app.models.payments import Payment, EventPromotion, Promotion, Refund
 from app.forms.forms import LoginForm, RegistrationForm, SearchForm
 #							BookingForm, PaymentForm, AccountUpdateForm

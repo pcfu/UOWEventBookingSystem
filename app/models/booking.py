@@ -3,6 +3,7 @@ from sqlalchemy import ForeignKey
 
 
 class Booking(db.Model):
+	__tablename__ = 'booking'
 	booking_id = db.Column(db.Integer, primary_key=True)
 	quantity = db.Column(db.Integer, nullable=False)
 	user_id = db.Column(db.Integer, ForeignKey('user.user_id'))
