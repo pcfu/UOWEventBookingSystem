@@ -34,7 +34,6 @@ def get_events(option):
 	elif option == 'type':
 		form.search_field = form.TYPE_FIELD
 
-	#if form.is_submitted():
 	if form.validate_on_submit():
 		search_type = form.search_type.data
 		if not option == 'date':
