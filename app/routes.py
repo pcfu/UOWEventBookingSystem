@@ -1,4 +1,4 @@
-from app import app, db #, query, session
+from app import app, db #, query
 from app.models.users import User
 #from app.models.events import Event, EventSlot, EventType
 #from app.models.booking import Booking
@@ -87,9 +87,8 @@ def login():
 		user = User.query.filter_by(username=form.username.data).first()
 		login_user(user, remember=form.remember_me.data)
 		db_tools.add_login_record()
-		'''
 		session['payment_due'] = None
-		'''
+
 		# return regular users to homepage; staff users to admin page
 		if user.is_regular():
 			return redirect(url_for('index'))
@@ -102,7 +101,7 @@ def login():
 
 @app.route('/logout')
 def logout():
-	#session['payment_due'] = None
+	session['payment_due'] = None
 	db_tools.add_logout_record()
 	logout_user()
 	return redirect(url_for('index'))
@@ -122,12 +121,10 @@ def register():
 		db.session.add(new_user)
 		db.session.commit()
 
-		# Auto login new user
+		# Autologin and redirect new user
 		login_user(new_user)
 		db_tools.add_login_record()
-		'''
 		session['payment_due'] = None
-		'''
 		return redirect(url_for('index'))
 
 	return render_template('register.html', title='EBS: Account Registration', form=form)

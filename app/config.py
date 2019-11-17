@@ -7,8 +7,8 @@ class Config(object):
 		'sqlite:///' + os.path.join(basedir, 'csit214_database.db')
 	SQLALCHEMY_TRACK_MODIFICATIONS = False
 	SECRET_KEY = 'secret'
-	'''
 	SESSION_TYPE = 'filesystem'
+	'''
 	JOBS = [ { 'id' : 'job1',
 			   'func' : 'app.scheduled_tasks:deactivate_expired_slots',
 			   'trigger' : 'interval',

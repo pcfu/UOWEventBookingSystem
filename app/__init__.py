@@ -4,7 +4,7 @@ from sqlalchemy import MetaData
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_login import LoginManager
-#from flask_session import Session
+from flask_session import Session
 #from flask_apscheduler import APScheduler
 from flask_admin import Admin
 from flask_admin.menu import MenuLink
@@ -34,11 +34,11 @@ migrate = Migrate(app, db, render_as_batch=True) # Flask database migration mana
 login_manager = LoginManager(app) # Flask login_manager
 
 
-'''
 # Set up session
 Session(app)
 
 
+'''
 # Create scheduler (conditional prevents scheduler from initialising twice)
 if os.environ.get('WERKZEUG_RUN_MAIN') == 'true':
 	scheduler = APScheduler()
