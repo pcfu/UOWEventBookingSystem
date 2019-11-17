@@ -123,8 +123,8 @@ class AccountUpdateForm(FlaskForm):
 	update_password = FormField(UpdatePasswordForm)
 
 class DateRangeForm(FlaskForm):
-	from_date = DateField(default=date.today())
-	to_date = DateField(default=date.today())
+	from_date = DateField(default=date.today(), label='From')
+	to_date = DateField(default=date.today(), label='To')
 
 class SearchForm(FlaskForm):
 	CHOICES = [('title', 'Title'),

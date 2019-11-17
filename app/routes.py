@@ -51,6 +51,8 @@ def get_events(option):
 			keyword = str(form.search_field.data).strip()
 		else:
 			keyword = form.search_field.data
+			if keyword['from_date'] > keyword['to_date']:
+				flash('End date cannot be earlier than start date!')
 		if len(keyword) > 0:
 			return render_template(
 				'index.html', title='Event Booking System', form=form,
