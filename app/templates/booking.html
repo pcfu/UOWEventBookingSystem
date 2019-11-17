@@ -67,8 +67,7 @@
 				Tickets
 			</div>
 			<div class="col-sm-3">
-			  	{{ form.count(onchange="refreshPrice()", max=form.vacancy.data) }}
-				<!-- {{ form.count(onchange="refreshPrice()", max=capacity, onkeydown="return false") }} -->
+			  	{{ form.count(onchange="refreshPrice()", min=1, max=form.vacancy.data) }}
 				{% for error in form.count.errors %}
 				<span style="color: red;">[{{ error }}]</span>
 				{% endfor %}
@@ -97,16 +96,11 @@
 
 <!-- Dynamic updates -->
 <script>
-function refreshPrice(){
-    document.getElementById('price').value =
-		parseFloat(document.getElementById('count').value * basePrice).toFixed(2)
-}
-</script>
-
-<!-- Dynamically update available times based on date selected -->
-<script>
+  // Configure date and time select fields
   let date_select = document.getElementById('date');
   let time_select = document.getElementById('time');
+  date_select.style.fontSize = "smaller";
+  time_select.style.fontSize = "smaller";
 
   // Update available times and vacancy based on date selected
   date_select.onchange = function() {
@@ -119,7 +113,8 @@ function refreshPrice(){
 
 			  for (let timing of data.timings) {
 				  time_choices_HTML += '<option value="' + timing.slot_id
-										+ '">' + timing.time + '</option>';
+										  + '">' + timing.time + '</option>';
+
 				  if (count == 0) {
 					  document.getElementById('vacancy').value = timing.vacancy;
 					  document.getElementById('count').max = timing.vacancy;
@@ -142,6 +137,11 @@ function refreshPrice(){
 		  });
 	  });
   }
-</script>
 
+  // Update total price based on ticket quantity
+  function refreshPrice(){
+      document.getElementById('price').value =
+		  parseFloat(document.getElementById('count').value * basePrice).toFixed(2)
+  }
+</script>
 {% endblock %}

@@ -41,6 +41,22 @@ def details_query(eid):
 					 .order_by(EventSlot.event_date).all()
 
 
+def event_dates_query(eid):
+	return db.session.query(func.DATE(EventSlot.event_date).label('date'),
+							EventSlot.vacancy.label('vacancy'))\
+					 .filter(EventSlot.event_id == eid, EventSlot.is_active)\
+					 .order_by(EventSlot.event_date).all()
+
+
+def event_times_query(eid, date):
+	return db.session.query(EventSlot.slot_id,
+							func.TIME(EventSlot.event_date).label('time'),
+							EventSlot.vacancy.label('vacancy'))\
+					 .filter(EventSlot.event_id == eid, EventSlot.is_active,
+							 func.DATE(EventSlot.event_date) == date)\
+					 .order_by(EventSlot.event_date).all()
+
+
 def format_events(records):
 	event = { 'title' : records[0].Event.title,
 			  'venue' : records[0].Event.venue,
@@ -146,21 +162,3 @@ def price_query(keyword):
 		records = records.filter(Event.price > 50).all()
 
 	return records
-
-
-'''
-def event_dates_query(eid):
-	return db.session.query(func.DATE(EventSlot.event_date).label('date'),
-							EventSlot.vacancy.label('vacancy'))\
-					 .filter(EventSlot.event_id == eid, EventSlot.is_active)\
-					 .order_by(EventSlot.event_date).all()
-
-
-def event_times_query(eid, date):
-	return db.session.query(EventSlot.slot_id,
-							func.TIME(EventSlot.event_date).label('time'),
-							EventSlot.vacancy.label('vacancy'))\
-					 .filter(EventSlot.event_id == eid, EventSlot.is_active,
-							 func.DATE(EventSlot.event_date) == date)\
-					 .order_by(EventSlot.event_date).all()
-'''

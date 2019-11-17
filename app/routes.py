@@ -1,14 +1,14 @@
 from app import app, db, db_tools
 from app.models.users import User
-from app.models.events import EventType, Event #, EventSlot
+from app.models.events import EventType, Event, EventSlot
 from app.models.booking import Booking
 #from app.models.payments import Payment, EventPromotion, Promotion, Refund
-from app.forms.forms import LoginForm, RegistrationForm, SearchForm
-#							BookingForm, PaymentForm, AccountUpdateForm
+from app.forms.forms import LoginForm, RegistrationForm, SearchForm, \
+							BookingForm #, PaymentForm, AccountUpdateForm
 from flask import render_template, redirect, url_for, request, session, jsonify
 from flask_login import current_user, login_user, logout_user
-#from app.views.utils import is_admin_user, is_staff_user
 from flask import flash
+from datetime import datetime
 
 
 @app.login_manager.user_loader
@@ -248,9 +248,6 @@ def booking(eid):
 	if not event or not event.is_launched:
 		return redirect(url_for('index'))
 
-	return 'Book event {}'.format(eid)
-
-	'''
 	# Create booking form
 	form = BookingForm()
 	form.preload(current_user, event)
@@ -264,22 +261,21 @@ def booking(eid):
 								  'booking_type' : 'new'}
 		return redirect(url_for('payment'))
 
-	return render_template('booking.html', form=form, eid=eid,
-						   is_admin=is_admin_user(), is_staff=is_staff_user())
-	'''
+	return render_template('booking.html', form=form, eid=eid)
 
-'''
+
 @app.route('/booking/<eid>/<date>')
 def booking_slot(eid, date):
 	timings = []
 
-	records = query.event_times_query(eid, date)
+	records = db_tools.event_times_query(eid, date)
 	for rec in records:
 		# Only add timings for slots that still have available seats
 		if rec.vacancy > 0:
 			timing = {}
 			timing['slot_id'] = rec.slot_id
-			timing['time'] = rec.time
+			timing['time'] = datetime.strptime(rec.time, '%H:%M:%S')\
+									 .strftime('%-I:%M %p')
 			timing['vacancy'] = EventSlot.query.get(rec.slot_id).vacancy
 			timings.append(timing)
 
@@ -294,6 +290,10 @@ def booking_vacancy(sid):
 
 @app.route('/booking/payment', methods=['GET', 'POST'])
 def payment():
+	sid = session['payment_due']['slot_id']
+	return 'Payment page for Slot {}'.format(sid)
+
+	'''
 	# Redirect to other endpoint if pre-reqs not met
 	if not current_user.is_authenticated:
 		return redirect(url_for('user_login'))

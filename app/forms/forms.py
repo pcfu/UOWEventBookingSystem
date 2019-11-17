@@ -1,20 +1,18 @@
 from flask_wtf import FlaskForm
-#from app import db, query
+from app import db_tools
 from app.models.users import User
-from app.models.events import EventType #, Event, EventSlot
+from app.models.events import EventType, EventSlot #, Event
 #from app.models.payments import EventPromotion, Promotion
 from wtforms import FormField, StringField, PasswordField, BooleanField, \
-					SelectField, SubmitField
-					#, HiddenField, IntegerField, DecimalField, FormField
+					IntegerField, DecimalField, SelectField, SubmitField
+					#HiddenField
 from wtforms.fields.html5 import DateField
-from wtforms.validators import DataRequired, ValidationError, Email, EqualTo
-#								NumberRange, Optional
-#from wtforms_components import NumberInput
+from wtforms.validators import DataRequired, ValidationError, Email, \
+							   EqualTo, NumberRange #, Optional
+from wtforms_components import NumberInput
 #from flask_login import current_user
-#from app.views.utils import is_admin_user
 #from sqlalchemy.sql import func
-#from app.query import staff_user_query
-from datetime import date #, datetime
+from datetime import date, datetime
 #import re
 
 
@@ -152,7 +150,7 @@ class SearchForm(FlaskForm):
 				return False
 		return True
 
-'''
+
 class BookingForm(FlaskForm):
 	title = StringField(render_kw={'readonly':'True'})
 	username = StringField(render_kw={'readonly':'True'})
@@ -170,19 +168,24 @@ class BookingForm(FlaskForm):
 		self.username.data = user.username
 
 		# Get dates
-		date_records = query.event_dates_query(event.event_id)
+		date_records = db_tools.event_dates_query(event.event_id)
 		date_list = []
 		for rec in date_records:
 			if rec.date not in date_list and rec.vacancy > 0:
 				date_list.append(rec.date)
-				self.date.choices.append((rec.date, rec.date))
+				text = datetime.strptime(rec.date, '%Y-%m-%d').strftime('%d/%m/%y')
+				self.date.choices.append((rec.date, text))
+
+				#self.date.choices.append((rec.date, rec.date.strftime('%d/%b/%Y')))
 		self.date.data = date_list[0]	#set first item as pre-selected default
 
 		# Get timings for pre-selected date
-		timings = query.event_times_query(event.event_id, self.date.data)
+		timings = db_tools.event_times_query(event.event_id, self.date.data)
 		for timing in timings:
 			if timing.vacancy > 0:
-				self.time.choices.append((timing.slot_id, timing.time))
+				text = datetime.strptime(timing.time, '%H:%M:%S')\
+							   .strftime('%-I:%M %p')
+				self.time.choices.append((timing.slot_id, text))
 
 		default_slot_id = self.time.choices[0][0]
 		self.vacancy.data = EventSlot.query.get(default_slot_id).vacancy
@@ -190,6 +193,7 @@ class BookingForm(FlaskForm):
 		self.capacity = event.capacity
 
 
+'''
 class PromotionForm(FlaskForm):
 	promo_code = StringField('Promotion Code')
 	promo_event_id = IntegerField()
