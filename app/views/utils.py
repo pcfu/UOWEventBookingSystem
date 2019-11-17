@@ -1,14 +1,11 @@
 from app import db
-from app.models.users import User, Admin
+#from app.models.users import User, Admin
 from app.models.events import Event
-from flask_admin.contrib.sqla.filters import BaseSQLAFilter, BooleanEqualFilter, FilterEmpty
-from flask_admin.babel import lazy_gettext
-from flask_login import current_user
-from sqlalchemy.sql import literal_column
+#from flask_login import current_user
+#from sqlalchemy.sql import literal_column
 from werkzeug.utils import secure_filename
 from wtforms.validators import ValidationError
-from flask_admin.model import typefmt
-from datetime import date, timedelta
+from datetime import timedelta #, date
 from os import path
 
 
@@ -56,6 +53,7 @@ def check_slot_clash(schedule, timing, id_):
 					raise ValidationError(error_msg)
 
 
+'''
 def check_event_active_slots(eid, sid=None, mode='edit'):
 	active_slots = []
 	event = Event.query.get(eid)
@@ -68,3 +66,4 @@ def check_event_active_slots(eid, sid=None, mode='edit'):
 	if not active_slots:
 		event.is_launched = False
 		db.session.commit()
+'''

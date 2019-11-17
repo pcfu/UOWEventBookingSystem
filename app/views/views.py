@@ -1,23 +1,23 @@
-#from app import db
+from app import db
 from app.models.users import User
-#from app.models.events import Event, EventSlot
+from app.models.events import Event, EventSlot
 #from app.models.payments import Payment, Promotion, EventPromotion
 #from app.models.booking import Booking
 from app.models.logs import LoginHistory, LogoutHistory
 from flask_admin import AdminIndexView
-from flask_login import current_user
 from flask_admin.contrib.sqla import ModelView#, filters
 from wtforms import StringField
-#from flask_admin.form.upload import ImageUploadField
+from flask_admin.form.upload import ImageUploadField
 from wtforms.validators import DataRequired, NumberRange, ValidationError, Email
-#from app.forms.custom_validators import Interval, DateInRange
-from app.views import filters
+from app.forms.custom_validators import Interval #, DateInRange
+from app.views import utils, filters
+from flask_login import current_user
 from flask import redirect, url_for
-#from sqlalchemy.sql import func
-#from datetime import date, timedelta
-#from pathlib import Path
-#from os import path
-#import math
+from sqlalchemy.sql import func
+from datetime import timedelta #,date
+from pathlib import Path
+from os import path
+import math
 
 
 class GlobalIndexView(AdminIndexView):
@@ -29,7 +29,16 @@ class GlobalIndexView(AdminIndexView):
 		return redirect(url_for('login'))
 
 
-class StaffBaseView(ModelView):
+class BaseView(ModelView):
+	def scaffold_filters(self, name):
+		filters = super().scaffold_filters(name)
+		if hasattr(self, 'column_filter_labels') and name in self.column_filter_labels:
+			for f in filters:
+				f.name = self.column_filter_labels[name]
+		return filters
+
+
+class StaffBaseView(BaseView):
 	def is_accessible(self):
 		return current_user.is_authenticated and current_user.is_staff()
 
@@ -37,7 +46,7 @@ class StaffBaseView(ModelView):
 		return redirect(url_for('login'))
 
 
-class AdminBaseView(ModelView):
+class AdminBaseView(BaseView):
 	def is_accessible(self):
 		return current_user.is_authenticated and current_user.is_admin()
 
@@ -61,12 +70,6 @@ class StaffEventTypeView(StaffBaseView):
 
 
 class StaffEventView(StaffBaseView):
-	# List View Settings
-	can_view_details = True
-	can_set_page_size = True
-	column_display_pk = True
-
-	'''
 	# File Paths
 	par_dir = Path(__file__).parents[1]
 	upload_path = path.join(par_dir, 'static/images')
@@ -78,9 +81,12 @@ class StaffEventView(StaffBaseView):
 	column_list = [ 'event_id', 'has_active_slots', 'is_launched',
 					'title', 'event_type', 'venue', 'capacity',
 					'duration', 'price', 'img_root' ]
-	column_labels = dict(has_active_slots='Active Slots', is_launched='Launched',
-						 event_id='ID', event_type='Type',
-						 duration='Duration', img_root='Image File')
+	column_labels = { 'event_id' : 'ID',
+					  'has_active_slots' : 'Active Slots',
+					  'is_launched': 'Launched',
+					  'event_type' : 'Type',
+					  'duration' : 'Duration',
+					  'img_root' : 'Image File' }
 	column_editable_list = ['is_launched', 'title', 'event_type', 'venue',
 							'capacity', 'duration', 'price']
 	column_sortable_list = ['event_id', 'has_active_slots', 'is_launched',
@@ -106,15 +112,9 @@ class StaffEventView(StaffBaseView):
 	# Filters
 	column_filters = ['is_launched', 'title', 'event_type',
 					  'venue', 'capacity', 'duration', 'price',
-					  utils.FilterNull(column=Event.img_root, name='has image')]
-	column_filter_labels = dict(event_type='Type', venue='Venue')
-
-	def scaffold_filters(self, name):
-		filters = super().scaffold_filters(name)
-		if name in self.column_filter_labels:
-			for f in filters:
-				f.name = self.column_filter_labels[name]
-		return filters
+					  filters.FilterNull(column=Event.img_root, name='has image')]
+	column_filter_labels = { 'event_type' : 'Type',
+							 'venue' : 'Venue' }
 
 	# Details View Settings
 	column_details_list = [ 'event_id', 'title', 'slots', 'description' ]
@@ -164,7 +164,7 @@ class StaffEventView(StaffBaseView):
 		for slot in model.slots:
 			if slot.bookings:
 				raise ValidationError('Cannot delete event. One or more of its slots has bookings.')
-	'''
+
 
 class StaffEventSlotView(StaffBaseView):
 	# List View Settings
@@ -597,13 +597,6 @@ class AdminLoginHistoryView(AdminBaseView):
 							'user.username' : 'Username',
 							'user.group.group_name' : 'User Group'}
 
-	def scaffold_filters(self, name):
-		filters = super().scaffold_filters(name)
-		if name in self.column_filter_labels:
-			for f in filters:
-				f.name = self.column_filter_labels[name]
-		return filters
-
 
 class AdminLogoutHistoryView(AdminBaseView):
 	# List View Settings
@@ -624,10 +617,3 @@ class AdminLogoutHistoryView(AdminBaseView):
 	column_filter_labels = {'user.user_id' : 'User ID',
 							'user.username' : 'Username',
 							'user.group.group_name' : 'User Group'}
-
-	def scaffold_filters(self, name):
-		filters = super().scaffold_filters(name)
-		if name in self.column_filter_labels:
-			for f in filters:
-				f.name = self.column_filter_labels[name]
-		return filters
