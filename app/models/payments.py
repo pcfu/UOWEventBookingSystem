@@ -40,6 +40,7 @@ class Payment(db.Model):
 
 
 class Promotion(db.Model):
+	__tablename__ = 'promotion'
 	promotion_id = db.Column(db.Integer, primary_key=True)
 	promo_percentage = db.Column(db.Integer, nullable=False)
 	date_start = db.Column(db.Date, nullable=False)
