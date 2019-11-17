@@ -48,7 +48,7 @@ if os.environ.get('WERKZEUG_RUN_MAIN') == 'true':
 
 
 from app import routes
-from app.models import users, logs, events, booking #, payments
+from app.models import users, logs, events, booking, payments
 from app.views import views
 
 

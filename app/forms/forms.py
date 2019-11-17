@@ -2,7 +2,7 @@ from flask_wtf import FlaskForm
 from app import db_tools
 from app.models.users import User
 from app.models.events import EventType, EventSlot #, Event
-#from app.models.payments import EventPromotion, Promotion
+from app.models.payments import Payment #, EventPromotion, Promotion
 from wtforms import FormField, StringField, PasswordField, BooleanField, \
 					IntegerField, DecimalField, SelectField, SubmitField
 					#HiddenField

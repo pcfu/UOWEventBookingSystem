@@ -4,20 +4,22 @@ from sqlalchemy.ext.hybrid import hybrid_property
 
 
 class Payment(db.Model):
+	__tablename__ = 'payment'
 	payment_id = db.Column(db.Integer, primary_key=True)
 	quantity = db.Column(db.Integer, nullable=False)
 	amount = db.Column(db.Float, nullable=False)
 	card_number = db.Column(db.Integer, nullable=False)
 	booking_id = db.Column(db.Integer, ForeignKey('booking.booking_id'), nullable=False)
-	promotion_id = db.Column(db.Integer, ForeignKey('promotion.promotion_id'))
+	#promotion_id = db.Column(db.Integer, ForeignKey('promotion.promotion_id'))
 
 	booking = db.relationship('Booking', back_populates='payments')
-	promotion = db.relationship('Promotion', back_populates='payments')
-	refunds = db.relationship('Refund', back_populates='payment')
+	#promotion = db.relationship('Promotion', back_populates='payments')
+	#refunds = db.relationship('Refund', back_populates='payment')
 
 	def __repr__(self):
 		return '[ PAYID:{:0>4} ] ----- [ BID:{:0>4} ]'.format(self.payment_id, self.booking_id)
 
+	'''
 	@hybrid_property
 	def total_refund_qty(self):
 		total = 0
@@ -34,8 +36,9 @@ class Payment(db.Model):
 	@hybrid_property
 	def is_cancelled(self):
 		return self.quantity == self.total_refund_qty
+	'''
 
-
+'''
 class Promotion(db.Model):
 	promotion_id = db.Column(db.Integer, primary_key=True)
 	promo_percentage = db.Column(db.Integer, nullable=False)
@@ -111,3 +114,4 @@ class Refund(db.Model):
 	def refund_amount(cls):
 		return db.select([Payment.amount / Payment.quantity * cls.quantity])\
 				 .where(Payment.payment_id == cls.payment_id).correlate(cls).as_scalar()
+'''
