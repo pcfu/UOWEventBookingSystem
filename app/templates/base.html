@@ -38,7 +38,7 @@
                 </li>
 
 		        <!-- If not admin, show bookings button -->
-				{% if not current_user.is_anonymous and not is_admin %}
+				{% if not current_user.is_anonymous and not current_user.is_admin() %}
                 <li class="nav-item">
                     <a href="{{ origin }}my_bookings" class="nav-link">Bookings</a>
                 </li>
@@ -66,7 +66,7 @@
 					   role="button">Account</a>
 
 						<!-- if staff user, show link to admin page -->
-						{% if current_user.is_admin or current_user.is_staff %}
+						{% if current_user.is_admin() or current_user.is_staff() %}
 						<a href="{{ url_for('admin.index') }}"
 						   class="btn btn-outline-primary"
 						   role="button">Admin Page</a>
