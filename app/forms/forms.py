@@ -138,6 +138,19 @@ class SearchForm(FlaskForm):
 	search_type = SelectField(choices=CHOICES)
 	submit_search = SubmitField('Search')
 
+	def validate(self):
+		if self.search_field == self.DATE_FIELD:
+			from_date = self.search_field.data['from_date']
+			to_date = self.search_field.data['to_date']
+
+			if from_date is None or to_date is None:
+				RaiseError(self.DATE_FIELD.from_date, message='Invalid date(s)')
+				return False
+			elif from_date > to_date:
+				RaiseError(self.DATE_FIELD.from_date,
+					   message='End date cannot be earlier than start date')
+				return False
+		return True
 
 '''
 class BookingForm(FlaskForm):

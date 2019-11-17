@@ -34,14 +34,13 @@ def get_events(option):
 	elif option == 'type':
 		form.search_field = form.TYPE_FIELD
 
-	if form.is_submitted():
+	#if form.is_submitted():
+	if form.validate_on_submit():
 		search_type = form.search_type.data
 		if not option == 'date':
 			keyword = str(form.search_field.data).strip()
 		else:
 			keyword = form.search_field.data
-			if keyword['from_date'] > keyword['to_date']:
-				flash('End date cannot be earlier than start date!')
 
 		if len(keyword) > 0:
 			return render_template(
