@@ -1,10 +1,9 @@
 from app import db
 #from app.models.booking import Booking
 from sqlalchemy import ForeignKey
-#from dateutil.parser import parse
-#from datetime import timedelta
-#from sqlalchemy.ext.hybrid import hybrid_property
-#from sqlalchemy.sql import func
+from sqlalchemy.ext.hybrid import hybrid_property
+from dateutil.parser import parse
+from datetime import timedelta
 
 
 class Venue(db.Model):
@@ -51,7 +50,6 @@ class Event(db.Model):
 		return '[ EID:{:0>4} ] {}'\
 			.format(self.event_id, self.title)
 
-	'''
 	@hybrid_property
 	def has_active_slots(self):
 		active_slots = [slot for slot in self.slots if slot.is_active]
@@ -76,7 +74,6 @@ class Event(db.Model):
 		return db.select([db.func.max(EventSlot.event_date)])\
 				 .where(EventSlot.event_id == cls.event_id)\
 				 .correlate(cls).as_scalar()
-	'''
 
 
 class EventSlot(db.Model):
@@ -93,7 +90,6 @@ class EventSlot(db.Model):
 		return "[ SID:{:0>4} ] Date: {}"\
 			.format(self.slot_id, self.event_date, self.event_id)
 
-	'''
 	@hybrid_property
 	def start_time(self):
 		dt = parse(str(self.event_date))
@@ -127,6 +123,7 @@ class EventSlot(db.Model):
 		return db.exists().where(db.and_(Event.event_id == cls.event_id,
 										 Event.is_launched == True)).correlate(cls)
 
+	'''
 	@hybrid_property
 	def vacancy(self):
 		seats = self.event.capacity
