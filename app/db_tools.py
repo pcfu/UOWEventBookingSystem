@@ -33,26 +33,45 @@ def get_event_list(search_type=None, keyword=None):
 
 def query_all():
 	return db.session.query(Event.event_id, Event.title, Event.img_root)\
+					 .filter(Event.is_launched)\
+					 .order_by(Event.title).all()
+
+	'''
+	return db.session.query(Event.event_id, Event.title, Event.img_root)\
 					 .filter(Event.is_launched, Event.has_active_slots)\
 					 .join(EventSlot, Event.event_id == EventSlot.event_id)\
 					 .group_by(Event.event_id).order_by(Event.title).all()
+	'''
 
 
 def title_query(keyword):
+	return db.session.query(Event.event_id, Event.title, Event.img_root)\
+					 .filter(Event.is_launched, Event.title.ilike(f'%{keyword}%'))\
+					 .order_by(Event.title).all()
+
+	'''
 	return db.session.query(Event.event_id, Event.title, Event.img_root)\
 					 .filter(Event.is_launched, Event.has_active_slots,
 							 Event.title.ilike(f'%{keyword}%'))\
 					 .join(EventSlot, Event.event_id == EventSlot.event_id)\
 					 .group_by(Event.event_id).order_by(Event.title).all()
+	'''
 
 
 def type_query(keyword):
+	return db.session.query(Event.event_id, Event.title, Event.img_root)\
+					 .join(EventType, Event.type_id == EventType.type_id)\
+					 .filter(Event.is_launched, EventType.name == keyword)\
+					 .order_by(Event.title).all()
+
+	'''
 	return db.session.query(Event.event_id, Event.title, Event.img_root)\
 					 .join(EventType, Event.type_id == EventType.type_id)\
 					 .filter(Event.is_launched, Event.has_active_slots,
 							 EventType.name == keyword)\
 					 .join(EventSlot, Event.event_id == EventSlot.event_id)\
 					 .group_by(Event.event_id).order_by(Event.title).all()
+	'''
 
 
 def date_query(keyword):
@@ -64,11 +83,18 @@ def date_query(keyword):
 
 
 def price_query(keyword):
+	'''
 	records = db.session.query(Event.event_id, Event.title,
 							   Event.price, Event.img_root)\
 						.filter(Event.is_launched, Event.has_active_slots)\
 						.join(EventSlot, Event.event_id == EventSlot.event_id)\
 						.group_by(Event.event_id).order_by(Event.title)
+	'''
+
+	records = db.session.query(Event.event_id, Event.title,
+							   Event.price, Event.img_root)\
+						.filter(Event.is_launched)\
+						.order_by(Event.title)
 
 	if keyword == 'free':
 		records = records.filter(Event.price == 0).all()
