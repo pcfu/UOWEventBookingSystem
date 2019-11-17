@@ -3,7 +3,7 @@ from app.models.users import User
 #from app.models.events import Event, EventSlot
 #from app.models.payments import Payment, Promotion, EventPromotion
 #from app.models.booking import Booking
-#from app.models.logs import LoginHistory, LogoutHistory
+from app.models.logs import LoginHistory, LogoutHistory
 from flask_admin import AdminIndexView
 from flask_login import current_user
 from flask_admin.contrib.sqla import ModelView#, filters
@@ -564,29 +564,24 @@ class AdminUserView(AdminBaseView):
 			raise ValidationError('Cannot delete self')
 
 
-'''
 class AdminLoginHistoryView(AdminBaseView):
 	# List View Settings
 	can_create = False
 	can_edit = False
+	can_delete = False
 	column_display_pk = True
-	column_labels = dict(in_id='ID')
-	column_list = ['in_id', 'timestamp', 'user', 'admin']
+	column_list = ['in_id', 'timestamp', 'user', 'user.group']
+	column_labels = { 'in_id' : 'ID',
+					  'user.group' : 'Usergroup' }
 	column_sortable_list = ['in_id', 'timestamp',
 							('user', 'user.username'),
-							('admin', 'admin.username')]
+							('user.group', 'user.group.group_name')]
 
 	# Filters
-	column_filters = [ 'user.username', 'admin.username',
-					   utils.FilterRegularUsers(LoginHistory.is_regular, 'user type',
-												options=(('1', 'Yes'), ('0', 'No'))),
-   					   utils.FilterStaffUsers(LoginHistory.is_staff, 'user type',
-											  options=(('1', 'Yes'), ('0', 'No'))),
-   					   utils.FilterAdminUsers(LoginHistory.is_admin, 'user type',
-											  options=(('1', 'Yes'), ('0', 'No')))
-					]
-	column_filter_labels = {'user.username' : 'user name',
-							'admin.username' : 'admin name'}
+	column_filters = [ 'user.user_id', 'user.username', 'user.group.group_name' ]
+	column_filter_labels = {'user.user_id' : 'User ID',
+							'user.username' : 'Username',
+							'user.group.group_name' : 'User Group'}
 
 	def scaffold_filters(self, name):
 		filters = super().scaffold_filters(name)
@@ -600,24 +595,20 @@ class AdminLogoutHistoryView(AdminBaseView):
 	# List View Settings
 	can_create = False
 	can_edit = False
+	can_delete = False
 	column_display_pk = True
-	column_labels = dict(out_id='ID')
-	column_list = ['out_id', 'timestamp', 'user', 'admin']
+	column_list = ['out_id', 'timestamp', 'user', 'user.group']
+	column_labels = { 'out_id' : 'ID',
+					  'user.group' : 'Usergroup' }
 	column_sortable_list = ['out_id', 'timestamp',
 							('user', 'user.username'),
-							('admin', 'admin.username')]
+							('user.group', 'user.group.group_name')]
 
 	# Filters
-	column_filters = [ 'user.username', 'admin.username',
-					   utils.FilterRegularUsers(LogoutHistory.is_regular, 'user type',
-												options=(('1', 'Yes'), ('0', 'No'))),
-   					   utils.FilterStaffUsers(LogoutHistory.is_staff, 'user type',
-											  options=(('1', 'Yes'), ('0', 'No'))),
-   					   utils.FilterAdminUsers(LogoutHistory.is_admin, 'user type',
-											  options=(('1', 'Yes'), ('0', 'No')))
-					]
-	column_filter_labels = {'user.username' : 'user name',
-							'admin.username' : 'admin name'}
+	column_filters = [ 'user.user_id', 'user.username', 'user.group.group_name' ]
+	column_filter_labels = {'user.user_id' : 'User ID',
+							'user.username' : 'Username',
+							'user.group.group_name' : 'User Group'}
 
 	def scaffold_filters(self, name):
 		filters = super().scaffold_filters(name)
@@ -625,4 +616,3 @@ class AdminLogoutHistoryView(AdminBaseView):
 			for f in filters:
 				f.name = self.column_filter_labels[name]
 		return filters
-'''
