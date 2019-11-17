@@ -19,8 +19,8 @@ class Config(object):
 			   'hours' : 1 }
 			]
 	SCHEDULER_API_ENABLED = True
-	FLASK_ADMIN_SWATCH = 'sandstone'
 	'''
+	FLASK_ADMIN_SWATCH = 'sandstone'
 
 	'''
 	If required to store jobs record in db, add the following:

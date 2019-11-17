@@ -11,6 +11,9 @@ class UserGroup(db.Model):
 
 	users = db.relationship('User', back_populates='group')
 
+	def __repr__(self):
+		return self.group_name
+
 
 class User(UserMixin, db.Model):
 	__tablename__ = 'user'
@@ -28,8 +31,8 @@ class User(UserMixin, db.Model):
 	def __repr__(self):
 		return '[ UID:{:0>4} ] {}'.format(self.user_id, self.username)
 
-	#def get_id(self):
-	#	return ('User', self.user_id)
+	def get_id(self):
+		return self.user_id
 
 	def set_password(self, password):
 		self.password_hash = generate_password_hash(password)

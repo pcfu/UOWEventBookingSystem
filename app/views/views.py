@@ -1,51 +1,51 @@
-from app import db
-from app.models.events import Event, EventSlot
-from app.models.payments import Payment, Promotion, EventPromotion
-from app.models.booking import Booking
-from app.models.logs import LoginHistory, LogoutHistory
+#from app import db
+#from app.models.events import Event, EventSlot
+#from app.models.payments import Payment, Promotion, EventPromotion
+#from app.models.booking import Booking
+#from app.models.logs import LoginHistory, LogoutHistory
 from flask_admin import AdminIndexView
-from flask_admin.contrib.sqla import ModelView, filters
+from flask_login import current_user
+from flask_admin.contrib.sqla import ModelView#, filters
 from wtforms import StringField
-from flask_admin.form.upload import ImageUploadField
+#from flask_admin.form.upload import ImageUploadField
 from wtforms.validators import DataRequired, NumberRange, ValidationError, Email
-from app.forms.custom_validators import Interval, DateInRange
-from app.views import utils
+#from app.forms.custom_validators import Interval, DateInRange
+#from app.views import utils
 from flask import redirect, url_for
-from sqlalchemy.sql import func
-from datetime import date, timedelta
-from pathlib import Path
-from os import path
-import math
+#from sqlalchemy.sql import func
+#from datetime import date, timedelta
+#from pathlib import Path
+#from os import path
+#import math
 
 
 class GlobalIndexView(AdminIndexView):
 	def is_accessible(self):
-		return utils.is_admin_user() or utils.is_staff_user()
+		return current_user.is_authenticated and \
+			(current_user.is_staff() or current_user.is_admin())
 
 	def inaccessible_callback(self, name, **kwargs):
-		return redirect(url_for('staff_login'))
+		return redirect(url_for('login'))
 
 
 class StaffBaseView(ModelView):
 	def is_accessible(self):
-		return utils.is_staff_user()
+		return current_user.is_authenticated and current_user.is_staff()
 
 	def inaccessible_callback(self, name, **kwargs):
-		if utils.is_admin_user():
-			return redirect(url_for('admin.index'))
-		return redirect(url_for('staff_login'))
+		return redirect(url_for('login'))
 
 
 class AdminBaseView(ModelView):
 	def is_accessible(self):
-		return utils.is_admin_user()
+		return current_user.is_authenticated and current_user.is_admin()
+
 
 	def inaccessible_callback(self, name, **kwargs):
-		if utils.is_staff_user():
-			return redirect(url_for('admin.index'))
-		return redirect(url_for('staff_login'))
+		return redirect(url_for('login'))
 
 
+'''
 class StaffVenueView(StaffBaseView):
 	# List View Settings
 	column_display_pk = True
@@ -516,25 +516,30 @@ class StaffEventPromoView(StaffBaseView):
 				msg += 'but effective start date [ {} ] '.format(promo_start_date)
 				msg += 'not before last day of event [ {} ].'.format(event_last_date)
 				raise ValidationError(msg)
-
+'''
 
 class AdminUserView(AdminBaseView):
 	# List View Settings
 	column_display_pk = True
-	column_labels = dict(user_id='ID')
-	column_exclude_list = ['password_hash']
+	#column_labels = dict(user_id='ID')
+	#column_exclude_list = ['password_hash']
+
+	column_list = ['user_id', 'group.group_name', 'username', 'email']
+	column_labels = {'user_id' : 'ID',
+					 'group.group_name' : 'Usergroup'}
+	column_sortable_list = [ 'user_id', 'group.group_name', 'username', 'email']
+
 
 	# Create/Edit Form Settings
-	form_extra_fields =	{'password' : StringField('Password',
-												  validators=[DataRequired()]),
-						 'change_password': StringField('Change Password')}
-	form_columns = ['username', 'email', 'password', 'change_password',
-					'password_hash', 'is_staff']
+	form_extra_fields = { 'password' : StringField('Password', validators=[DataRequired()]),
+						  'change_password': StringField('Change Password') }
+	form_columns = ['group', 'username', 'email', 'password',
+					'change_password', 'password_hash']
 	form_args = dict(email=dict(validators=[DataRequired(), Email()]))
 	form_widget_args = { 'password_hash' : {'readonly' : True} }
-	form_create_rules = ['username', 'email', 'password', 'is_staff']
-	form_edit_rules = ['username', 'email', 'change_password',
-					   'password_hash', 'is_staff']
+	form_create_rules = ['group', 'username', 'email', 'password']
+	form_edit_rules = ['group', 'username', 'email', 'change_password',
+					   'password_hash']
 
 	# Perform data validation when creating/editing a slot
 	def on_model_change(self, form, model, is_created):
@@ -545,6 +550,7 @@ class AdminUserView(AdminBaseView):
 				model.set_password(form.change_password.data)
 
 
+'''
 class AdminLoginHistoryView(AdminBaseView):
 	# List View Settings
 	can_create = False
@@ -605,3 +611,4 @@ class AdminLogoutHistoryView(AdminBaseView):
 			for f in filters:
 				f.name = self.column_filter_labels[name]
 		return filters
+'''

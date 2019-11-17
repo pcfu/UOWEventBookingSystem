@@ -1,20 +1,20 @@
 from flask_wtf import FlaskForm
-from app import db, query
-from app.models.users import User, Admin
-from app.models.events import Event, EventSlot
-from app.models.payments import EventPromotion, Promotion
-from wtforms import FormField, StringField, PasswordField, BooleanField, HiddenField,\
-					SubmitField, IntegerField, SelectField, DecimalField
-from wtforms.fields.html5 import DateField
-from wtforms.validators import DataRequired, EqualTo, ValidationError, \
-								NumberRange, Email, Optional
-from wtforms_components import NumberInput
-from flask_login import current_user
-from app.views.utils import is_admin_user
-from sqlalchemy.sql import func
-from app.query import staff_user_query
-from datetime import date, datetime
-import re
+#from app import db, query
+from app.models.users import User
+#from app.models.events import Event, EventSlot
+#from app.models.payments import EventPromotion, Promotion
+from wtforms import SubmitField, StringField, PasswordField, BooleanField #, HiddenField,\
+#					IntegerField, SelectField, DecimalField, FormField
+#from wtforms.fields.html5 import DateField
+from wtforms.validators import DataRequired, ValidationError#, EqualTo, \
+#								NumberRange, Email, Optional
+#from wtforms_components import NumberInput
+#from flask_login import current_user
+#from app.views.utils import is_admin_user
+#from sqlalchemy.sql import func
+#from app.query import staff_user_query
+#from datetime import date, datetime
+#import re
 
 
 def RaiseError(field, message='Invalid data'):
@@ -23,13 +23,14 @@ def RaiseError(field, message='Invalid data'):
 	field.errors = tuple(error_list)
 
 
-class BaseLogin(FlaskForm):
+class LoginForm(FlaskForm):
 	username = StringField('Username', validators=[DataRequired()])
 	password = PasswordField('Password', validators=[DataRequired()])
 	remember_me = BooleanField('Remember Me')
 	submit = SubmitField('Sign In')
 
-	def authenticate(self, user):
+	def validate(self):
+		user = User.query.filter_by(username=self.username.data).first()
 		if user is None:
 			RaiseError(self.username, message='Invalid username')
 			return False
@@ -39,6 +40,7 @@ class BaseLogin(FlaskForm):
 		return True
 
 
+'''
 class MemberLoginForm(BaseLogin):
 	def validate(self):
 		user = User.query.filter(User.is_staff == False,
@@ -238,17 +240,4 @@ class PaymentForm(FlaskForm):
 		if (expire_year.data > int(datetime.now().strftime("%y")) + 5) or \
 		(expire_year.data < int(datetime.now().strftime("%y"))) or (expire_year.data < 1):
 			raise ValidationError('Invalid year!')
-
-
-	''' temporarily disabled because postal codes and numbers may not be local
-
-	def validate_postal_code(self, postal_code):
-		if postal_code is not None:
-			if not len(str(postal_code.data)) == 6:
-				raise ValidationError('Invalid postal code!' + len(postal_code.data))
-
-	def validate_contact(self, contact):
-		if contact is not None:
-			if not len(str(contact.data)) == 8:
-				raise ValidationError('Invalid contact number')
-	'''
+'''

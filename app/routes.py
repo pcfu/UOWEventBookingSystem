@@ -1,25 +1,23 @@
 from app import app, db #, query, session
-#from app.models.users import User, Admin
+from app.models.users import User
 #from app.models.events import Event, EventSlot, EventType
 #from app.models.booking import Booking
 #from app.models.payments import Payment, EventPromotion, Promotion, Refund
 #from app.models.logs import add_login_record, add_logout_record
-#from app.forms.forms import MemberLoginForm, StaffLoginForm, RegistrationForm, \
+from app.forms.forms import LoginForm #, StaffLoginForm, RegistrationForm, \
 #							SearchForm, BookingForm, PaymentForm, AccountUpdateForm
 from flask import render_template, redirect, url_for, request, session, jsonify
-from flask_login import current_user #, login_user, logout_user
+from flask_login import current_user, login_user, logout_user
 #from app.views.utils import is_admin_user, is_staff_user
 #from flask import flash
 
-'''
+
 @app.login_manager.user_loader
-def load_user(entry):
-	if entry[0] == 'User':
-		return User.query.get(int(entry[1]))
-	else:
-		return Admin.query.get(int(entry[1]))
+def load_user(id_):
+	return User.query.get(int(id_))
 
 
+'''
 @app.route('/')
 @app.route('/index')
 @app.route('/search')
@@ -75,29 +73,32 @@ def event_details(eid):
 	return render_template('details.html',
 						   title='EBS: {}'.format(event['title']), event=event,
 						   is_admin=is_admin_user(), is_staff=is_staff_user())
-
-
 '''
+
+
 @app.route('/login', methods=['GET', 'POST'])
-def user_login():
-	return 'user login page'
-	'''
+def login():
 	# if already logged in redirect to homepage
 	if current_user.is_authenticated:
 		return redirect(url_for('index'))
 
-	form = MemberLoginForm()
+	form = LoginForm()
 	if form.validate_on_submit():
-		# if login is successful, return user to 'index'
 		user = User.query.filter_by(username=form.username.data).first()
 		login_user(user, remember=form.remember_me.data)
+		'''
 		add_login_record()
 		session['payment_due'] = None
-		return redirect(url_for('index'))
+		'''
+		# return regular users to homepage; staff users to admin page
+		if user.is_regular():
+			return redirect(url_for('index'))
+		else:
+			return redirect(url_for('admin.index'))
 
 	# render login page
 	return render_template('login.html', title='EBS: Sign In', form=form)
-	'''
+
 
 @app.route('/staff_login', methods=['GET', 'POST'])
 def staff_login():
@@ -119,17 +120,19 @@ def staff_login():
 	return render_template('staff_login.html', title='EBS: Admin', form=form)
 	'''
 
-'''
+
 @app.route('/logout')
 def logout():
-	session['payment_due'] = None
-	add_logout_record()
+	#session['payment_due'] = None
+	#add_logout_record()
 	logout_user()
 	return redirect(url_for('index'))
 
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
+	return 'user registration page'
+	'''
 	# if already logged in redirect to homepage
 	if current_user.is_authenticated:
 		return redirect(url_for('index'))
@@ -149,10 +152,13 @@ def register():
 	return render_template('register.html',
 						   title='EBS: Account Registration',
 						   form=form)
-
+'''
 
 @app.route('/my_account', methods=['GET', 'POST'])
 def my_account():
+	return 'My account page'
+
+	'''
 	# Redirect to other endpoint if pre-reqs not met
 	if not current_user.is_authenticated:
 		return redirect(url_for('index'))
@@ -178,10 +184,12 @@ def my_account():
 	update_form.update_password.confirm_password.data = None
 	return render_template('my_account.html', update_form=update_form,
 						   is_admin=is_admin_user(), is_staff=is_staff_user())
-
+	'''
 
 @app.route('/my_bookings')
 def my_bookings():
+	return 'My bookings page'
+	'''
 	# Redirect to other endpoint if pre-reqs not met
 	if not current_user.is_authenticated:
 		return redirect(url_for('user_login'))
