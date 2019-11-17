@@ -1,4 +1,5 @@
 #from app import db
+from app.models.users import User
 #from app.models.events import Event, EventSlot
 #from app.models.payments import Payment, Promotion, EventPromotion
 #from app.models.booking import Booking
@@ -10,7 +11,7 @@ from wtforms import StringField
 #from flask_admin.form.upload import ImageUploadField
 from wtforms.validators import DataRequired, NumberRange, ValidationError, Email
 #from app.forms.custom_validators import Interval, DateInRange
-#from app.views import utils
+from app.views import filters
 from flask import redirect, url_for
 #from sqlalchemy.sql import func
 #from datetime import date, timedelta
@@ -521,14 +522,19 @@ class StaffEventPromoView(StaffBaseView):
 class AdminUserView(AdminBaseView):
 	# List View Settings
 	column_display_pk = True
-	#column_labels = dict(user_id='ID')
-	#column_exclude_list = ['password_hash']
-
-	column_list = ['user_id', 'group.group_name', 'username', 'email']
+	column_list = ['user_id', 'username', 'email', 'group.group_name']
 	column_labels = {'user_id' : 'ID',
 					 'group.group_name' : 'Usergroup'}
-	column_sortable_list = [ 'user_id', 'group.group_name', 'username', 'email']
+	column_sortable_list = [ 'user_id', 'username', 'email', 'group.group_name']
 
+	# Filters
+	column_filters = [ 'user_id', 'username',
+					   filters.RegularUserFilter(User.group_id, 'Usergroup',
+												 options=(('1', 'Yes'), ('0', 'No'))),
+					   filters.StaffUserFilter(User.group_id, 'Usergroup',
+											   options=(('1', 'Yes'), ('0', 'No'))),
+					   filters.AdminUserFilter(User.group_id, 'Usergroup',
+											   options=(('1', 'Yes'), ('0', 'No')))	]
 
 	# Create/Edit Form Settings
 	form_extra_fields = { 'password' : StringField('Password', validators=[DataRequired()]),
@@ -541,13 +547,21 @@ class AdminUserView(AdminBaseView):
 	form_edit_rules = ['group', 'username', 'email', 'change_password',
 					   'password_hash']
 
-	# Perform data validation when creating/editing a slot
+	# Perform data validation when creating/editing a user
 	def on_model_change(self, form, model, is_created):
 		if is_created:
 			model.set_password(form.password.data)
 		else:
+			if model == current_user and form.group.data.group_name != 'admin':
+				raise ValidationError('Cannot revoke admin privilege from self')
+
 			if form.change_password.data:
 				model.set_password(form.change_password.data)
+
+	# Perform data validation when deleting a user
+	def on_model_delete(self, model):
+		if model == current_user:
+			raise ValidationError('Cannot delete self')
 
 
 '''
