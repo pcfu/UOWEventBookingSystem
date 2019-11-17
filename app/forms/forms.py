@@ -3,9 +3,10 @@ from flask_wtf import FlaskForm
 from app.models.users import User
 #from app.models.events import Event, EventSlot
 #from app.models.payments import EventPromotion, Promotion
-from wtforms import SubmitField, StringField, PasswordField, BooleanField #, HiddenField,\
-#					IntegerField, SelectField, DecimalField, FormField
-#from wtforms.fields.html5 import DateField
+from wtforms import FormField, StringField, PasswordField, BooleanField, \
+					SelectField, SubmitField
+					#, HiddenField, IntegerField, DecimalField, FormField
+from wtforms.fields.html5 import DateField
 from wtforms.validators import DataRequired, ValidationError, Email, EqualTo
 #								NumberRange, Optional
 #from wtforms_components import NumberInput
@@ -13,7 +14,7 @@ from wtforms.validators import DataRequired, ValidationError, Email, EqualTo
 #from app.views.utils import is_admin_user
 #from sqlalchemy.sql import func
 #from app.query import staff_user_query
-#from datetime import date, datetime
+from datetime import date #, datetime
 #import re
 
 
@@ -109,7 +110,11 @@ class UpdatePasswordForm(FlaskForm):
 class AccountUpdateForm(FlaskForm):
 	update_email = FormField(UpdateEmailForm)
 	update_password = FormField(UpdatePasswordForm)
+'''
 
+class DateRangeForm(FlaskForm):
+	from_date = DateField(default=date.today(), label='From')
+	to_date = DateField(default=date.today(), label='To')
 
 class SearchForm(FlaskForm):
 	CHOICES = [('title', 'Title'),
@@ -121,7 +126,7 @@ class SearchForm(FlaskForm):
 			  ('mid', '$20 - 50'),
 			  ('expensive', '> $50')]
 	STRING_FIELD = StringField()
-	DATE_FIELD = DateField(default=date.today())
+	DATE_FIELD = FormField(DateRangeForm)
 	PRICE_FIELD = SelectField(choices=RANGES)
 	TYPE_FIELD = SelectField(coerce=str)
 
@@ -130,6 +135,7 @@ class SearchForm(FlaskForm):
 	submit_search = SubmitField('Search')
 
 
+'''
 class BookingForm(FlaskForm):
 	title = StringField(render_kw={'readonly':'True'})
 	username = StringField(render_kw={'readonly':'True'})

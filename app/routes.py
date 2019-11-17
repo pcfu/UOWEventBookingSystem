@@ -1,15 +1,14 @@
-from app import app, db #, query
+from app import app, db, db_tools
 from app.models.users import User
-#from app.models.events import Event, EventSlot, EventType
+from app.models.events import EventType #,Event, EventSlot
 #from app.models.booking import Booking
 #from app.models.payments import Payment, EventPromotion, Promotion, Refund
-from app import db_tools
-from app.forms.forms import LoginForm, RegistrationForm
-#							SearchForm, BookingForm, PaymentForm, AccountUpdateForm
+from app.forms.forms import LoginForm, RegistrationForm, SearchForm
+#							BookingForm, PaymentForm, AccountUpdateForm
 from flask import render_template, redirect, url_for, request, session, jsonify
 from flask_login import current_user, login_user, logout_user
 #from app.views.utils import is_admin_user, is_staff_user
-#from flask import flash
+from flask import flash
 
 
 @app.login_manager.user_loader
@@ -17,20 +16,13 @@ def load_user(id_):
 	return User.query.get(int(id_))
 
 
-'''
 @app.route('/')
 @app.route('/index')
 @app.route('/search')
 def index():
 	return redirect(url_for('get_events', option='title'))
-'''
-
-@app.route('/')
-def index():
-	return render_template('base.html', title='Base page')
 
 
-'''
 @app.route('/search/<option>', methods=['GET', 'POST'])
 def get_events(option):
 	form = SearchForm()
@@ -40,28 +32,33 @@ def get_events(option):
 	elif option == 'price':
 		form.search_field = form.PRICE_FIELD
 	elif option == 'type':
-		types_query = (EventType.query.all())
-		list_of_types = []
-		for type in types_query:
-			list_of_types.append((type, type))
+		categories = EventType.query.all()
+		type_choices = []
+		for category in categories:
+			type_choices.append((category, category))
 
-		form.TYPE_FIELD.choices = list_of_types
+		form.TYPE_FIELD.choices = type_choices
 		form.search_field = form.TYPE_FIELD
 
 	if form.is_submitted():
 		search_type = form.search_type.data
-		keyword = str(form.search_field.data).strip()
+		if not option == 'date':
+			keyword = str(form.search_field.data).strip()
+		else:
+			keyword = form.search_field.data
+			if keyword['from_date'] > keyword['to_date']:
+				flash('End date cannot be earlier than start date!')
+
 		if len(keyword) > 0:
 			return render_template(
 				'index.html', title='Event Booking System', form=form,
-				event_list=query.get_event_list(search_type, keyword),
-				is_admin=is_admin_user(), is_staff=is_staff_user())
+				event_list=db_tools.get_event_list(search_type, keyword))
 
 	return render_template('index.html', title='Event Booking System',
-						   form=form, event_list=query.get_event_list(),
-						   is_admin=is_admin_user(), is_staff=is_staff_user())
+						   form=form, event_list=db_tools.get_event_list())
 
 
+'''
 @app.route('/event/details/<eid>')
 def event_details(eid):
 	# Redirect to homepage if no event with specified eid

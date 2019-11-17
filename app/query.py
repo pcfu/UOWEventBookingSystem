@@ -15,6 +15,52 @@ def staff_user_query(name):
 	return user
 
 
+def format_events(records):
+	event = { 'title' : records[0].Event.title,
+			  'venue' : records[0].Event.venue,
+			  'timings' : dict(),
+			  'duration' : records[0].Event.duration,
+			  'capacity' : records[0].Event.capacity,
+			  'type': records[0].Event.event_type,
+			  'desc': records[0].Event.description,
+			  'price' : records[0].Event.price,
+			  'img_root' : records[0].Event.img_root,
+			  'event_id' : records[0].Event.event_id }
+
+	for row in records:
+		dt = parse(str(row.EventSlot.event_date))
+		date = str(dt.date())
+		time = str(dt.time().strftime('%H:%M'))
+		vacancy = row.EventSlot.vacancy
+		if date in event['timings']:
+			event['timings'][date].append((time, vacancy))
+		else:
+			event['timings'][date] = [(time, vacancy)]
+
+	return event
+
+
+def format_bookings(records):
+	records = sorted(records, key=lambda k: k.slot.event_date)
+
+	bookings = []
+	for row in records:
+		dt = parse(str(row.slot.event_date))
+		date = str(dt.date())
+		time = str(dt.time().strftime('%H:%M'))
+		bookings.append({ 'id' : row.booking_id,
+						  'title' : row.slot.event.title,
+						  'date' : date,
+						  'time' : time,
+						  'vacancy' : row.slot.vacancy,
+						  'qty' : row.quantity,
+						  'is_active' : row.slot.event.is_launched and
+						  				row.slot.is_active
+						})
+	return bookings
+
+
+'''
 def query_all():
 	records = db.session.query(Event.event_id, Event.title, Event.img_root)\
 						.filter(Event.is_launched, Event.has_active_slots)\
@@ -45,14 +91,16 @@ def type_query(keyword):
 
 def date_query(keyword):
 	records = []
-	if keyword == 'None' or datetime.strptime(keyword, '%Y-%m-%d').date() < date.today():
-		flash('Invalid date')
-	else:
-		records = db.session.query(Event.event_id, Event.title, Event.img_root)\
+	"""records = db.session.query(Event.event_id, Event.title, Event.img_root)\
 							.join(EventSlot, Event.event_id == EventSlot.event_id)\
 							.filter(Event.is_launched, Event.has_active_slots,
 									func.DATE(EventSlot.event_date) == keyword)\
 							.group_by(Event.event_id).order_by(Event.title).all()
+	"""
+	records = db.session.query(Event.event_id, Event.title, Event.img_root)\
+			.join(EventSlot, Event.event_id == EventSlot.event_id)\
+			.group_by(Event.event_id).order_by(Event.title)\
+			.filter(EventSlot.event_date > keyword['from_date'], EventSlot.event_date < keyword['to_date']).all()
 
 	return records
 
@@ -111,48 +159,4 @@ def get_event_list(search_type=None, keyword=None):
 		return date_query(keyword)
 	else:
 		return price_query(keyword)
-
-
-def format_events(records):
-	event = { 'title' : records[0].Event.title,
-			  'venue' : records[0].Event.venue,
-			  'timings' : dict(),
-			  'duration' : records[0].Event.duration,
-			  'capacity' : records[0].Event.capacity,
-			  'type': records[0].Event.event_type,
-			  'desc': records[0].Event.description,
-			  'price' : records[0].Event.price,
-			  'img_root' : records[0].Event.img_root,
-			  'event_id' : records[0].Event.event_id }
-
-	for row in records:
-		dt = parse(str(row.EventSlot.event_date))
-		date = str(dt.date())
-		time = str(dt.time().strftime('%H:%M'))
-		vacancy = row.EventSlot.vacancy
-		if date in event['timings']:
-			event['timings'][date].append((time, vacancy))
-		else:
-			event['timings'][date] = [(time, vacancy)]
-
-	return event
-
-
-def format_bookings(records):
-	records = sorted(records, key=lambda k: k.slot.event_date)
-
-	bookings = []
-	for row in records:
-		dt = parse(str(row.slot.event_date))
-		date = str(dt.date())
-		time = str(dt.time().strftime('%H:%M'))
-		bookings.append({ 'id' : row.booking_id,
-						  'title' : row.slot.event.title,
-						  'date' : date,
-						  'time' : time,
-						  'vacancy' : row.slot.vacancy,
-						  'qty' : row.quantity,
-						  'is_active' : row.slot.event.is_launched and
-						  				row.slot.is_active
-						})
-	return bookings
+'''
