@@ -15,7 +15,18 @@
 					<div class="col center">
 						<a href="/search" class="btn btn-secondary" role="button">◄ Back</a>
 
-						{% if current_user.is_anonymous or not current_user.is_admin() %}
+						<!-- Calculate number of bookable slots -->
+						{% set bookable_count = namespace(value=0) %}
+						{% for date in event.timings %}
+							{% for timeslot in event.timings[date] %}
+								<!-- timeslot[1] == seats remaining for that time -->
+								{% if timeslot[1] > 0 %}
+								{% set bookable_count.value = bookable_count.value + 1 %}
+								{% endif %}
+							{% endfor %}
+						{% endfor %}
+
+						{% if bookable_count.value > 0 and (current_user.is_anonymous or not current_user.is_admin()) %}
 						<a href="{{url_for('booking', eid=event.event_id)}}" class="btn btn-primary" style="width:60%;">Book</a>
 						{% endif %}
 					</div>
