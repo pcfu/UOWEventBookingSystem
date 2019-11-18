@@ -1,7 +1,7 @@
 from app import db
 from app.models.users import User
 from app.models.events import Event, EventSlot
-#from app.models.payments import Payment, Promotion, EventPromotion
+from app.models.payments import Payment #, Promotion, EventPromotion
 #from app.models.booking import Booking
 from app.models.logs import LoginHistory, LogoutHistory
 from flask_admin import AdminIndexView
@@ -263,6 +263,7 @@ class StaffBookingView(StaffBaseView):
 	can_create = False
 	can_edit = False
 	can_delete = False
+	can_set_page_size = True
 	column_display_pk = True
 	column_list = ['booking_id', 'user', 'slot', 'slot.event', 'quantity']
 	column_sortable_list = ['booking_id',
@@ -284,12 +285,12 @@ class StaffBookingView(StaffBaseView):
 							 'slot.event.title' : 'event name' }
 
 
-'''
 class StaffPaymentView(StaffBaseView):
 	# List View Settings
 	can_create = False
 	can_edit = False
 	can_delete = False
+	can_set_page_size = True
 	column_display_pk = True
 	column_list = ['payment_id', 'booking_id', 'booking.user', 'booking.slot',
 				   'booking.quantity', 'quantity', 'amount', 'promotion',
@@ -325,7 +326,7 @@ class StaffPaymentView(StaffBaseView):
 	column_filters = ['booking_id', 'booking.user.username', 'booking.user.user_id',
 					  'booking.slot.slot_id', 'amount', 'promotion.promo_code',
 					  'promotion.promotion_id',
-					  utils.BooleanFilter(column=Payment.is_cancelled,
+					  filters.BooleanFilter(column=Payment.is_cancelled,
 										  name='Cancelled')]
 	column_filter_labels = { 'booking.user.username' : 'username',
 							 'booking.user.user_id' : 'user id',
@@ -333,19 +334,13 @@ class StaffPaymentView(StaffBaseView):
 							 'promotion.promo_code' : 'promo code',
 							 'promotion.promotion_id' : 'promotion id'}
 
-	def scaffold_filters(self, name):
-		filters = super().scaffold_filters(name)
-		if name in self.column_filter_labels:
-			for f in filters:
-				f.name = self.column_filter_labels[name]
-		return filters
-
 
 class StaffRefundView(StaffBaseView):
 	# List View Settings
 	can_create = False
 	can_edit = False
 	can_delete = False
+	can_set_page_size = True
 	column_display_pk = True
 	column_list = ['refund_id', 'payment', 'quantity', 'refund_amount']
 	column_sortable_list = ['refund_id', ('payment', 'payment.payment_id'),
@@ -361,14 +356,8 @@ class StaffRefundView(StaffBaseView):
 	column_filter_labels = { 'payment.payment_id' : 'payment id',
 							 'payment.booking_id' : 'booking id' }
 
-	def scaffold_filters(self, name):
-		filters = super().scaffold_filters(name)
-		if name in self.column_filter_labels:
-			for f in filters:
-				f.name = self.column_filter_labels[name]
-		return filters
 
-
+'''
 class StaffPromotionView(StaffBaseView):
 	# List View Settings
 	can_view_details = True
