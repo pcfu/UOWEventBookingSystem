@@ -2,7 +2,7 @@ from app import app, db, db_tools
 from app.models.users import User
 from app.models.events import EventType, Event, EventSlot
 from app.models.booking import Booking
-from app.models.payments import Refund #, EventPromotion, Promotion
+from app.models.payments import Promotion, Refund #, EventPromotion
 from app.forms.forms import LoginForm, RegistrationForm, SearchForm, \
 							BookingForm, PaymentForm #, AccountUpdateForm
 from flask import render_template, redirect, url_for, request, session, jsonify
