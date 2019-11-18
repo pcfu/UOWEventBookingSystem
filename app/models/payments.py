@@ -51,7 +51,6 @@ class Promotion(db.Model):
 	def __repr__(self):
 		return '[ PROID:{:0>4} ] {}'.format(self.promotion_id, self.promo_code)
 
-	'''
 	@hybrid_property
 	def has_active_event_promo(self):
 		active_pairs = 0
@@ -80,7 +79,6 @@ class Promotion(db.Model):
 							else_=False)
 				]).where(Payment.promotion_id == cls.promotion_id)\
 				 .correlate(cls).as_scalar()
-	'''
 
 
 class EventPromotion(db.Model):
