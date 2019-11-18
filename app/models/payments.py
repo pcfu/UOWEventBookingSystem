@@ -14,7 +14,7 @@ class Payment(db.Model):
 
 	booking = db.relationship('Booking', back_populates='payments')
 	promotion = db.relationship('Promotion', back_populates='payments')
-	#refunds = db.relationship('Refund', back_populates='payment')
+	refunds = db.relationship('Refund', back_populates='payment')
 
 	def __repr__(self):
 		return '[ PAYID:{:0>4} ] ----- [ BID:{:0>4} ]'.format(self.payment_id, self.booking_id)
@@ -98,9 +98,10 @@ class EventPromotion(db.Model):
 		return '[ EID:{:0>4} ] {} ----- [ PROID:{:0>4} ] {}'\
 			.format(self.event_id, self.event.title,
 					self.promotion_id, self.promotion.promo_code)
-
+'''
 
 class Refund(db.Model):
+	__tablename__ = 'refund'
 	refund_id = db.Column(db.Integer, primary_key=True)
 	quantity = db.Column(db.Integer, nullable=False)
 	payment_id = db.Column(db.Integer, ForeignKey('payment.payment_id'))
@@ -118,4 +119,3 @@ class Refund(db.Model):
 	def refund_amount(cls):
 		return db.select([Payment.amount / Payment.quantity * cls.quantity])\
 				 .where(Payment.payment_id == cls.payment_id).correlate(cls).as_scalar()
-'''
