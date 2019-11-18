@@ -1,7 +1,7 @@
 from flask_wtf import FlaskForm
 from app import db_tools
 from app.models.users import User
-from app.models.events import EventType, EventSlot #, Event
+from app.models.events import EventType, EventSlot
 from app.models.payments import Payment, Promotion, EventPromotion
 from wtforms import FormField, StringField, PasswordField, \
 					BooleanField, IntegerField, DecimalField, \
@@ -10,7 +10,7 @@ from wtforms.fields.html5 import DateField
 from wtforms.validators import DataRequired, ValidationError, Email, \
 							   EqualTo, NumberRange, Optional
 from wtforms_components import NumberInput
-#from flask_login import current_user
+from flask_login import current_user
 from datetime import date, datetime
 import re
 
@@ -58,7 +58,6 @@ class RegistrationForm(FlaskForm):
 			raise ValidationError('Email already taken')
 
 
-'''
 class UpdateEmailForm(FlaskForm):
 	email = StringField('New Email', validators=[Email()])
 	update_email = SubmitField('Update')
@@ -67,10 +66,7 @@ class UpdateEmailForm(FlaskForm):
 		if email.data == current_user.email:
 			raise ValidationError('You are already using this email')
 
-		if is_admin_user():
-			user = Admin.query.filter(Admin.email == email.data).first()
-		else:
-			user = User.query.filter(User.email == email.data).first()
+		user = User.query.filter(User.email == email.data).first()
 		if user is not None:
 			raise ValidationError('Email already taken')
 
@@ -107,7 +103,6 @@ class UpdatePasswordForm(FlaskForm):
 class AccountUpdateForm(FlaskForm):
 	update_email = FormField(UpdateEmailForm)
 	update_password = FormField(UpdatePasswordForm)
-'''
 
 
 class DateRangeForm(FlaskForm):
@@ -174,8 +169,6 @@ class BookingForm(FlaskForm):
 				date_list.append(rec.date)
 				text = datetime.strptime(rec.date, '%Y-%m-%d').strftime('%d/%m/%y')
 				self.date.choices.append((rec.date, text))
-
-				#self.date.choices.append((rec.date, rec.date.strftime('%d/%b/%Y')))
 		self.date.data = date_list[0]	#set first item as pre-selected default
 
 		# Get timings for pre-selected date

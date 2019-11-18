@@ -2,9 +2,9 @@ from app import app, db, db_tools
 from app.models.users import User
 from app.models.events import EventType, Event, EventSlot
 from app.models.booking import Booking
-from app.models.payments import Promotion, Refund #, EventPromotion
+from app.models.payments import Promotion, Refund
 from app.forms.forms import LoginForm, RegistrationForm, SearchForm, \
-							BookingForm, PaymentForm #, AccountUpdateForm
+							BookingForm, PaymentForm, AccountUpdateForm
 from flask import render_template, redirect, url_for, request, session, jsonify
 from flask_login import current_user, login_user, logout_user
 from flask import flash
@@ -119,9 +119,6 @@ def register():
 
 @app.route('/my_account', methods=['GET', 'POST'])
 def my_account():
-	return 'My account page'
-
-	'''
 	# Redirect to other endpoint if pre-reqs not met
 	if not current_user.is_authenticated:
 		return redirect(url_for('index'))
@@ -145,9 +142,8 @@ def my_account():
 	update_form.update_password.old_password.data = None
 	update_form.update_password.new_password.data = None
 	update_form.update_password.confirm_password.data = None
-	return render_template('my_account.html', update_form=update_form,
-						   is_admin=is_admin_user(), is_staff=is_staff_user())
-	'''
+	return render_template('my_account.html', update_form=update_form)
+
 
 @app.route('/my_bookings')
 def my_bookings():
