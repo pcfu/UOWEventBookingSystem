@@ -1,7 +1,7 @@
 from app import db
 from app.models.users import User
 from app.models.events import Event, EventSlot
-from app.models.payments import Payment #, Promotion, EventPromotion
+from app.models.payments import Payment, Promotion, EventPromotion
 #from app.models.booking import Booking
 from app.models.logs import LoginHistory, LogoutHistory
 from flask_admin import AdminIndexView
@@ -14,7 +14,7 @@ from app.views import utils, filters
 from flask_login import current_user
 from flask import redirect, url_for
 from sqlalchemy.sql import func
-from datetime import timedelta #,date
+from datetime import date, timedelta
 from pathlib import Path
 from os import path
 import math
@@ -357,10 +357,10 @@ class StaffRefundView(StaffBaseView):
 							 'payment.booking_id' : 'booking id' }
 
 
-'''
 class StaffPromotionView(StaffBaseView):
 	# List View Settings
 	can_view_details = True
+	can_set_page_size = True
 	column_display_pk = True
 	column_list = ['promotion_id', 'promo_code', 'promo_percentage', 'date_start',
 				   'date_end', 'has_active_event_promo', 'is_used', 'events_last_date']
@@ -397,18 +397,11 @@ class StaffPromotionView(StaffBaseView):
 
 	# Filters
 	column_filters = ['promo_percentage',
-					  utils.BooleanFilter(column=Promotion.has_active_event_promo,
+					  filters.BooleanFilter(column=Promotion.has_active_event_promo,
 										  name='Has Active EP'),
-					  utils.BooleanFilter(column=Promotion.is_used, name='Is Used')]
+					  filters.BooleanFilter(column=Promotion.is_used, name='Is Used')]
 	column_filter_labels = { 'promo_percentage' : 'discount',
 							 'is_used' : 'is used'}
-
-	def scaffold_filters(self, name):
-		filters = super().scaffold_filters(name)
-		if name in self.column_filter_labels:
-			for f in filters:
-				f.name = self.column_filter_labels[name]
-		return filters
 
 	# Create/Edit form settings
 	form_rules = ['promo_code', 'promo_percentage', 'date_start', 'date_end']
@@ -445,6 +438,7 @@ class StaffPromotionView(StaffBaseView):
 
 class StaffEventPromoView(StaffBaseView):
 	# List View Settings
+	can_set_page_size = True
 	column_list = ['event', 'promotion', 'event.last_active_date',
 				   'promotion.date_start', 'promotion.date_end', 'is_active']
 	column_labels = {'event.last_active_date' : 'Event End',
@@ -479,18 +473,11 @@ class StaffEventPromoView(StaffBaseView):
 					  'promotion.promo_code',
 					  'promotion.date_start',
 					  'promotion.date_end',
-					  utils.BooleanFilter(column=EventPromotion.is_active,
+					  filters.BooleanFilter(column=EventPromotion.is_active,
 										  name='Is Active')]
 	column_filter_labels = { 'event.title' : 'Event Title',
 							 'event.last_active_date' : 'Event End',
 							 'promotion.promo_code' : 'Promo Code'}
-
-	def scaffold_filters(self, name):
-		filters = super().scaffold_filters(name)
-		if name in self.column_filter_labels:
-			for f in filters:
-				f.name = self.column_filter_labels[name]
-		return filters
 
 	# Perform data validation when creating/editing an event promotion
 	def on_model_change(self, form, model, is_created):
@@ -502,7 +489,6 @@ class StaffEventPromoView(StaffBaseView):
 				msg += 'but effective start date [ {} ] '.format(promo_start_date)
 				msg += 'not before last day of event [ {} ].'.format(event_last_date)
 				raise ValidationError(msg)
-'''
 
 
 class AdminUserView(AdminBaseView):
