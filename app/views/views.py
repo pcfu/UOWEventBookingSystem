@@ -203,14 +203,6 @@ class StaffEventSlotView(StaffBaseView):
 	form_create_rules = ['event', 'event_date']
 	form_edit_rules = ['event', 'event_date', 'is_active']
 
-	def check_event_promo_dates(self, last_date, promo_pairings):
-		for ep in [ep for ep in promo_pairings if ep.is_active]:
-			if last_date is None or ep.promotion.date_start > last_date:
-				msg = 'Event last active day will change to [ {} ] '.format(last_date)
-				msg += 'but Promotion: {} for this event '.format(ep.promotion)
-				msg += 'only starts on [ {} ] '.format(ep.promotion.date_start)
-				raise ValidationError(msg)
-
 	# Perform data validation when creating/editing a slot
 	def on_model_change(self, form, model, is_created):
 		if is_created:
@@ -229,9 +221,7 @@ class StaffEventSlotView(StaffBaseView):
 		# Validate promotions start dates against any changes to event last date
 		# This MUST come BEFORE the next check
 		last_date = event.last_active_date
-		'''
-		self.check_event_promo_dates(last_date, event.promo_pairings)
-		'''
+		utils.check_event_promo_dates(last_date, event.promo_pairings)
 
 		# Verify no slot clashes and deactivate event if no active slots left
 		utils.check_slot_clash(schedule, timing, model.slot_id)
@@ -247,9 +237,7 @@ class StaffEventSlotView(StaffBaseView):
 				date = slot.event_date.date()
 				if not last_date or date > last_date:
 					last_date = date
-		'''
-		self.check_event_promo_dates(last_date, event.promo_pairings)
-		'''
+		utils.check_event_promo_dates(last_date, event.promo_pairings)
 
 		# Verify no current bookings and deactivate event if no active slots left
 		if model.bookings:

@@ -64,3 +64,12 @@ def check_event_active_slots(eid, sid=None, mode='edit'):
 	if not active_slots:
 		event.is_launched = False
 		db.session.commit()
+
+
+def check_event_promo_dates(last_date, promo_pairings):
+	for ep in [ep for ep in promo_pairings if ep.is_active]:
+		if last_date is None or ep.promotion.date_start > last_date:
+			msg = 'Event last active day will change to [ {} ] '.format(last_date)
+			msg += 'but Promotion: {} for this event '.format(ep.promotion)
+			msg += 'only starts on [ {} ] '.format(ep.promotion.date_start)
+			raise ValidationError(msg)
