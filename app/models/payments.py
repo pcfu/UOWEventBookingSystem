@@ -19,7 +19,6 @@ class Payment(db.Model):
 	def __repr__(self):
 		return '[ PAYID:{:0>4} ] ----- [ BID:{:0>4} ]'.format(self.payment_id, self.booking_id)
 
-	'''
 	@hybrid_property
 	def total_refund_qty(self):
 		total = 0
@@ -36,7 +35,6 @@ class Payment(db.Model):
 	@hybrid_property
 	def is_cancelled(self):
 		return self.quantity == self.total_refund_qty
-	'''
 
 
 class Promotion(db.Model):
