@@ -46,7 +46,7 @@ class Promotion(db.Model):
 	promo_code = db.Column(db.String, nullable=False)
 
 	payments = db.relationship('Payment', back_populates='promotion')
-	#event_pairings = db.relationship('EventPromotion', cascade='all, delete', back_populates='promotion')
+	event_pairings = db.relationship('EventPromotion', cascade='all, delete', back_populates='promotion')
 
 	def __repr__(self):
 		return '[ PROID:{:0>4} ] {}'.format(self.promotion_id, self.promo_code)
@@ -83,8 +83,8 @@ class Promotion(db.Model):
 	'''
 
 
-'''
 class EventPromotion(db.Model):
+	__tablename__ = 'event_promotion'
 	event_id = db.Column(db.Integer, ForeignKey('event.event_id'), primary_key=True)
 	promotion_id = db.Column(db.Integer, ForeignKey('promotion.promotion_id'), primary_key=True)
 	is_active = db.Column(db.Boolean)
@@ -96,7 +96,7 @@ class EventPromotion(db.Model):
 		return '[ EID:{:0>4} ] {} ----- [ PROID:{:0>4} ] {}'\
 			.format(self.event_id, self.event.title,
 					self.promotion_id, self.promotion.promo_code)
-'''
+
 
 class Refund(db.Model):
 	__tablename__ = 'refund'
