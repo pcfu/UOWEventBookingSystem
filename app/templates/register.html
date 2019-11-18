@@ -21,7 +21,7 @@
 		<div class="col field-col">
 			{{ form.username(size=32) }}
 			{% for error in form.username.errors %}
-			<span style="color: red;">[{{ error }}]</span>
+			<span class="error-message">[{{ error }}]</span>
 			{% endfor %}
 		</div>
 	</div>
@@ -34,9 +34,9 @@
 	</div>
 	<div class="row field-row mb-2">
 		<div class="col field-col">
-			{{ form.email(size=32) }}<br>
+			{{ form.email(size=32) }}
 			{% for error in form.email.errors %}
-			<span style="color: red;">[{{ error }}]</span>
+			<span class="error-message">[{{ error }}]</span>
 			{% endfor %}
 		</div>
 	</div>
@@ -49,9 +49,9 @@
 	</div>
 	<div class="row field-row mb-2">
 		<div class="col field-col">
-			{{ form.password(size=32) }}<br>
+			{{ form.password(size=32) }}
 			{% for error in form.password.errors %}
-			<span style="color: red;">[{{ error }}]</span>
+			<span class="error-message">[{{ error }}]</span>
 			{% endfor %}
 		</div>
 	</div>
@@ -64,16 +64,16 @@
 	</div>
 	<div class="row field-row">
 		<div class="col field-col">
-			{{ form.confirm_password(size=32) }}<br>
+			{{ form.confirm_password(size=32) }}
 			{% for error in form.confirm_password.errors %}
-			<span style="color: red;">[{{ error }}]</span>
+			<span class="error-message">[{{ error }}]</span>
 			{% endfor %}
 		</div>
 	</div>
 	
 	<div class="row submit-row mt-4">
 		<div class="col submit-col">
-			{{ form.submit() }}
+			{{ form.submit(class_='register-btn btn btn-primary') }}
 		</div>
 	</div>
 	</form>

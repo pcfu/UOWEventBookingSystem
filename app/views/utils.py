@@ -1,86 +1,20 @@
 from app import db
-from app.models.users import User, Admin
 from app.models.events import Event
-from flask_admin.contrib.sqla.filters import BaseSQLAFilter, FilterEmpty
-from flask_admin.babel import lazy_gettext
-from flask_login import current_user
-from sqlalchemy.sql import literal_column
 from werkzeug.utils import secure_filename
 from wtforms.validators import ValidationError
-from flask_admin.model import typefmt
-from datetime import date, timedelta
+from datetime import timedelta
 from os import path
 
 
-class FilterNull(FilterEmpty):
-	def operation(self):
-		return lazy_gettext('is NULL')
-
-
-class FilterRegularUsers(BaseSQLAFilter):
-	def apply(self, query, value, alias=None):
-		if value == '1':
-			return query.filter(self.column == True)
-		else:
-			return query.filter(self.column == False)
-
-	def operation(self):
-		return 'regular'
-
-
-class FilterStaffUsers(BaseSQLAFilter):
-	def apply(self, query, value, alias=None):
-		if value == '1':
-			return query.filter(self.column == True)
-		else:
-			return query.filter(self.column == False)
-
-	def operation(self):
-		return 'staff'
-
-
-class FilterAdminUsers(BaseSQLAFilter):
-	def apply(self, query, value, alias=None):
-		if value == '1':
-			return query.filter(self.column == True)
-		else:
-			return query.filter(self.column == False)
-
-	def operation(self):
-		return 'admin'
-
-
-def is_staff_user():
-	staff = None
-	if current_user.is_authenticated:
-		target_name = current_user.username
-		staff = User.query.filter(User.is_staff, User.username == target_name).first()
-	return staff is not None
-
-
-def is_admin_user():
-	admin = None
-	if current_user.is_authenticated:
-		target_name = current_user.username
-		admin = Admin.query.filter(Admin.username == target_name).first()
-	return admin is not None
-
-
-def date_format(view, value):
-    return value.strftime('%d / %b / %Y')
-
-event_view_formatter = dict(typefmt.BASE_FORMATTERS)
-event_view_formatter.update({ type(None): typefmt.null_formatter,
-							  date: date_format })
-
-
-# Helper Function for ImageUploadField in forms
 def img_filename_gen(obj, file_data):
 	idx = ''
 	if obj.event_id is None:
 		with db.session.no_autoflush:
 			last_event = Event.query.order_by(Event.event_id.desc()).first()
-		idx = f'{(last_event.event_id + 1):04}'
+			if last_event is None:
+				idx = f'{1:04}'
+			else:
+				idx = f'{(last_event.event_id + 1):04}'
 	else:
 		idx = f'{obj.event_id:04}'
 
@@ -130,3 +64,12 @@ def check_event_active_slots(eid, sid=None, mode='edit'):
 	if not active_slots:
 		event.is_launched = False
 		db.session.commit()
+
+
+def check_event_promo_dates(last_date, promo_pairings):
+	for ep in [ep for ep in promo_pairings if ep.is_active]:
+		if last_date is None or ep.promotion.date_start > last_date:
+			msg = 'Event last active day will change to [ {} ] '.format(last_date)
+			msg += 'but Promotion: {} for this event '.format(ep.promotion)
+			msg += 'only starts on [ {} ] '.format(ep.promotion.date_start)
+			raise ValidationError(msg)

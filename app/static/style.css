@@ -1,3 +1,4 @@
+/* Default Widget Styles */
 * {
     box-sizing: border-box;
 }
@@ -12,6 +13,27 @@ body {
     padding: 50px;
 }
 
+
+input {
+    text-align: center;
+    background-color: #ECF0F1;
+    border: 2px solid transparent;
+    border-radius: 3px;
+    font-size: 16px;
+    font-weight: 200;
+    width: 250px;
+    transition: border .5s;
+    padding: 10px 0;
+}
+
+input:focus {
+    border: 2px solid #191919;
+    box-shadow: none;
+}
+
+/* End of Default Widget Styles */
+
+/* Page Fade Animations */
 .main-container {
   -webkit-animation: fadein 2s; /* Safari, Chrome and Opera > 12.1 */
  -moz-animation: fadein 2s; /* Firefox < 16 */
@@ -49,28 +71,29 @@ body {
     to   { opacity: 1; }
 }
 
-.login {
-    margin: 20px auto;
-    width: 300px;
+/* End of Page Fade Animations */
+
+
+/* Table Styles for my-bookings */
+
+.table-striped {
+	border: none;
 }
 
-.login-screen {
-    background-color: #FFF;
-    padding: 20px;
-    border-radius: 5px
+.table-striped>tbody>tr:nth-child(even)>td,
+.table-striped>tbody>tr:nth-child(even)>th {
+	background-color: #f7f7f7;
 }
 
-.title-banner {
-    text-align: center;
-    font-size: 50px;
-    font-family: Arial;
-    color: #FFF;
-    margin-bottom: 5%;
+.table-striped>thead>tr>th {
+	background-color: white;
 }
 
-.app-title {
-    text-align: center;
-    color: #777;
+/* End of Table Styles */
+
+
+.details-label {
+    font-weight: bold;
 }
 
 .center {
@@ -78,72 +101,52 @@ body {
     display: block;
 }
 
-.control-group {
-    margin-bottom: 10px;
-}
-
-input {
-    text-align: center;
-    background-color: #ECF0F1;
-    border: 2px solid transparent;
-    border-radius: 3px;
-    font-size: 16px;
-    font-weight: 200;
-    width: 250px;
-    transition: border .5s;
-    padding: 10px 0;
-}
-
-input:focus {
-    border: 2px solid #191919;
-    box-shadow: none;
-}
-
-.signin-btn {
-    border: 2px solid transparent;
-    background-color: #ECF0F1;
-    font-size: 16px;
-    line-height: 25px;
-    text-decoration: none;
-    text-shadow: none;
-    border-radius: 3px;
-    box-shadow: none;
-    transition: 0.25s;
-    display: block;
-    width: 250px;
-    margin: 0 auto;
-    padding: 10px 0;
-}
-
-.signin-btn:hover {
-    background-color: #2980B9;
-}
-
-.login-link {
-    font-size: 12px;
-    color: #444;
-    display: block;
-    margin-top: 12px;
+.error-message {
+	color: red;
 }
 
 .flashes {
     text-align: center;
-    color: #CF0;
+    color: red;
 }
 
-table, th, td {
-	border: 1px solid black;
+.nav-bar-username {
+  color: white;
 }
 
-.table-striped {
-	border: none;
+.top-margin {
+  margin-top: 5%;
 }
 
-.table-striped>tbody>tr:nth-child(even)>td, 
-.table-striped>tbody>tr:nth-child(even)>th {
-	background-color: white;
+.event-container {
+  background-color: #f5f5f5;
+  border-radius: 3px;
+  box-shadow: 2px 2px 10px 3px #e0e0e0;
+  display: block;
+  width: 100%;
+  height: 90%;
+  padding-top: 4%;
+  padding-bottom: 2%;
+  margin-bottom: 4%;
+  margin-top: 4%;
+  vertical-align: center;
+  text-align: center;
+  font-size:80%;
 }
 
-.table-striped>thead>tr>th {
-	background-color: white;
+.thumbnail {
+  height: 100%;
+  width: 100%;
+  object-fit: contain;
+}
+
+.details-date {
+  font-size: 110%;
+  margin-top: 2%;
+  color: blue;
+}
+
+.acc-update-btn {
+  width: 100px;
+  /*margin-left: 7%;*/
 }

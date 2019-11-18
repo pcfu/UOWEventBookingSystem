@@ -11,6 +11,10 @@ class Config(object):
 	JOBS = [ { 'id' : 'job1',
 			   'func' : 'app.scheduled_tasks:deactivate_expired_slots',
 			   'trigger' : 'interval',
+			   'hours' : 1 },
+			 { 'id' : 'job2',
+			   'func' : 'app.scheduled_tasks:deactivate_expired_event_promotions',
+			   'trigger' : 'interval',
 			   'hours' : 1 }
 			]
 	SCHEDULER_API_ENABLED = True

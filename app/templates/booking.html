@@ -1,64 +1,73 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="container main-container ml-2" style="margin-top: 70px;">
+<div class="container main-container ml-2 top-margin">
 	<form action="" method="post">
 		{{ form.hidden_tag() }}
 
 		<!-- Event title -->
 		<div class="row mb-2">
-			<div class="col-md-1">
+			<div class="col-lg-1 col-md-2">
 				{{ form.title.label }}
 			</div>
-			<div class="col-md-8">
+			<div class="col-sm-3">
 				{{ form.title() }}
 			</div>
 		</div>
 
 		<!-- Username -->
 		<div class="row mb-2">
-			<div class="col-md-1">
+			<div class="col-lg-1 col-md-2">
 				{{ form.username.label }}
 			</div>
-			<div class="col-md-8">
+			<div class="col-sm-3">
 				{{ form.username() }}
 			</div>
 		</div>
 
 		<!-- Date and Time -->
 		<div class="row mb-2">
-			<div class="col-md-1">
-				{{ form.dates.label }}
+			<div class="col-lg-1 col-md-2">
+				Slot
 			</div>
-			<div class="col-md-2">
-				{{ form.dates(size=1) }}
+			<div class="col">
+			<div style="display: inline-block; width: 128px; text-align: center;">
+				{{ form.date.label }}
 			</div>
-			<div class="col-md-1">
-				{{ form.times.label }}
+			<div style="margin-left: 15px; display: inline-block; width: 104px; text-align: center;">
+				{{ form.time.label }}
 			</div>
-			<div class="col-md-1">
-				{{ form.times(size=1) }}
 			</div>
+
+		</div>
+		<div class="row mb-2">
+		<div class="col offset-lg-1 offset-md-2">
+			<div style="display: inline-block; width: 128px;">
+				{{ form.date(size=1, class_='custom-select', style='width:128px;') }}
+			</div>
+			<div style="display: inline-block; width: 104px; margin-left: 15px;">
+				{{ form.time(size=1, class_='custom-select', style='width:104px;') }}
+			</div>
+		</div>
 		</div>
 
 		<!-- Vacancy -->
 		<div class="row mb-2">
-			<div class="col-md-1">
+			<div class="col-lg-1 col-md-2">
 				Available Seats:
 			</div>
-			<div class="col-md-8">
+			<div class="col-sm-3">
 				{{ form.vacancy() }}
 			</div>
 		</div>
 
 		<!-- No. of Tickets -->
 		<div class="row mb-2">
-			<div class="col-md-1">
+			<div class="col-lg-1 col-md-2">
 				Tickets
 			</div>
-			<div class="col-md-8">
-			  	{{ form.count(onchange="refreshPrice()", max=form.vacancy.data) }}
-				<!-- {{ form.count(onchange="refreshPrice()", max=capacity, onkeydown="return false") }} -->
+			<div class="col-sm-3">
+			  	{{ form.count(onchange="refreshPrice()", min=1, max=form.vacancy.data) }}
 				{% for error in form.count.errors %}
 				<span style="color: red;">[{{ error }}]</span>
 				{% endfor %}
@@ -67,10 +76,10 @@
 
 		<!-- Total Cost -->
 		<div class="row mb-2">
-			 <div class="col-md-1">
+			 <div class="col-lg-1 col-md-2">
 			   Total ($)
 			 </div>
-			 <div class="col-md-8">
+			 <div class="col-sm-3">
 			   {{ form.price() }}
 			   <script>var basePrice = document.getElementById('price').value</script>
 			 </div>
@@ -78,9 +87,8 @@
 
 		<!-- Book Button -->
 		<div class="row">
-			<div class="col offset-1">
-			  {{ form.submit(class="btn btn-secondary",
-			 				 style="width: 100px;") }}
+			<div class="col-sm-3 offset-lg-1 offset-md-2">
+			  {{ form.submit(class="btn btn-primary") }}
 			</div>
 		</div>
 	</form>
@@ -88,16 +96,11 @@
 
 <!-- Dynamic updates -->
 <script>
-function refreshPrice(){
-    document.getElementById('price').value =
-		parseFloat(document.getElementById('count').value * basePrice).toFixed(2)
-}
-</script>
-
-<!-- Dynamically update available times based on date selected -->
-<script>
-  let date_select = document.getElementById('dates');
-  let time_select = document.getElementById('times');
+  // Configure date and time select fields
+  let date_select = document.getElementById('date');
+  let time_select = document.getElementById('time');
+  date_select.style.fontSize = "smaller";
+  time_select.style.fontSize = "smaller";
 
   // Update available times and vacancy based on date selected
   date_select.onchange = function() {
@@ -110,7 +113,8 @@ function refreshPrice(){
 
 			  for (let timing of data.timings) {
 				  time_choices_HTML += '<option value="' + timing.slot_id
-										+ '">' + timing.time + '</option>';
+										  + '">' + timing.time + '</option>';
+
 				  if (count == 0) {
 					  document.getElementById('vacancy').value = timing.vacancy;
 					  document.getElementById('count').max = timing.vacancy;
@@ -133,6 +137,11 @@ function refreshPrice(){
 		  });
 	  });
   }
-</script>
 
+  // Update total price based on ticket quantity
+  function refreshPrice(){
+      document.getElementById('price').value =
+		  parseFloat(document.getElementById('count').value * basePrice).toFixed(2)
+  }
+</script>
 {% endblock %}

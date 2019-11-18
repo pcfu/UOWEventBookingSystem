@@ -1,18 +1,16 @@
 from flask_wtf import FlaskForm
-from app import db, query
-from app.models.users import User, Admin
-from app.models.events import Event, EventSlot
-from app.models.payments import EventPromotion, Promotion
-from wtforms import FormField, StringField, PasswordField, BooleanField, HiddenField,\
-					SubmitField, IntegerField, SelectField, DecimalField
+from app import db_tools
+from app.models.users import User
+from app.models.events import EventType, EventSlot
+from app.models.payments import Payment, Promotion, EventPromotion
+from wtforms import FormField, StringField, PasswordField, \
+					BooleanField, IntegerField, DecimalField, \
+					SelectField, SubmitField, HiddenField
 from wtforms.fields.html5 import DateField
-from wtforms.validators import DataRequired, EqualTo, ValidationError, \
-								NumberRange, Email, Optional
+from wtforms.validators import DataRequired, ValidationError, Email, \
+							   EqualTo, NumberRange, Optional
 from wtforms_components import NumberInput
 from flask_login import current_user
-from app.views.utils import is_admin_user
-from sqlalchemy.sql import func
-from app.query import staff_user_query
 from datetime import date, datetime
 import re
 
@@ -23,13 +21,14 @@ def RaiseError(field, message='Invalid data'):
 	field.errors = tuple(error_list)
 
 
-class BaseLogin(FlaskForm):
+class LoginForm(FlaskForm):
 	username = StringField('Username', validators=[DataRequired()])
 	password = PasswordField('Password', validators=[DataRequired()])
 	remember_me = BooleanField('Remember Me')
 	submit = SubmitField('Sign In')
 
-	def authenticate(self, user):
+	def validate(self):
+		user = User.query.filter_by(username=self.username.data).first()
 		if user is None:
 			RaiseError(self.username, message='Invalid username')
 			return False
@@ -37,20 +36,6 @@ class BaseLogin(FlaskForm):
 			RaiseError(self.password, message='Incorrect password')
 			return False
 		return True
-
-
-class MemberLoginForm(BaseLogin):
-	def validate(self):
-		user = User.query.filter(User.is_staff == False,
-								 User.username == self.username.data).first()
-		return super().authenticate(user)
-
-
-class StaffLoginForm(BaseLogin):
-	def validate(self):
-		target_name = self.username.data
-		staff = staff_user_query(target_name)
-		return super().authenticate(staff)
 
 
 class RegistrationForm(FlaskForm):
@@ -81,10 +66,7 @@ class UpdateEmailForm(FlaskForm):
 		if email.data == current_user.email:
 			raise ValidationError('You are already using this email')
 
-		if is_admin_user():
-			user = Admin.query.filter(Admin.email == email.data).first()
-		else:
-			user = User.query.filter(User.email == email.data).first()
+		user = User.query.filter(User.email == email.data).first()
 		if user is not None:
 			raise ValidationError('Email already taken')
 
@@ -123,29 +105,65 @@ class AccountUpdateForm(FlaskForm):
 	update_password = FormField(UpdatePasswordForm)
 
 
+class DateRangeForm(FlaskForm):
+	from_date = DateField(default=date.today())
+	to_date = DateField(default=date.today())
+
+
+class PriceRangeForm(FlaskForm):
+	min_price = DecimalField(default=0.0)
+	max_price = DecimalField(default=0.0)
+
+
 class SearchForm(FlaskForm):
 	CHOICES = [('title', 'Title'),
 			   ('date', 'Date'),
 			   ('type', 'Type' ),
 			   ('price', 'Price')]
-	RANGES = [('free', 'FREE'),
-			  ('cheap', '< $20'),
-			  ('mid', '$20 - 50'),
-			  ('expensive', '> $50')]
+	CATEGORIES = [(row.name, row.name) for row in EventType.query.all()]
+
 	STRING_FIELD = StringField()
-	DATE_FIELD = DateField(default=date.today())
-	PRICE_FIELD = SelectField(choices=RANGES)
+	DATE_FIELD = FormField(DateRangeForm)
+	PRICE_FIELD = FormField(PriceRangeForm)
+	TYPE_FIELD = SelectField(choices=CATEGORIES, coerce=str)
 
 	search_field = STRING_FIELD
 	search_type = SelectField(choices=CHOICES)
 	submit_search = SubmitField('Search')
 
+	def validate(self):
+		if self.search_field == self.DATE_FIELD:
+			from_date = self.search_field.data['from_date']
+			to_date = self.search_field.data['to_date']
+
+			if from_date is None or to_date is None:
+				RaiseError(self.DATE_FIELD.from_date, message='Invalid date(s)')
+				return False
+			elif from_date > to_date:
+				RaiseError(self.DATE_FIELD.from_date,
+						   message='End date must be later than start date')
+				return False
+		elif self.search_field == self.PRICE_FIELD:
+			min_price = self.search_field.data['min_price']
+			max_price = self.search_field.data['max_price']
+
+			if min_price is None or max_price is None or \
+			   min_price < 0.0 or max_price < 0.0:
+				RaiseError(self.PRICE_FIELD.min_price, message='Invalid price(s)')
+				return False
+			elif min_price > max_price:
+				RaiseError(self.PRICE_FIELD.min_price,
+						   message='Min price must be greater than max price')
+				return False
+
+		return True
+
 
 class BookingForm(FlaskForm):
 	title = StringField(render_kw={'readonly':'True'})
 	username = StringField(render_kw={'readonly':'True'})
-	dates = SelectField(choices=[])
-	times = SelectField(choices=[])
+	date = SelectField(choices=[])
+	time = SelectField(choices=[])
 	vacancy = StringField(render_kw={'readonly':'True'})
 	count = IntegerField('Count', default=1,
 						 validators=[DataRequired(), NumberRange(min=1)],
@@ -158,21 +176,24 @@ class BookingForm(FlaskForm):
 		self.username.data = user.username
 
 		# Get dates
-		date_records = query.event_dates_query(event.event_id)
+		date_records = db_tools.event_dates_query(event.event_id)
 		date_list = []
 		for rec in date_records:
 			if rec.date not in date_list and rec.vacancy > 0:
 				date_list.append(rec.date)
-				self.dates.choices.append((rec.date, rec.date))
-		self.dates.data = date_list[0]	#set first item as pre-selected default
+				text = datetime.strptime(rec.date, '%Y-%m-%d').strftime('%d/%m/%y')
+				self.date.choices.append((rec.date, text))
+		self.date.data = date_list[0]	#set first item as pre-selected default
 
 		# Get timings for pre-selected date
-		timings = query.event_times_query(event.event_id, self.dates.data)
+		timings = db_tools.event_times_query(event.event_id, self.date.data)
 		for timing in timings:
 			if timing.vacancy > 0:
-				self.times.choices.append((timing.slot_id, timing.time))
+				text = datetime.strptime(timing.time, '%H:%M:%S')\
+							   .strftime('%-I:%M %p')
+				self.time.choices.append((timing.slot_id, text))
 
-		default_slot_id = self.times.choices[0][0]
+		default_slot_id = self.time.choices[0][0]
 		self.vacancy.data = EventSlot.query.get(default_slot_id).vacancy
 		self.price.data = event.price
 		self.capacity = event.capacity
@@ -199,9 +220,9 @@ class PromotionForm(FlaskForm):
 												promotion_id=promotion.promotion_id).first()
 			if not ep:
 				raise ValidationError('Promo code not applicable for this event')
-			elif ep.promotion.dt_start > datetime.now():
+			elif ep.promotion.date_start > date.today():
 				raise ValidationError('Promotion is not active yet')
-			elif ep.promotion.dt_end < datetime.now():
+			elif ep.promotion.date_end < date.today():
 				raise ValidationError('Promotion expired')
 
 
@@ -237,17 +258,3 @@ class PaymentForm(FlaskForm):
 		if (expire_year.data > int(datetime.now().strftime("%y")) + 5) or \
 		(expire_year.data < int(datetime.now().strftime("%y"))) or (expire_year.data < 1):
 			raise ValidationError('Invalid year!')
-
-
-	''' temporarily disabled because postal codes and numbers may not be local
-
-	def validate_postal_code(self, postal_code):
-		if postal_code is not None:
-			if not len(str(postal_code.data)) == 6:
-				raise ValidationError('Invalid postal code!' + len(postal_code.data))
-
-	def validate_contact(self, contact):
-		if contact is not None:
-			if not len(str(contact.data)) == 8:
-				raise ValidationError('Invalid contact number')
-	'''

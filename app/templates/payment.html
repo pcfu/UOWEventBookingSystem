@@ -1,7 +1,6 @@
 {% extends "base.html" %}
 
 {% block content %}
-
 <div class="container payment-container ml-2">
   <div class="row payment-row mb-2">
 	<div class="col">
@@ -32,7 +31,7 @@
 
 		  <!-- Promotion code -->
 		  <div class="row no-gutters">
-			<div class="col-2">
+			<div class="col-md-2 col-sm-3">
 			  <p>
 				{{ form.promo.promo_code.label }}
 			  </p>
@@ -40,7 +39,7 @@
 			<div class="col">
 			  <p>
 				<!-- Promotion code entry field -->
-				{{ form.promo.promo_code(onchange="promo_data_check(this)", style="width:120px") }}
+				{{ form.promo.promo_code(oninput="promo_data_check(this)", style="width:120px") }}
 				<!-- Promotion apply button -->
 				{{ form.promo.apply_promo(disabled="", class="btn btn-primary", onclick="promo_clicked()", formnovalidate="formnovalidate", style="width:80px") }}
 				<!-- Print promo error messages -->
@@ -60,14 +59,14 @@
 
 		  <!-- Credit card number -->
 		  <div class="row no-gutters">
-			<div class="col-2">
+			<div class="col-md-2 col-sm-3">
 			  <p>
 				{{ form.card_number.label }}
 			  </p>
 			</div>
 			<div class="col">
 			  <p>
-				{{ form.card_number(onchange="payment_data_check()", maxlength=16) }}
+				{{ form.card_number(oninput="payment_data_check()", maxlength=16) }}
 			  </p>
 			</div>
 		  </div>
@@ -79,15 +78,15 @@
 
 		  <!-- Card expiry date and CVV -->
 		  <div class="row no-gutters">
-			<div class="col-2">
+			<div class="col-md-2 col-sm-3">
 			  <p>
 				{{ form.expire_month.label }}
 			  </p>
 			</div>
 			<div class="col-2">
 			  <p>
-				{{ form.expire_month(onchange="payment_data_check()", style="width:50px", maxlength=2) }}
-				{{ form.expire_year(onchange="payment_data_check()", style="width:50px", maxlength=2) }}
+				{{ form.expire_month(oninput="payment_data_check()", style="width:50px", maxlength=2) }}
+				{{ form.expire_year(oninput="payment_data_check()", style="width:50px", maxlength=2) }}
 			  </p>
 			</div>
 			<div class="test" style="width:50px;">
@@ -97,7 +96,7 @@
 			</div>
 			<div class="col">
 			  <p>
-				{{ form.cvv(onchange="payment_data_check()", style="width:75px", minlength=3, maxlength=3) }}
+				{{ form.cvv(oninput="payment_data_check()", style="width:75px", minlength=3, maxlength=3) }}
 			  </p>
 			</div>
 		  </div>
@@ -112,14 +111,14 @@
 
 		  <!-- Card owner name -->
 		  <div class="row no-gutters">
-			<div class="col-2">
+			<div class="col-md-2 col-sm-3">
 			  <p>
 				{{ form.name_on_card.label }}
 			  </p>
 			</div>
 			<div class="col">
 			  <p>
-				{{ form.name_on_card(pattern="[a-zA-Z-]*", onchange="payment_data_check()") }}
+				{{ form.name_on_card(pattern="[a-zA-Z-]*", oninput="payment_data_check()") }}
 			  </p>
 			</div><br>
 			<!-- Print errors in name -->
@@ -131,7 +130,7 @@
 		  <br><b>[ OPTIONAL ]</b><br><br><!-- Optional fields -->
 		  <!-- Address -->
 		  <div class="row no-gutters">
-			<div class="col-2">
+			<div class="col-md-2 col-sm-3">
 			  <p>
 				{{ form.address.label }}
 			  </p>
@@ -145,7 +144,7 @@
 
 		  <!-- Postal code -->
 		  <div class="row no-gutters">
-			<div class="col-2">
+			<div class="col-md-2 col-sm-3">
 			  <p>
 				{{ form.postal_code.label }}
 			  </p>
@@ -159,7 +158,7 @@
 
 		  <!-- Contact number -->
 		  <div class="row no-gutters">
-			<div class="col-2">
+			<div class="col-md-2 col-sm-3">
 			  <p>
 				{{ form.contact.label }}
 			  </p>
@@ -226,5 +225,10 @@
   function payment_clicked() {
 	  document.getElementById('promo-skip_promo_check').value = "SKIP";
   }
+</script>
+
+<script>
+  var priceEle = (document.getElementById('price').innerHTML).substr(1)
+  document.getElementById('price').innerHTML = '$' + parseFloat(priceEle).toFixed(2)
 </script>
 {% endblock %}
