@@ -5,7 +5,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_login import LoginManager
 from flask_session import Session
-#from flask_apscheduler import APScheduler
+from flask_apscheduler import APScheduler
 from flask_admin import Admin
 from flask_admin.menu import MenuLink
 import warnings
@@ -38,13 +38,11 @@ login_manager = LoginManager(app) # Flask login_manager
 Session(app)
 
 
-'''
 # Create scheduler (conditional prevents scheduler from initialising twice)
 if os.environ.get('WERKZEUG_RUN_MAIN') == 'true':
 	scheduler = APScheduler()
 	scheduler.init_app(app)
 	scheduler.start()
-'''
 
 
 from app import routes
@@ -72,12 +70,14 @@ admin.add_view(views.StaffBookingView(booking.Booking, db.session))
 admin.add_view(views.StaffPaymentView(payments.Payment, db.session, category='Payments'))
 admin.add_view(views.StaffRefundView(payments.Refund, db.session, category='Payments'))
 
+
 # Add administrator views
 with warnings.catch_warnings():
 	warnings.filterwarnings('ignore', 'Fields missing from ruleset', UserWarning)
 	admin.add_view(views.AdminUserView(users.User, db.session))
 admin.add_view(views.AdminLoginHistoryView(logs.LoginHistory, db.session))
 admin.add_view(views.AdminLogoutHistoryView(logs.LogoutHistory, db.session))
+
 
 # Add extra navbar links
 admin.add_link(MenuLink(name='front page', category='', url='/'))
