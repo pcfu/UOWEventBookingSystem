@@ -153,24 +153,14 @@ def type_query(keyword):
 def date_query(keyword):
 	return db.session.query(Event.event_id, Event.title, Event.img_root)\
 					 .join(EventSlot, Event.event_id == EventSlot.event_id)\
-					 .filter(func.DATE(EventSlot.event_date) >= keyword['from_date'],
+					 .filter(Event.is_launched,
+							 func.DATE(EventSlot.event_date) >= keyword['from_date'],
 							 func.DATE(EventSlot.event_date) <= keyword['to_date'])\
 					 .group_by(Event.event_id).order_by(Event.title).all()
 
 
 def price_query(keyword):
-	records = db.session.query(Event.event_id, Event.title,
-							   Event.price, Event.img_root)\
-						.filter(Event.is_launched)\
-						.order_by(Event.title)
-
-	if keyword == 'free':
-		records = records.filter(Event.price == 0).all()
-	elif keyword == 'cheap':
-		records = records.filter(Event.price < 20).all()
-	elif keyword == 'mid':
-		records = records.filter(Event.price >= 20, Event.price <= 50 ).all()
-	else:
-		records = records.filter(Event.price > 50).all()
-
-	return records
+	return db.session.query(Event.event_id, Event.title, Event.price, Event.img_root)\
+					 .filter(Event.is_launched, Event.price >= keyword['min_price'],
+							 Event.price <= keyword['max_price'])\
+					 .order_by(Event.title).all()

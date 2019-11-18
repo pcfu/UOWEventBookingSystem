@@ -106,8 +106,13 @@ class AccountUpdateForm(FlaskForm):
 
 
 class DateRangeForm(FlaskForm):
-	from_date = DateField(default=date.today(), label='From')
-	to_date = DateField(default=date.today(), label='To')
+	from_date = DateField(default=date.today())
+	to_date = DateField(default=date.today())
+
+
+class PriceRangeForm(FlaskForm):
+	min_price = DecimalField(default=0.0)
+	max_price = DecimalField(default=0.0)
 
 
 class SearchForm(FlaskForm):
@@ -115,15 +120,11 @@ class SearchForm(FlaskForm):
 			   ('date', 'Date'),
 			   ('type', 'Type' ),
 			   ('price', 'Price')]
-	RANGES = [('free', 'FREE'),
-			  ('cheap', '< $20'),
-			  ('mid', '$20 - 50'),
-			  ('expensive', '> $50')]
 	CATEGORIES = [(row.name, row.name) for row in EventType.query.all()]
 
 	STRING_FIELD = StringField()
 	DATE_FIELD = FormField(DateRangeForm)
-	PRICE_FIELD = SelectField(choices=RANGES)
+	PRICE_FIELD = FormField(PriceRangeForm)
 	TYPE_FIELD = SelectField(choices=CATEGORIES, coerce=str)
 
 	search_field = STRING_FIELD
@@ -140,8 +141,21 @@ class SearchForm(FlaskForm):
 				return False
 			elif from_date > to_date:
 				RaiseError(self.DATE_FIELD.from_date,
-					   message='End date cannot be earlier than start date')
+						   message='End date must be later than start date')
 				return False
+		elif self.search_field == self.PRICE_FIELD:
+			min_price = self.search_field.data['min_price']
+			max_price = self.search_field.data['max_price']
+
+			if min_price is None or max_price is None or \
+			   min_price < 0.0 or max_price < 0.0:
+				RaiseError(self.PRICE_FIELD.min_price, message='Invalid price(s)')
+				return False
+			elif min_price > max_price:
+				RaiseError(self.PRICE_FIELD.min_price,
+						   message='Min price must be greater than max price')
+				return False
+
 		return True
 
 

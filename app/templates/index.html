@@ -28,7 +28,10 @@
 	  {% endwith %}
 
 	  {% for error in form.DATE_FIELD.from_date.errors %}
-	  <span class="center error-message">[{{ error }}]</span><br>
+	  <span class="center error-message">{{ error }}</span><br>
+	  {% endfor %}
+	  {% for error in form.PRICE_FIELD.min_price.errors %}
+	  <span class="center error-message">{{ error }}</span><br>
 	  {% endfor %}
 	</div><br>
 
@@ -85,6 +88,47 @@
 		  to_field = document.createElement('div');
 		  to_field.appendChild(to_select_field);
 		  input_field.appendChild(to_field);
+	  } else if (selectedOption == 'price') {
+		  // Set properties of min_price
+		  min_price = document.getElementById('PRICE_FIELD-min_price');
+		  min_price.className = "form-control search-bar";
+		  min_price.style.height="45px";
+		  min_price.style.width="150px";
+		  min_price.style.fontSize = "smaller";
+
+		  // Set properties of max_price
+		  max_price = document.getElementById('PRICE_FIELD-max_price');
+  		  max_price.className = "form-control search-bar";
+		  max_price.style.height="45px";
+		  max_price.style.width="150px";
+		  max_price.style.fontSize = "smaller";
+
+		  // Remove search_field table from input_field
+		  input_field = document.getElementById('input_field');
+		  input_field.removeChild(document.getElementById('search_field'));
+
+		  // Add from-date label
+		  min_label = document.createElement('div');
+		  min_label.innerHTML = "<b>min:</b>";
+		  min_label.style.margin = "0px 10px 0px 0px";
+		  input_field.appendChild(min_label);
+
+		  // Add from-date select field
+		  min_field = document.createElement('div');
+		  min_field.style.margin = "0px 25px 0px 0px";
+		  min_field.appendChild(min_price);
+		  input_field.appendChild(min_field);
+
+		  // Add to-date label
+		  max_label = document.createElement('div');
+		  max_label.innerHTML = "<b>max:</b>";
+		  max_label.style.margin = "0px 10px 0px 0px";
+		  input_field.appendChild(max_label);
+
+		  // Add to-date select field
+		  max_field = document.createElement('div');
+		  max_field.appendChild(max_price);
+		  input_field.appendChild(max_field);
 	  }
 	</script>
 

@@ -36,10 +36,10 @@ def get_events(option):
 
 	if form.validate_on_submit():
 		search_type = form.search_type.data
-		if not option == 'date':
-			keyword = str(form.search_field.data).strip()
-		else:
+		if option == 'date' or option == 'price':
 			keyword = form.search_field.data
+		else:
+			keyword = str(form.search_field.data).strip()
 
 		if len(keyword) > 0:
 			return render_template(
