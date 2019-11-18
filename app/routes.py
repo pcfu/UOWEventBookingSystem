@@ -2,7 +2,7 @@ from app import app, db, db_tools
 from app.models.users import User
 from app.models.events import EventType, Event, EventSlot
 from app.models.booking import Booking
-#from app.models.payments import Payment, EventPromotion, Promotion, Refund
+from app.models.payments import Refund #, EventPromotion, Promotion
 from app.forms.forms import LoginForm, RegistrationForm, SearchForm, \
 							BookingForm, PaymentForm #, AccountUpdateForm
 from flask import render_template, redirect, url_for, request, session, jsonify
@@ -151,19 +151,16 @@ def my_account():
 
 @app.route('/my_bookings')
 def my_bookings():
-	return 'My bookings page'
-	'''
 	# Redirect to other endpoint if pre-reqs not met
 	if not current_user.is_authenticated:
-		return redirect(url_for('user_login'))
-	elif is_admin_user():
+		return redirect(url_for('login'))
+	elif current_user.is_admin():
 		return redirect(url_for('index'))
 
 	records = Booking.query.filter(Booking.user_id == current_user.user_id,
 								   Booking.quantity > 0).all()
-	bookings = query.format_bookings(records)
-	return render_template('my_bookings.html', bookings=bookings,
-						   is_admin=is_admin_user(), is_staff=is_staff_user())
+	bookings = db_tools.format_bookings(records)
+	return render_template('my_bookings.html', bookings=bookings)
 
 
 @app.route('/my_bookings/add_to/<bid>/<delta>')
@@ -171,8 +168,8 @@ def add_to_booking(bid, delta):
 	# Redirect to other endpoint if pre-reqs not met
 	booking = Booking.query.get(bid)
 	if not current_user.is_authenticated:
-		return redirect(url_for('user_login'))
-	elif is_admin_user() or current_user.user_id != booking.user_id:
+		return redirect(url_for('login'))
+	elif current_user.user_id != booking.user_id:
 		return redirect(url_for('index'))
 
 	# Save payment details in current session object
@@ -191,8 +188,8 @@ def cancel_booking(bid, delta):
 	# Redirect to other endpoint if pre-reqs not met
 	booking = Booking.query.get(bid)
 	if not current_user.is_authenticated:
-		return redirect(url_for('user_login'))
-	elif is_admin_user() or current_user.user_id != booking.user_id:
+		return redirect(url_for('login'))
+	elif current_user.user_id != booking.user_id:
 		return redirect(url_for('index'))
 
 	# Throw error if requested refund quantity exceeds total booking quantity
@@ -200,8 +197,7 @@ def cancel_booking(bid, delta):
 	if request_balance > booking.quantity:
 		return render_template('error.html', e_msg='Error in refund quantity.',
 							   page='your bookings page',
-							   redirect_url=url_for('my_bookings'),
-							   is_admin=is_admin_user(), is_staff=is_staff_user())
+							   redirect_url=url_for('my_bookings'))
 
 	# Loop through payments to refund as much request_balance as possible
 	refund_amount = 0.0
@@ -225,16 +221,13 @@ def cancel_booking(bid, delta):
 		db.session.rollback()
 		return render_template('error.html', e_msg='Refund processing error.',
 							   page='your bookings page',
-							   redirect_url=url_for('my_bookings'),
-							   is_admin=is_admin_user(), is_staff=is_staff_user())
+							   redirect_url=url_for('my_bookings'))
 
 	# Commit changes and redirect to confirmation page
 	db.session.commit()
-	details = query.format_bookings([booking])[0]
-	return render_template('confirm_refund.html',
-						   amount=refund_amount, qty=delta, details=details,
-						   is_admin=is_admin_user(), is_staff=is_staff_user())
-'''
+	details = db_tools.format_bookings([booking])[0]
+	return render_template('confirm_refund.html', amount=refund_amount,
+						   qty=delta, details=details)
 
 
 @app.route('/booking/<eid>', methods=['GET', 'POST'])

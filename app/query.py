@@ -39,7 +39,6 @@ def format_events(records):
 			event['timings'][date] = [(time, vacancy)]
 
 	return event
-'''
 
 
 def format_bookings(records):
@@ -62,7 +61,6 @@ def format_bookings(records):
 	return bookings
 
 
-'''
 def query_all():
 	records = db.session.query(Event.event_id, Event.title, Event.img_root)\
 						.filter(Event.is_launched, Event.has_active_slots)\

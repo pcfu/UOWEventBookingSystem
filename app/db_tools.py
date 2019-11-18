@@ -85,6 +85,26 @@ def format_events(records):
 	return event
 
 
+def format_bookings(records):
+	records = sorted(records, key=lambda k: k.slot.event_date)
+
+	bookings = []
+	for row in records:
+		dt = parse(str(row.slot.event_date))
+		date = str(dt.date())
+		time = str(dt.time().strftime('%H:%M'))
+		bookings.append({ 'id' : row.booking_id,
+						  'title' : row.slot.event.title,
+						  'date' : date,
+						  'time' : time,
+						  'vacancy' : row.slot.vacancy,
+						  'qty' : row.quantity,
+						  'is_active' : row.slot.event.is_launched and
+						  				row.slot.is_active
+						})
+	return bookings
+
+
 def update_booking_payment(form, payment):
 	# Update db with new booking or edit existing booking
 	if payment['booking_type'] == 'new':
