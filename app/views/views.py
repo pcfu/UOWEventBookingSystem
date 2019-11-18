@@ -2,7 +2,6 @@ from app import db
 from app.models.users import User
 from app.models.events import Event, EventSlot
 from app.models.payments import Payment, Promotion, EventPromotion
-#from app.models.booking import Booking
 from app.models.logs import LoginHistory, LogoutHistory
 from flask_admin import AdminIndexView
 from flask_admin.contrib.sqla import ModelView

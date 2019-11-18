@@ -6,7 +6,6 @@ from datetime import timedelta
 from os import path
 
 
-# Helper Function for ImageUploadField in forms
 def img_filename_gen(obj, file_data):
 	idx = ''
 	if obj.event_id is None:
