@@ -1,15 +1,16 @@
 from app import db
+from app.models.users import User
 from app.models.events import Event, EventSlot
 from app.models.payments import Payment, Promotion, EventPromotion
-from app.models.booking import Booking
 from app.models.logs import LoginHistory, LogoutHistory
 from flask_admin import AdminIndexView
-from flask_admin.contrib.sqla import ModelView, filters
+from flask_admin.contrib.sqla import ModelView
 from wtforms import StringField
 from flask_admin.form.upload import ImageUploadField
 from wtforms.validators import DataRequired, NumberRange, ValidationError, Email
 from app.forms.custom_validators import Interval, DateInRange
-from app.views import utils
+from app.views import utils, filters
+from flask_login import current_user
 from flask import redirect, url_for
 from sqlalchemy.sql import func
 from datetime import date, timedelta
@@ -20,30 +21,37 @@ import math
 
 class GlobalIndexView(AdminIndexView):
 	def is_accessible(self):
-		return utils.is_admin_user() or utils.is_staff_user()
+		return current_user.is_authenticated and \
+			(current_user.is_staff() or current_user.is_admin())
 
 	def inaccessible_callback(self, name, **kwargs):
-		return redirect(url_for('staff_login'))
+		return redirect(url_for('login'))
 
 
-class StaffBaseView(ModelView):
+class BaseView(ModelView):
+	def scaffold_filters(self, name):
+		filters = super().scaffold_filters(name)
+		if hasattr(self, 'column_filter_labels') and name in self.column_filter_labels:
+			for f in filters:
+				f.name = self.column_filter_labels[name]
+		return filters
+
+
+class StaffBaseView(BaseView):
 	def is_accessible(self):
-		return utils.is_staff_user()
+		return current_user.is_authenticated and current_user.is_staff()
 
 	def inaccessible_callback(self, name, **kwargs):
-		if utils.is_admin_user():
-			return redirect(url_for('admin.index'))
-		return redirect(url_for('staff_login'))
+		return redirect(url_for('login'))
 
 
-class AdminBaseView(ModelView):
+class AdminBaseView(BaseView):
 	def is_accessible(self):
-		return utils.is_admin_user()
+		return current_user.is_authenticated and current_user.is_admin()
+
 
 	def inaccessible_callback(self, name, **kwargs):
-		if utils.is_staff_user():
-			return redirect(url_for('admin.index'))
-		return redirect(url_for('staff_login'))
+		return redirect(url_for('login'))
 
 
 class StaffVenueView(StaffBaseView):
@@ -72,9 +80,12 @@ class StaffEventView(StaffBaseView):
 	column_list = [ 'event_id', 'has_active_slots', 'is_launched',
 					'title', 'event_type', 'venue', 'capacity',
 					'duration', 'price', 'img_root' ]
-	column_labels = dict(has_active_slots='Active Slots', is_launched='Launched',
-						 event_id='ID', event_type='Type',
-						 duration='Duration', img_root='Image File')
+	column_labels = { 'event_id' : 'ID',
+					  'has_active_slots' : 'Active Slots',
+					  'is_launched': 'Launched',
+					  'event_type' : 'Type',
+					  'duration' : 'Duration',
+					  'img_root' : 'Image File' }
 	column_editable_list = ['is_launched', 'title', 'event_type', 'venue',
 							'capacity', 'duration', 'price']
 	column_sortable_list = ['event_id', 'has_active_slots', 'is_launched',
@@ -100,15 +111,9 @@ class StaffEventView(StaffBaseView):
 	# Filters
 	column_filters = ['is_launched', 'title', 'event_type',
 					  'venue', 'capacity', 'duration', 'price',
-					  utils.FilterNull(column=Event.img_root, name='has image')]
-	column_filter_labels = dict(event_type='Type', venue='Venue')
-
-	def scaffold_filters(self, name):
-		filters = super().scaffold_filters(name)
-		if name in self.column_filter_labels:
-			for f in filters:
-				f.name = self.column_filter_labels[name]
-		return filters
+					  filters.FilterNull(column=Event.img_root, name='has image')]
+	column_filter_labels = { 'event_type' : 'Type',
+							 'venue' : 'Venue' }
 
 	# Details View Settings
 	column_details_list = [ 'event_id', 'title', 'slots', 'description' ]
@@ -191,27 +196,12 @@ class StaffEventSlotView(StaffBaseView):
 	column_filter_labels = { 'event.title' : 'Event',
 							 'num_bookings' : 'Total Bookings'}
 
-	def scaffold_filters(self, name):
-		filters = super().scaffold_filters(name)
-		if name in self.column_filter_labels:
-			for f in filters:
-				f.name = self.column_filter_labels[name]
-		return filters
-
 	# Create/Edit Form Settings
 	form_columns = ['event', 'event_date', 'is_active']
 	form_args = dict(event=dict(validators=[DataRequired()]),
  					 event_date=dict(validators=[DateInRange()]))
 	form_create_rules = ['event', 'event_date']
 	form_edit_rules = ['event', 'event_date', 'is_active']
-
-	def check_event_promo_dates(self, last_date, promo_pairings):
-		for ep in [ep for ep in promo_pairings if ep.is_active]:
-			if last_date is None or ep.promotion.date_start > last_date:
-				msg = 'Event last active day will change to [ {} ] '.format(last_date)
-				msg += 'but Promotion: {} for this event '.format(ep.promotion)
-				msg += 'only starts on [ {} ] '.format(ep.promotion.date_start)
-				raise ValidationError(msg)
 
 	# Perform data validation when creating/editing a slot
 	def on_model_change(self, form, model, is_created):
@@ -231,7 +221,7 @@ class StaffEventSlotView(StaffBaseView):
 		# Validate promotions start dates against any changes to event last date
 		# This MUST come BEFORE the next check
 		last_date = event.last_active_date
-		self.check_event_promo_dates(last_date, event.promo_pairings)
+		utils.check_event_promo_dates(last_date, event.promo_pairings)
 
 		# Verify no slot clashes and deactivate event if no active slots left
 		utils.check_slot_clash(schedule, timing, model.slot_id)
@@ -247,7 +237,7 @@ class StaffEventSlotView(StaffBaseView):
 				date = slot.event_date.date()
 				if not last_date or date > last_date:
 					last_date = date
-		self.check_event_promo_dates(last_date, event.promo_pairings)
+		utils.check_event_promo_dates(last_date, event.promo_pairings)
 
 		# Verify no current bookings and deactivate event if no active slots left
 		if model.bookings:
@@ -260,6 +250,7 @@ class StaffBookingView(StaffBaseView):
 	can_create = False
 	can_edit = False
 	can_delete = False
+	can_set_page_size = True
 	column_display_pk = True
 	column_list = ['booking_id', 'user', 'slot', 'slot.event', 'quantity']
 	column_sortable_list = ['booking_id',
@@ -271,21 +262,14 @@ class StaffBookingView(StaffBaseView):
 					  'slot.event' : 'Event' }
 
 	# Filters
-	column_filters = ['user.username', 'user.user_id', 'slot.slot_id',
-					  'slot.event_date', 'slot.event.title', 'slot.event.event_id']
-	column_filter_labels = { 'user.username' : 'username',
-							 'user.user_id' : 'user id',
+	column_filters = ['user.user_id', 'user.username', 'slot.slot_id',
+					  'slot.event_date', 'slot.event.event_id', 'slot.event.title']
+	column_filter_labels = { 'user.user_id' : 'user id',
+							 'user.username' : 'username',
 							 'slot.slot_id' : 'slot id',
-							 'slot.event_date' : 'event date',
-							 'slot.event.title' : 'event name',
-							 'slot.event.event_id' : 'event id'}
-
-	def scaffold_filters(self, name):
-		filters = super().scaffold_filters(name)
-		if name in self.column_filter_labels:
-			for f in filters:
-				f.name = self.column_filter_labels[name]
-		return filters
+							 'slot.event_date' : 'slot date',
+							 'slot.event.event_id' : 'event id',
+							 'slot.event.title' : 'event name' }
 
 
 class StaffPaymentView(StaffBaseView):
@@ -293,6 +277,7 @@ class StaffPaymentView(StaffBaseView):
 	can_create = False
 	can_edit = False
 	can_delete = False
+	can_set_page_size = True
 	column_display_pk = True
 	column_list = ['payment_id', 'booking_id', 'booking.user', 'booking.slot',
 				   'booking.quantity', 'quantity', 'amount', 'promotion',
@@ -328,7 +313,7 @@ class StaffPaymentView(StaffBaseView):
 	column_filters = ['booking_id', 'booking.user.username', 'booking.user.user_id',
 					  'booking.slot.slot_id', 'amount', 'promotion.promo_code',
 					  'promotion.promotion_id',
-					  utils.BooleanFilter(column=Payment.is_cancelled,
+					  filters.BooleanFilter(column=Payment.is_cancelled,
 										  name='Cancelled')]
 	column_filter_labels = { 'booking.user.username' : 'username',
 							 'booking.user.user_id' : 'user id',
@@ -336,19 +321,13 @@ class StaffPaymentView(StaffBaseView):
 							 'promotion.promo_code' : 'promo code',
 							 'promotion.promotion_id' : 'promotion id'}
 
-	def scaffold_filters(self, name):
-		filters = super().scaffold_filters(name)
-		if name in self.column_filter_labels:
-			for f in filters:
-				f.name = self.column_filter_labels[name]
-		return filters
-
 
 class StaffRefundView(StaffBaseView):
 	# List View Settings
 	can_create = False
 	can_edit = False
 	can_delete = False
+	can_set_page_size = True
 	column_display_pk = True
 	column_list = ['refund_id', 'payment', 'quantity', 'refund_amount']
 	column_sortable_list = ['refund_id', ('payment', 'payment.payment_id'),
@@ -364,17 +343,11 @@ class StaffRefundView(StaffBaseView):
 	column_filter_labels = { 'payment.payment_id' : 'payment id',
 							 'payment.booking_id' : 'booking id' }
 
-	def scaffold_filters(self, name):
-		filters = super().scaffold_filters(name)
-		if name in self.column_filter_labels:
-			for f in filters:
-				f.name = self.column_filter_labels[name]
-		return filters
-
 
 class StaffPromotionView(StaffBaseView):
 	# List View Settings
 	can_view_details = True
+	can_set_page_size = True
 	column_display_pk = True
 	column_list = ['promotion_id', 'promo_code', 'promo_percentage', 'date_start',
 				   'date_end', 'has_active_event_promo', 'is_used', 'events_last_date']
@@ -411,18 +384,11 @@ class StaffPromotionView(StaffBaseView):
 
 	# Filters
 	column_filters = ['promo_percentage',
-					  utils.BooleanFilter(column=Promotion.has_active_event_promo,
+					  filters.BooleanFilter(column=Promotion.has_active_event_promo,
 										  name='Has Active EP'),
-					  utils.BooleanFilter(column=Promotion.is_used, name='Is Used')]
+					  filters.BooleanFilter(column=Promotion.is_used, name='Is Used')]
 	column_filter_labels = { 'promo_percentage' : 'discount',
 							 'is_used' : 'is used'}
-
-	def scaffold_filters(self, name):
-		filters = super().scaffold_filters(name)
-		if name in self.column_filter_labels:
-			for f in filters:
-				f.name = self.column_filter_labels[name]
-		return filters
 
 	# Create/Edit form settings
 	form_rules = ['promo_code', 'promo_percentage', 'date_start', 'date_end']
@@ -459,6 +425,7 @@ class StaffPromotionView(StaffBaseView):
 
 class StaffEventPromoView(StaffBaseView):
 	# List View Settings
+	can_set_page_size = True
 	column_list = ['event', 'promotion', 'event.last_active_date',
 				   'promotion.date_start', 'promotion.date_end', 'is_active']
 	column_labels = {'event.last_active_date' : 'Event End',
@@ -493,18 +460,11 @@ class StaffEventPromoView(StaffBaseView):
 					  'promotion.promo_code',
 					  'promotion.date_start',
 					  'promotion.date_end',
-					  utils.BooleanFilter(column=EventPromotion.is_active,
+					  filters.BooleanFilter(column=EventPromotion.is_active,
 										  name='Is Active')]
 	column_filter_labels = { 'event.title' : 'Event Title',
 							 'event.last_active_date' : 'Event End',
 							 'promotion.promo_code' : 'Promo Code'}
-
-	def scaffold_filters(self, name):
-		filters = super().scaffold_filters(name)
-		if name in self.column_filter_labels:
-			for f in filters:
-				f.name = self.column_filter_labels[name]
-		return filters
 
 	# Perform data validation when creating/editing an event promotion
 	def on_model_change(self, form, model, is_created):
@@ -520,88 +480,87 @@ class StaffEventPromoView(StaffBaseView):
 
 class AdminUserView(AdminBaseView):
 	# List View Settings
+	can_set_page_size = True
 	column_display_pk = True
-	column_labels = dict(user_id='ID')
-	column_exclude_list = ['password_hash']
+	column_list = ['user_id', 'username', 'email', 'group.group_name']
+	column_labels = {'user_id' : 'ID',
+					 'group.group_name' : 'Usergroup'}
+	column_sortable_list = [ 'user_id', 'username', 'email', 'group.group_name']
+
+	# Filters
+	column_filters = [ 'user_id', 'username',
+					   filters.RegularUserFilter(User.group_id, 'Usergroup',
+												 options=(('1', 'Yes'), ('0', 'No'))),
+					   filters.StaffUserFilter(User.group_id, 'Usergroup',
+											   options=(('1', 'Yes'), ('0', 'No'))),
+					   filters.AdminUserFilter(User.group_id, 'Usergroup',
+											   options=(('1', 'Yes'), ('0', 'No')))	]
 
 	# Create/Edit Form Settings
-	form_extra_fields =	{'password' : StringField('Password',
-												  validators=[DataRequired()]),
-						 'change_password': StringField('Change Password')}
-	form_columns = ['username', 'email', 'password', 'change_password',
-					'password_hash', 'is_staff']
+	form_extra_fields = { 'password' : StringField('Password', validators=[DataRequired()]),
+						  'change_password': StringField('Change Password') }
+	form_columns = ['group', 'username', 'email', 'password',
+					'change_password', 'password_hash']
 	form_args = dict(email=dict(validators=[DataRequired(), Email()]))
 	form_widget_args = { 'password_hash' : {'readonly' : True} }
-	form_create_rules = ['username', 'email', 'password', 'is_staff']
-	form_edit_rules = ['username', 'email', 'change_password',
-					   'password_hash', 'is_staff']
+	form_create_rules = ['group', 'username', 'email', 'password']
+	form_edit_rules = ['group', 'username', 'email', 'change_password',
+					   'password_hash']
 
-	# Perform data validation when creating/editing a slot
+	# Perform data validation when creating/editing a user
 	def on_model_change(self, form, model, is_created):
 		if is_created:
 			model.set_password(form.password.data)
 		else:
+			if model == current_user and form.group.data.group_name != 'admin':
+				raise ValidationError('Cannot revoke admin privilege from self')
+
 			if form.change_password.data:
 				model.set_password(form.change_password.data)
+
+	# Perform data validation when deleting a user
+	def on_model_delete(self, model):
+		if model == current_user:
+			raise ValidationError('Cannot delete self')
 
 
 class AdminLoginHistoryView(AdminBaseView):
 	# List View Settings
 	can_create = False
 	can_edit = False
+	can_delete = False
+	can_set_page_size = True
 	column_display_pk = True
-	column_labels = dict(in_id='ID')
-	column_list = ['in_id', 'timestamp', 'user', 'admin']
+	column_list = ['in_id', 'timestamp', 'user', 'user.group']
+	column_labels = { 'in_id' : 'ID',
+					  'user.group' : 'Usergroup' }
 	column_sortable_list = ['in_id', 'timestamp',
 							('user', 'user.username'),
-							('admin', 'admin.username')]
+							('user.group', 'user.group.group_name')]
 
 	# Filters
-	column_filters = [ 'user.username', 'admin.username',
-					   utils.FilterRegularUsers(LoginHistory.is_regular, 'user type',
-												options=(('1', 'Yes'), ('0', 'No'))),
-   					   utils.FilterStaffUsers(LoginHistory.is_staff, 'user type',
-											  options=(('1', 'Yes'), ('0', 'No'))),
-   					   utils.FilterAdminUsers(LoginHistory.is_admin, 'user type',
-											  options=(('1', 'Yes'), ('0', 'No')))
-					]
-	column_filter_labels = {'user.username' : 'user name',
-							'admin.username' : 'admin name'}
-
-	def scaffold_filters(self, name):
-		filters = super().scaffold_filters(name)
-		if name in self.column_filter_labels:
-			for f in filters:
-				f.name = self.column_filter_labels[name]
-		return filters
+	column_filters = [ 'user.user_id', 'user.username', 'user.group.group_name' ]
+	column_filter_labels = {'user.user_id' : 'User ID',
+							'user.username' : 'Username',
+							'user.group.group_name' : 'User Group'}
 
 
 class AdminLogoutHistoryView(AdminBaseView):
 	# List View Settings
 	can_create = False
 	can_edit = False
+	can_delete = False
+	can_set_page_size = True
 	column_display_pk = True
-	column_labels = dict(out_id='ID')
-	column_list = ['out_id', 'timestamp', 'user', 'admin']
+	column_list = ['out_id', 'timestamp', 'user', 'user.group']
+	column_labels = { 'out_id' : 'ID',
+					  'user.group' : 'Usergroup' }
 	column_sortable_list = ['out_id', 'timestamp',
 							('user', 'user.username'),
-							('admin', 'admin.username')]
+							('user.group', 'user.group.group_name')]
 
 	# Filters
-	column_filters = [ 'user.username', 'admin.username',
-					   utils.FilterRegularUsers(LogoutHistory.is_regular, 'user type',
-												options=(('1', 'Yes'), ('0', 'No'))),
-   					   utils.FilterStaffUsers(LogoutHistory.is_staff, 'user type',
-											  options=(('1', 'Yes'), ('0', 'No'))),
-   					   utils.FilterAdminUsers(LogoutHistory.is_admin, 'user type',
-											  options=(('1', 'Yes'), ('0', 'No')))
-					]
-	column_filter_labels = {'user.username' : 'user name',
-							'admin.username' : 'admin name'}
-
-	def scaffold_filters(self, name):
-		filters = super().scaffold_filters(name)
-		if name in self.column_filter_labels:
-			for f in filters:
-				f.name = self.column_filter_labels[name]
-		return filters
+	column_filters = [ 'user.user_id', 'user.username', 'user.group.group_name' ]
+	column_filter_labels = {'user.user_id' : 'User ID',
+							'user.username' : 'Username',
+							'user.group.group_name' : 'User Group'}

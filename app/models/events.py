@@ -1,13 +1,13 @@
 from app import db
 from app.models.booking import Booking
 from sqlalchemy import ForeignKey
+from sqlalchemy.ext.hybrid import hybrid_property
 from dateutil.parser import parse
 from datetime import timedelta
-from sqlalchemy.ext.hybrid import hybrid_property
-from sqlalchemy.sql import func
 
 
 class Venue(db.Model):
+	__tablename__ = 'venue'
 	venue_id = db.Column(db.Integer, primary_key=True)
 	name = db.Column(db.String, index=True, unique=True, nullable=False)
 
@@ -18,6 +18,7 @@ class Venue(db.Model):
 
 
 class EventType(db.Model):
+	__tablename__ = 'event_type'
 	type_id = db.Column(db.Integer, primary_key=True)
 	name = db.Column(db.String, index=True, unique=True, nullable=False)
 
@@ -28,6 +29,7 @@ class EventType(db.Model):
 
 
 class Event(db.Model):
+	__tablename__ = 'event'
 	event_id = db.Column(db.Integer, primary_key=True)
 	title = db.Column(db.String, index=True, nullable=False)
 	duration = db.Column(db.Float, nullable=False)
@@ -37,7 +39,7 @@ class Event(db.Model):
 	img_root = db.Column(db.String)
 	is_launched = db.Column(db.Boolean, nullable=False)
 	type_id = db.Column(db.Integer, ForeignKey('event_type.type_id'))
-	venue_id = db.Column(db.Integer, ForeignKey('venue.venue_id'), nullable=False)
+	venue_id = db.Column(db.Integer, ForeignKey('venue.venue_id'))
 
 	event_type = db.relationship('EventType', back_populates='events')
 	venue = db.relationship('Venue', back_populates='events')
@@ -75,6 +77,7 @@ class Event(db.Model):
 
 
 class EventSlot(db.Model):
+	__tablename__ = 'event_slot'
 	slot_id = db.Column(db.Integer, primary_key=True)
 	event_date = db.Column(db.DateTime, nullable=False)
 	is_active = db.Column(db.Boolean)

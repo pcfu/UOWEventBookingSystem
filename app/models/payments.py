@@ -4,6 +4,7 @@ from sqlalchemy.ext.hybrid import hybrid_property
 
 
 class Payment(db.Model):
+	__tablename__ = 'payment'
 	payment_id = db.Column(db.Integer, primary_key=True)
 	quantity = db.Column(db.Integer, nullable=False)
 	amount = db.Column(db.Float, nullable=False)
@@ -37,6 +38,7 @@ class Payment(db.Model):
 
 
 class Promotion(db.Model):
+	__tablename__ = 'promotion'
 	promotion_id = db.Column(db.Integer, primary_key=True)
 	promo_percentage = db.Column(db.Integer, nullable=False)
 	date_start = db.Column(db.Date, nullable=False)
@@ -80,6 +82,7 @@ class Promotion(db.Model):
 
 
 class EventPromotion(db.Model):
+	__tablename__ = 'event_promotion'
 	event_id = db.Column(db.Integer, ForeignKey('event.event_id'), primary_key=True)
 	promotion_id = db.Column(db.Integer, ForeignKey('promotion.promotion_id'), primary_key=True)
 	is_active = db.Column(db.Boolean)
@@ -94,6 +97,7 @@ class EventPromotion(db.Model):
 
 
 class Refund(db.Model):
+	__tablename__ = 'refund'
 	refund_id = db.Column(db.Integer, primary_key=True)
 	quantity = db.Column(db.Integer, nullable=False)
 	payment_id = db.Column(db.Integer, ForeignKey('payment.payment_id'))

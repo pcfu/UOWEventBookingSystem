@@ -3,8 +3,8 @@ from app.config import Config
 from sqlalchemy import MetaData
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
-from flask_session import Session
 from flask_login import LoginManager
+from flask_session import Session
 from flask_apscheduler import APScheduler
 from flask_admin import Admin
 from flask_admin.menu import MenuLink
@@ -30,12 +30,12 @@ db = SQLAlchemy(app, metadata=MetaData(naming_convention=convention)) # DB insta
 migrate = Migrate(app, db, render_as_batch=True) # Flask database migration manager
 
 
-# Set up session
-Session(app)
-
-
 # Create login manager
 login_manager = LoginManager(app) # Flask login_manager
+
+
+# Set up session
+Session(app)
 
 
 # Create scheduler (conditional prevents scheduler from initialising twice)
@@ -46,7 +46,7 @@ if os.environ.get('WERKZEUG_RUN_MAIN') == 'true':
 
 
 from app import routes
-from app.models import users, events, booking, logs, payments
+from app.models import users, logs, events, booking, payments
 from app.views import views
 
 
@@ -54,9 +54,11 @@ from app.views import views
 admin = Admin(app, name='UOW EBS', template_mode='bootstrap3',
 			  index_view=views.GlobalIndexView())
 
+
 # Add staff views
 admin.add_view(views.StaffVenueView(events.Venue, db.session, category='Events'))
 admin.add_view(views.StaffEventTypeView(events.EventType, db.session, category='Events'))
+
 with warnings.catch_warnings():
 	warnings.filterwarnings('ignore', 'Fields missing from ruleset', UserWarning)
 	admin.add_view(views.StaffEventView(events.Event, db.session, category='Events'))
@@ -67,6 +69,7 @@ admin.add_view(views.StaffEventPromoView(payments.EventPromotion, db.session, ca
 admin.add_view(views.StaffBookingView(booking.Booking, db.session))
 admin.add_view(views.StaffPaymentView(payments.Payment, db.session, category='Payments'))
 admin.add_view(views.StaffRefundView(payments.Refund, db.session, category='Payments'))
+
 
 # Add administrator views
 with warnings.catch_warnings():

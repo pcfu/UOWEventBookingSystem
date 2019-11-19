@@ -6,7 +6,7 @@
 	<div class="row search-row mb-4 align-items-center justify-content-center">
 		<!-- search bar -->
 		<form class="form-inline" method="post">
-			<div id='test2' class="form-group">
+			<div id='input_field' class="form-group">
 			  {{ form.search_field(id="search_field", class="form-control search-bar", style="width: 400px; height: 45px; text-align: left;", placeholder="Search") }}
 			</div>
 			<div class="form-group ml-3">
@@ -27,30 +27,113 @@
 	  {% endfor %}
 	  {% endif %}
 	  {% endwith %}
+
+	  {% for error in form.DATE_FIELD.from_date.errors %}
+	  <span class="center error-message">{{ error }}</span><br>
+	  {% endfor %}
+	  {% for error in form.PRICE_FIELD.min_price.errors %}
+	  <span class="center error-message">{{ error }}</span><br>
+	  {% endfor %}
 	</div><br>
 
 	<!-- Script to handle changing of search type -->
 	<script>
 	  let type_select = document.getElementById("search_type");
-		type_select.onchange = function() {
-	  		var origin = window.location.origin;
-	  		var route = origin + "/search/" + type_select.value;
-	  		window.location.href = route;
-		}
+	  type_select.onchange = function() {
+	  	  var origin = window.location.origin;
+	  	  var route = origin + "/search/" + type_select.value;
+	  	  window.location.href = route;
+	  }
 
-		select = document.getElementById('search_type')
-		selectedOption = (select.options[select.selectedIndex].value)
+	  select = document.getElementById('search_type');
+	  selectedOption = (select.options[select.selectedIndex].value);
 
-		if (selectedOption == 'date') {
-			search_field_element = document.getElementById('search_field')
-			search_field_element.style.height="115px"
-			search_field_element.style.width="400px"
-			search_field_element.style.border="none"
-			search_field_element.style.marginLeft="10%";
-		}
+	  if (selectedOption == 'date') {
+		  // Set properties of from_select_field
+		  from_select_field = document.getElementById('DATE_FIELD-from_date');
+		  from_select_field.className = "form-control search-bar";
+		  from_select_field.style.height="45px";
+		  from_select_field.style.width="150px";
+		  from_select_field.style.fontSize = "smaller";
+
+		  // Set properties of to_select_field
+		  to_select_field = document.getElementById('DATE_FIELD-to_date');
+  		  to_select_field.className = "form-control search-bar";
+		  to_select_field.style.height="45px";
+		  to_select_field.style.width="150px";
+		  to_select_field.style.fontSize = "smaller";
+
+		  // Remove search_field table from input_field
+		  input_field = document.getElementById('input_field');
+		  input_field.removeChild(document.getElementById('search_field'));
+
+		  // Add from-date label
+		  from_label = document.createElement('div');
+		  from_label.innerHTML = "<b>from:</b>";
+		  from_label.style.margin = "0px 10px 0px 0px";
+		  input_field.appendChild(from_label);
+
+		  // Add from-date select field
+		  from_field = document.createElement('div');
+		  from_field.style.margin = "0px 25px 0px 0px";
+		  from_field.appendChild(from_select_field);
+		  input_field.appendChild(from_field);
+
+		  // Add to-date label
+		  to_label = document.createElement('div');
+		  to_label.innerHTML = "<b>to:</b>";
+		  to_label.style.margin = "0px 10px 0px 0px";
+		  input_field.appendChild(to_label);
+
+		  // Add to-date select field
+		  to_field = document.createElement('div');
+		  to_field.appendChild(to_select_field);
+		  input_field.appendChild(to_field);
+	  } else if (selectedOption == 'price') {
+		  // Set properties of min_price
+		  min_price = document.getElementById('PRICE_FIELD-min_price');
+		  min_price.className = "form-control search-bar";
+		  min_price.style.height="45px";
+		  min_price.style.width="150px";
+		  min_price.style.fontSize = "smaller";
+
+		  // Set properties of max_price
+		  max_price = document.getElementById('PRICE_FIELD-max_price');
+  		  max_price.className = "form-control search-bar";
+		  max_price.style.height="45px";
+		  max_price.style.width="150px";
+		  max_price.style.fontSize = "smaller";
+
+		  // Remove search_field table from input_field
+		  input_field = document.getElementById('input_field');
+		  input_field.removeChild(document.getElementById('search_field'));
+
+		  // Add from-date label
+		  min_label = document.createElement('div');
+		  min_label.innerHTML = "<b>min:</b>";
+		  min_label.style.margin = "0px 10px 0px 0px";
+		  input_field.appendChild(min_label);
+
+		  // Add from-date select field
+		  min_field = document.createElement('div');
+		  min_field.style.margin = "0px 25px 0px 0px";
+		  min_field.appendChild(min_price);
+		  input_field.appendChild(min_field);
+
+		  // Add to-date label
+		  max_label = document.createElement('div');
+		  max_label.innerHTML = "<b>max:</b>";
+		  max_label.style.margin = "0px 10px 0px 0px";
+		  input_field.appendChild(max_label);
+
+		  // Add to-date select field
+		  max_field = document.createElement('div');
+		  max_field.appendChild(max_price);
+		  input_field.appendChild(max_field);
+	  }
 	</script>
 
-	<!-- Feedback if search results -->
+	<!-- Feedback if no search results -->
 	{% if event_list|length == 0 %}
 	<br>
 	<span class="center" style="color: black;">NO RESULTS</span>
