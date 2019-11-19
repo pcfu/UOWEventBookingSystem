@@ -291,7 +291,7 @@ def payment():
 	payment = session['payment_due']
 	payment['title'] = Event.query.get(payment['event_id']).title
 	payment['time'] = EventSlot.query.get(payment['slot_id']).event_date\
-							   .strftime('%d %b %Y, %-I:%M %p')
+							   .strftime('%d %b %Y, %I:%M %p')
 	if not 'promo_id' in payment:
 		payment['promo_id'] = None
 
