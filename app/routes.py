@@ -153,8 +153,10 @@ def my_bookings():
 	elif current_user.is_admin():
 		return redirect(url_for('index'))
 
-	records = Booking.query.filter(Booking.user_id == current_user.user_id,
-								   Booking.quantity > 0).all()
+	records = Booking.query.join(EventSlot, Booking.event_slot_id == EventSlot.slot_id)\
+						   .filter(Booking.user_id == current_user.user_id,
+								   Booking.quantity > 0,
+								   EventSlot.event_date > datetime.now()).all()
 	bookings = db_tools.format_bookings(records)
 	return render_template('my_bookings.html', bookings=bookings)
 
