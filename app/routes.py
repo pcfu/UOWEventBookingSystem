@@ -266,7 +266,7 @@ def booking_slot(eid, date):
 			timing = {}
 			timing['slot_id'] = rec.slot_id
 			timing['time'] = datetime.strptime(rec.time, '%H:%M:%S')\
-									 .strftime('%-I:%M %p')
+									 .strftime('%I:%M %p')
 			timing['vacancy'] = EventSlot.query.get(rec.slot_id).vacancy
 			timings.append(timing)
 
