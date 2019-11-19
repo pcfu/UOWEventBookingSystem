@@ -28,7 +28,6 @@ def get_events(option):
 	form = SearchForm()
 	form.search_type.data = option
 	if option == 'date':
-		#form.search_field = form.DATE_FIELD
 		form.search_field = form.DATE_FIELD
 	elif option == 'price':
 		form.search_field = form.PRICE_FIELD
