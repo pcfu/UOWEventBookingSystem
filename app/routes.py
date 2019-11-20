@@ -153,8 +153,10 @@ def my_bookings():
 	elif current_user.is_admin():
 		return redirect(url_for('index'))
 
-	records = Booking.query.filter(Booking.user_id == current_user.user_id,
-								   Booking.quantity > 0).all()
+	records = Booking.query.join(EventSlot, Booking.event_slot_id == EventSlot.slot_id)\
+						   .filter(Booking.user_id == current_user.user_id,
+								   Booking.quantity > 0,
+								   EventSlot.event_date > datetime.now()).all()
 	bookings = db_tools.format_bookings(records)
 	return render_template('my_bookings.html', bookings=bookings)
 
@@ -264,7 +266,7 @@ def booking_slot(eid, date):
 			timing = {}
 			timing['slot_id'] = rec.slot_id
 			timing['time'] = datetime.strptime(rec.time, '%H:%M:%S')\
-									 .strftime('%-I:%M %p')
+									 .strftime('%I:%M %p')
 			timing['vacancy'] = EventSlot.query.get(rec.slot_id).vacancy
 			timings.append(timing)
 
@@ -289,7 +291,7 @@ def payment():
 	payment = session['payment_due']
 	payment['title'] = Event.query.get(payment['event_id']).title
 	payment['time'] = EventSlot.query.get(payment['slot_id']).event_date\
-							   .strftime('%d %b %Y, %-I:%M %p')
+							   .strftime('%d %b %Y, %I:%M %p')
 	if not 'promo_id' in payment:
 		payment['promo_id'] = None
 

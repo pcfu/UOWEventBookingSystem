@@ -190,7 +190,7 @@ class BookingForm(FlaskForm):
 		for timing in timings:
 			if timing.vacancy > 0:
 				text = datetime.strptime(timing.time, '%H:%M:%S')\
-							   .strftime('%-I:%M %p')
+							   .strftime('%I:%M %p')
 				self.time.choices.append((timing.slot_id, text))
 
 		default_slot_id = self.time.choices[0][0]
